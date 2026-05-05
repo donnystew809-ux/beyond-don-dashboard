@@ -50,24 +50,24 @@ export default async function PricingPage() {
       />
 
       {!properties || properties.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-neutral-300 bg-white p-10 text-center text-sm text-neutral-500">
+        <div className="rounded-lg border border-dashed border-cream-300 bg-white p-10 text-center text-sm text-navy-500">
           Add a property with a PriceLabs listing ID to start.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-neutral-200 bg-white">
+        <div className="overflow-x-auto rounded-lg border border-cream-200 bg-white">
           <table className="min-w-full text-xs">
-            <thead className="bg-neutral-50">
+            <thead className="bg-cream-50">
               <tr>
-                <th className="sticky left-0 z-10 bg-neutral-50 px-3 py-2 text-left font-medium text-neutral-600">
+                <th className="sticky left-0 z-10 bg-cream-50 px-3 py-2 text-left font-medium text-navy-600">
                   Property
                 </th>
                 {days.map((d) => (
                   <th
                     key={d.toISOString()}
-                    className="border-l border-neutral-100 px-2 py-2 text-center text-neutral-600"
+                    className="border-l border-cream-200 px-2 py-2 text-center text-navy-600"
                   >
                     <div>{format(d, "EEE")}</div>
-                    <div className="text-[10px] text-neutral-400">{format(d, "M/d")}</div>
+                    <div className="text-[10px] text-navy-400">{format(d, "M/d")}</div>
                   </th>
                 ))}
               </tr>
@@ -76,11 +76,11 @@ export default async function PricingPage() {
               {properties.map((p) => {
                 const propertyPrices = pricesByProperty.get(p.id) ?? new Map();
                 return (
-                  <tr key={p.id} className="border-t border-neutral-100">
+                  <tr key={p.id} className="border-t border-cream-200">
                     <td className="sticky left-0 z-10 bg-white px-3 py-2 text-left text-sm font-medium">
                       {p.name}
                       {!p.pricelabs_listing_id && (
-                        <span className="ml-2 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-amber-800">
+                        <span className="ml-2 rounded-full bg-gold-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-gold-800">
                           not connected
                         </span>
                       )}
@@ -97,18 +97,18 @@ export default async function PricingPage() {
                       return (
                         <td
                           key={key}
-                          className={`border-l border-neutral-100 px-2 py-2 text-center ${
-                            overridden ? "bg-amber-50" : ""
+                          className={`border-l border-cream-200 px-2 py-2 text-center ${
+                            overridden ? "bg-gold-50" : ""
                           }`}
                         >
                           {value != null ? (
                             <span
-                              className={`text-sm ${overridden ? "font-semibold text-amber-800" : "text-neutral-800"}`}
+                              className={`text-sm ${overridden ? "font-semibold text-gold-800" : "text-navy-800"}`}
                             >
                               {formatCurrency(Number(value), price?.currency ?? "USD")}
                             </span>
                           ) : (
-                            <span className="text-neutral-300">—</span>
+                            <span className="text-navy-300">—</span>
                           )}
                         </td>
                       );
@@ -121,7 +121,7 @@ export default async function PricingPage() {
         </div>
       )}
 
-      <p className="mt-4 text-xs text-neutral-500">
+      <p className="mt-4 text-xs text-navy-500">
         Highlighted cells show manual overrides. Click a cell on a property page to override
         a specific night (coming next iteration).
       </p>

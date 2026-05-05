@@ -35,26 +35,26 @@ export default async function SettingsPage() {
           <h2 className="text-sm font-semibold">Properties</h2>
           <Link
             href="/settings/properties/new"
-            className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-800"
+            className="rounded-md bg-navy-700 px-3 py-1.5 text-xs font-medium text-cream-50 hover:bg-navy-800"
           >
             Add property
           </Link>
         </div>
         {!properties || properties.length === 0 ? (
-          <p className="text-sm text-neutral-500">No properties yet.</p>
+          <p className="text-sm text-navy-500">No properties yet.</p>
         ) : (
-          <ul className="divide-y divide-neutral-100 overflow-hidden rounded-lg border border-neutral-200 bg-white">
+          <ul className="divide-y divide-cream-200 overflow-hidden rounded-lg border border-cream-200 bg-white">
             {properties.map((p) => (
               <li key={p.id} className="flex items-center justify-between px-4 py-3">
                 <div>
                   <div className="text-sm font-medium">{p.name}</div>
-                  <div className="text-xs uppercase tracking-wide text-neutral-500">
+                  <div className="text-xs uppercase tracking-wide text-navy-500">
                     {p.status}
                   </div>
                 </div>
                 <Link
                   href={`/settings/properties/${p.id}`}
-                  className="text-xs font-medium text-neutral-700 hover:underline"
+                  className="text-xs font-medium text-navy-700 hover:underline"
                 >
                   Edit
                 </Link>
@@ -72,11 +72,11 @@ export default async function SettingsPage() {
       <section>
         <h2 className="mb-3 text-sm font-semibold">Recent sync runs</h2>
         {!syncs || syncs.length === 0 ? (
-          <p className="text-sm text-neutral-500">No sync runs yet.</p>
+          <p className="text-sm text-navy-500">No sync runs yet.</p>
         ) : (
-          <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white">
+          <div className="overflow-hidden rounded-lg border border-cream-200 bg-white">
             <table className="w-full text-xs">
-              <thead className="bg-neutral-50 text-left text-neutral-500">
+              <thead className="bg-cream-50 text-left text-navy-500">
                 <tr>
                   <th className="px-4 py-2">Source</th>
                   <th className="px-4 py-2">Started</th>
@@ -84,11 +84,11 @@ export default async function SettingsPage() {
                   <th className="px-4 py-2">Records</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100">
+              <tbody className="divide-y divide-cream-200">
                 {syncs.map((s, i) => (
                   <tr key={i}>
                     <td className="px-4 py-2 font-medium">{s.source}</td>
-                    <td className="px-4 py-2 text-neutral-600">
+                    <td className="px-4 py-2 text-navy-600">
                       {new Date(s.started_at).toLocaleString()}
                     </td>
                     <td className="px-4 py-2">
@@ -98,7 +98,7 @@ export default async function SettingsPage() {
                             ? "bg-emerald-100 text-emerald-800"
                             : s.status === "error"
                               ? "bg-red-100 text-red-800"
-                              : "bg-neutral-100 text-neutral-700"
+                              : "bg-cream-100 text-navy-700"
                         }`}
                       >
                         {s.status}
@@ -109,7 +109,7 @@ export default async function SettingsPage() {
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-2 text-neutral-600">
+                    <td className="px-4 py-2 text-navy-600">
                       {s.records_processed}
                     </td>
                   </tr>

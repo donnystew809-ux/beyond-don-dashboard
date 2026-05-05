@@ -9,10 +9,13 @@ import {
   DollarSign,
   Sparkles,
   Settings,
+  Wand2,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/lib/supabase/types";
+
+import { BrandMark } from "@/components/brand-mark";
 
 type NavItem = {
   href: string;
@@ -27,6 +30,7 @@ const NAV: NavItem[] = [
   { href: "/properties", label: "Properties", icon: Building2 },
   { href: "/pricing", label: "Pricing", icon: DollarSign, adminOnly: true },
   { href: "/cleaning", label: "Cleaning", icon: Sparkles },
+  { href: "/optimizer", label: "Listing Optimizer", icon: Wand2, adminOnly: true },
   { href: "/settings", label: "Settings", icon: Settings, adminOnly: true },
 ];
 
@@ -35,13 +39,14 @@ export function Sidebar({ role }: { role: UserRole | null }) {
   const items = NAV.filter((item) => !item.adminOnly || role === "admin");
 
   return (
-    <aside className="hidden w-56 shrink-0 border-r border-neutral-200 bg-white px-4 py-6 md:block">
-      <Link href="/" className="mb-8 block px-2">
-        <div className="text-sm font-semibold tracking-tight">BEYOND DON</div>
-        <div className="text-xs text-neutral-500">Operations</div>
+    <aside className="hidden w-60 shrink-0 bg-navy-gradient text-cream-100 md:flex md:flex-col">
+      <Link href="/" className="flex items-center gap-3 px-5 py-6">
+        <BrandMark tone="light" size="md" showWordmark />
       </Link>
 
-      <nav className="space-y-1">
+      <div className="mx-5 mb-4 h-px bg-gold-500/40" />
+
+      <nav className="flex-1 space-y-1 px-3">
         {items.map(({ href, label, icon: Icon }) => {
           const isActive =
             href === "/"
@@ -52,18 +57,33 @@ export function Sidebar({ role }: { role: UserRole | null }) {
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition",
+                "group relative flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition",
                 isActive
-                  ? "bg-neutral-900 text-white"
-                  : "text-neutral-700 hover:bg-neutral-100",
+                  ? "bg-navy-950/60 text-cream-50"
+                  : "text-cream-100/70 hover:bg-navy-950/30 hover:text-cream-50",
               )}
             >
-              <Icon className="h-4 w-4" />
-              {label}
+              {isActive && (
+                <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-gold-500" />
+              )}
+              <Icon className={cn(
+                "h-4 w-4",
+                isActive ? "text-gold-400" : "text-cream-100/60 group-hover:text-gold-300",
+              )} />
+              <span className={cn(isActive && "font-medium")}>{label}</span>
             </Link>
           );
         })}
       </nav>
+
+      <div className="mt-auto border-t border-navy-700/60 px-5 py-4">
+        <p className="text-[10px] uppercase tracking-[0.22em] text-cream-100/40">
+          Beyond Don, LLC
+        </p>
+        <p className="mt-1 text-[10px] text-cream-100/40">
+          Maximize Your Property&apos;s Potential.
+        </p>
+      </div>
     </aside>
   );
 }

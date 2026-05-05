@@ -8,11 +8,13 @@ export function PageHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="mb-6 flex items-start justify-between gap-4">
+    <div className="mb-8 flex items-start justify-between gap-4 border-b border-cream-200 pb-5">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        <h1 className="gold-underline text-2xl font-semibold tracking-tight text-navy-900">
+          {title}
+        </h1>
         {description && (
-          <p className="mt-1 text-sm text-neutral-500">{description}</p>
+          <p className="mt-3 text-sm text-navy-600">{description}</p>
         )}
       </div>
       {action}

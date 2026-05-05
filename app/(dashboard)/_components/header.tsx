@@ -22,18 +22,25 @@ export function Header({
   }
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-neutral-200 bg-white px-6">
-      <div className="text-sm text-neutral-600">
-        Signed in as <span className="font-medium text-neutral-900">{email}</span>
+    <header className="flex h-14 items-center justify-between border-b border-cream-200 bg-cream-50 px-6">
+      <div className="text-sm text-navy-700">
+        <span className="text-navy-500">Signed in as</span>{" "}
+        <span className="font-medium text-navy-900">{email}</span>
         {role && (
-          <span className="ml-2 rounded-full bg-neutral-100 px-2 py-0.5 text-xs uppercase tracking-wide text-neutral-600">
+          <span
+            className={
+              role === "admin"
+                ? "ml-2 rounded-full border border-gold-500 bg-gold-50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-gold-700"
+                : "ml-2 rounded-full border border-navy-200 bg-navy-50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-navy-700"
+            }
+          >
             {role}
           </span>
         )}
       </div>
       <button
         onClick={handleSignOut}
-        className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-100"
+        className="rounded-md border border-navy-200 px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-navy-700 transition hover:border-navy-700 hover:bg-navy-700 hover:text-cream-50"
       >
         Sign out
       </button>

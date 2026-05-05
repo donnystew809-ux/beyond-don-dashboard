@@ -52,24 +52,24 @@ export default async function CalendarPage() {
       />
 
       {!properties || properties.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-neutral-300 bg-white p-10 text-center text-sm text-neutral-500">
+        <div className="rounded-lg border border-dashed border-cream-300 bg-white p-10 text-center text-sm text-navy-500">
           Add properties to see the calendar.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-neutral-200 bg-white">
+        <div className="overflow-x-auto rounded-lg border border-cream-200 bg-white">
           <table className="min-w-full text-xs">
-            <thead className="bg-neutral-50">
+            <thead className="bg-cream-50">
               <tr>
-                <th className="sticky left-0 z-10 bg-neutral-50 px-3 py-2 text-left font-medium text-neutral-600">
+                <th className="sticky left-0 z-10 bg-cream-50 px-3 py-2 text-left font-medium text-navy-600">
                   Property
                 </th>
                 {days.map((d) => (
                   <th
                     key={d.toISOString()}
-                    className="min-w-[44px] border-l border-neutral-100 px-1 py-2 text-center text-neutral-600"
+                    className="min-w-[44px] border-l border-cream-200 px-1 py-2 text-center text-navy-600"
                   >
                     <div>{format(d, "EEE")}</div>
-                    <div className="text-[10px] text-neutral-400">{format(d, "M/d")}</div>
+                    <div className="text-[10px] text-navy-400">{format(d, "M/d")}</div>
                   </th>
                 ))}
               </tr>
@@ -87,7 +87,7 @@ export default async function CalendarPage() {
                 }
 
                 return (
-                  <tr key={property.id} className="border-t border-neutral-100">
+                  <tr key={property.id} className="border-t border-cream-200">
                     <td className="sticky left-0 z-10 bg-white px-3 py-2 text-left text-sm font-medium">
                       {property.name}
                     </td>
@@ -97,11 +97,11 @@ export default async function CalendarPage() {
                       return (
                         <td
                           key={key}
-                          className={`border-l border-neutral-100 ${
+                          className={`border-l border-cream-200 ${
                             reserved
                               ? "bg-emerald-200"
                               : d < today
-                                ? "bg-neutral-50"
+                                ? "bg-cream-50"
                                 : ""
                           }`}
                         >
@@ -117,7 +117,7 @@ export default async function CalendarPage() {
         </div>
       )}
 
-      <p className="mt-4 text-xs text-neutral-500">
+      <p className="mt-4 text-xs text-navy-500">
         Reservations sync from each Airbnb listing&apos;s iCal feed every 2 hours.
       </p>
     </div>

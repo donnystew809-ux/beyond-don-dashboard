@@ -21,7 +21,7 @@ export default async function PropertiesPage() {
         action={
           <Link
             href="/settings/properties/new"
-            className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-800"
+            className="rounded-md bg-navy-700 px-3 py-1.5 text-xs font-medium text-cream-50 hover:bg-navy-800"
           >
             Add property
           </Link>
@@ -29,21 +29,21 @@ export default async function PropertiesPage() {
       />
 
       {!properties || properties.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-neutral-300 bg-white p-10 text-center">
-          <p className="text-sm text-neutral-600">
+        <div className="rounded-lg border border-dashed border-cream-300 bg-white p-10 text-center">
+          <p className="text-sm text-navy-600">
             No properties yet. Add one to start syncing data.
           </p>
           <Link
             href="/settings/properties/new"
-            className="mt-3 inline-block rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-800"
+            className="mt-3 inline-block rounded-md bg-navy-700 px-3 py-1.5 text-xs font-medium text-cream-50 hover:bg-navy-800"
           >
             Add your first property
           </Link>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white">
+        <div className="overflow-hidden rounded-lg border border-cream-200 bg-white">
           <table className="w-full text-sm">
-            <thead className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-500">
+            <thead className="bg-cream-50 text-left text-xs uppercase tracking-wide text-navy-500">
               <tr>
                 <th className="px-4 py-3">Property</th>
                 <th className="px-4 py-3">Address</th>
@@ -51,21 +51,21 @@ export default async function PropertiesPage() {
                 <th className="px-4 py-3">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100">
+            <tbody className="divide-y divide-cream-200">
               {properties.map((p) => (
-                <tr key={p.id} className="hover:bg-neutral-50">
+                <tr key={p.id} className="hover:bg-cream-50">
                   <td className="px-4 py-3">
                     <Link
                       href={`/properties/${p.id}`}
-                      className="font-medium text-neutral-900 hover:underline"
+                      className="font-medium text-navy-900 hover:underline"
                     >
                       {p.name}
                     </Link>
                     {p.nickname && (
-                      <div className="text-xs text-neutral-500">{p.nickname}</div>
+                      <div className="text-xs text-navy-500">{p.nickname}</div>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-neutral-600">{p.address ?? "—"}</td>
+                  <td className="px-4 py-3 text-navy-600">{p.address ?? "—"}</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
                       <IntegrationPill
@@ -82,7 +82,7 @@ export default async function PropertiesPage() {
                       />
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-xs uppercase tracking-wide text-neutral-500">
+                  <td className="px-4 py-3 text-xs uppercase tracking-wide text-navy-500">
                     {p.status}
                   </td>
                 </tr>
@@ -107,7 +107,7 @@ function IntegrationPill({
       className={`rounded-full px-2 py-0.5 text-xs ${
         connected
           ? "bg-emerald-100 text-emerald-800"
-          : "bg-neutral-100 text-neutral-500"
+          : "bg-cream-100 text-navy-500"
       }`}
     >
       {label}

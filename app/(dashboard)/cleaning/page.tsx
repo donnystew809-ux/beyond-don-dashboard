@@ -81,25 +81,25 @@ function CleaningGroup({
 }) {
   return (
     <section>
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500">
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-navy-500">
         {title}
       </h2>
       {items.length === 0 ? (
-        <p className="text-sm text-neutral-500">{empty}</p>
+        <p className="text-sm text-navy-500">{empty}</p>
       ) : (
-        <ul className="overflow-hidden rounded-lg border border-neutral-200 bg-white">
+        <ul className="overflow-hidden rounded-lg border border-cream-200 bg-white">
           {items.map((c, i) => (
             <li
               key={c.id}
               className={`flex items-center justify-between px-4 py-3 ${
-                i > 0 ? "border-t border-neutral-100" : ""
+                i > 0 ? "border-t border-cream-200" : ""
               }`}
             >
               <div>
                 <div className="text-sm font-medium">
                   {propertyName.get(c.property_id) ?? "Unknown"}
                 </div>
-                <div className="text-xs text-neutral-500">
+                <div className="text-xs text-navy-500">
                   {c.cleaner_name ?? "Unassigned"}
                   {c.notes ? ` · ${c.notes}` : ""}
                 </div>
@@ -108,7 +108,7 @@ function CleaningGroup({
                 <div className="text-sm">
                   {format(new Date(c.scheduled_for), "h:mm a")}
                 </div>
-                <div className="text-xs uppercase tracking-wide text-neutral-500">
+                <div className="text-xs uppercase tracking-wide text-navy-500">
                   {c.status}
                 </div>
               </div>

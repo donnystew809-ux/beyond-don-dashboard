@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "BEYOND DON LLC — Operations Dashboard",
   description:
-    "Unified property management dashboard for the BEYOND DON LLC Airbnb portfolio.",
+    "Maximize Your Property's Potential. Unified property management dashboard for the BEYOND DON LLC Airbnb portfolio.",
 };
 
 export default function RootLayout({
@@ -28,7 +28,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-neutral-50 text-neutral-900">{children}</body>
+      <body className="min-h-full bg-cream-50 text-navy-900">{children}</body>
     </html>
   );
 }

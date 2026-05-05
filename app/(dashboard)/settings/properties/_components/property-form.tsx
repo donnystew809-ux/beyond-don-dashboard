@@ -108,7 +108,7 @@ export function PropertyForm({ property }: { property?: Initial }) {
               f.key === "address" || f.key === "ical_url" ? "md:col-span-2" : ""
             }`}
           >
-            <span className="font-medium text-neutral-700">{f.label}</span>
+            <span className="font-medium text-navy-700">{f.label}</span>
             <input
               type={f.type ?? "text"}
               value={values[f.key]}
@@ -116,7 +116,7 @@ export function PropertyForm({ property }: { property?: Initial }) {
               onChange={(e) =>
                 setValues((v) => ({ ...v, [f.key]: e.target.value }))
               }
-              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:border-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900"
+              className="mt-1 block w-full rounded-md border border-cream-300 px-3 py-2 text-sm shadow-sm focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
             />
           </label>
         ))}
@@ -128,14 +128,14 @@ export function PropertyForm({ property }: { property?: Initial }) {
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
+          className="rounded-md bg-navy-700 px-4 py-2 text-sm font-medium text-cream-50 hover:bg-navy-800 disabled:opacity-50"
         >
           {submitting ? "Saving…" : property?.id ? "Save changes" : "Add property"}
         </button>
         <button
           type="button"
           onClick={() => router.back()}
-          className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
+          className="rounded-md border border-cream-300 px-4 py-2 text-sm font-medium text-navy-700 hover:bg-cream-50"
         >
           Cancel
         </button>

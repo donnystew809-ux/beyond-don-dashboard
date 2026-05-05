@@ -175,6 +175,42 @@ type UserRoleInsert = {
 
 type UserRoleUpdate = Partial<UserRoleInsert>;
 
+type OptimizationRow = {
+  id: string;
+  property_id: string;
+  generated_at: string;
+  generated_by: string | null;
+  model: string;
+  positioning: string | null;
+  titles: Json;
+  description: Json | null;
+  amenity_gaps: Json;
+  pricing_notes: Json | null;
+  raw: Json | null;
+  input_tokens: number | null;
+  output_tokens: number | null;
+  cost_usd: number | null;
+};
+
+type OptimizationInsert = {
+  id?: string;
+  property_id: string;
+  generated_at?: string;
+  generated_by?: string | null;
+  model?: string;
+  positioning?: string | null;
+  titles?: Json;
+  description?: Json | null;
+  amenity_gaps?: Json;
+  pricing_notes?: Json | null;
+  raw?: Json | null;
+  input_tokens?: number | null;
+  output_tokens?: number | null;
+  cost_usd?: number | null;
+};
+
+type OptimizationUpdate = Partial<OptimizationInsert>;
+
 export type Database = {
   public: {
     Tables: {
@@ -212,6 +248,12 @@ export type Database = {
         Row: UserRoleRow;
         Insert: UserRoleInsert;
         Update: UserRoleUpdate;
+        Relationships: [];
+      };
+      optimizations: {
+        Row: OptimizationRow;
+        Insert: OptimizationInsert;
+        Update: OptimizationUpdate;
         Relationships: [];
       };
     };

@@ -1,26 +1,120 @@
 @import "tailwindcss";
 
+/*
+ * BEYOND DON LLC brand palette
+ * Royal blue + gold + cream — inspired by business card design
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Royal blue */
+  --color-navy-50: #f3f6fb;
+  --color-navy-100: #e3eaf5;
+  --color-navy-200: #c1d0e6;
+  --color-navy-300: #8fa9cc;
+  --color-navy-400: #5a7caf;
+  --color-navy-500: #3d5d92;
+  --color-navy-600: #294476;
+  --color-navy-700: #1a3263;
+  --color-navy-800: #0f2350;
+  --color-navy-900: #0a1e3f;
+  --color-navy-950: #050f24;
+
+  /* Gold */
+  --color-gold-50: #fbf6e7;
+  --color-gold-100: #f5e9bf;
+  --color-gold-200: #ecd690;
+  --color-gold-300: #e5c77e;
+  --color-gold-400: #d4b56a;
+  --color-gold-500: #c9a96a;
+  --color-gold-600: #b08c4a;
+  --color-gold-700: #8b6e34;
+  --color-gold-800: #5b4520;
+  --color-gold-900: #2f2310;
+
+  /* Cream / warm neutrals */
+  --color-cream-50: #fbf9f3;
+  --color-cream-100: #f5f1e8;
+  --color-cream-200: #ece4d2;
+  --color-cream-300: #d9ceb5;
+
+  /* Surface */
+  --background: var(--color-cream-50);
+  --foreground: var(--color-navy-900);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  /* Brand tokens exposed to Tailwind utilities (bg-navy-700, text-gold-500, etc.) */
+  --color-navy-50: var(--color-navy-50);
+  --color-navy-100: var(--color-navy-100);
+  --color-navy-200: var(--color-navy-200);
+  --color-navy-300: var(--color-navy-300);
+  --color-navy-400: var(--color-navy-400);
+  --color-navy-500: var(--color-navy-500);
+  --color-navy-600: var(--color-navy-600);
+  --color-navy-700: var(--color-navy-700);
+  --color-navy-800: var(--color-navy-800);
+  --color-navy-900: var(--color-navy-900);
+  --color-navy-950: var(--color-navy-950);
+
+  --color-gold-50: var(--color-gold-50);
+  --color-gold-100: var(--color-gold-100);
+  --color-gold-200: var(--color-gold-200);
+  --color-gold-300: var(--color-gold-300);
+  --color-gold-400: var(--color-gold-400);
+  --color-gold-500: var(--color-gold-500);
+  --color-gold-600: var(--color-gold-600);
+  --color-gold-700: var(--color-gold-700);
+  --color-gold-800: var(--color-gold-800);
+  --color-gold-900: var(--color-gold-900);
+
+  --color-cream-50: var(--color-cream-50);
+  --color-cream-100: var(--color-cream-100);
+  --color-cream-200: var(--color-cream-200);
+  --color-cream-300: var(--color-cream-300);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Gold gradient — used for accents like the chevron on the business card */
+.bg-gold-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--color-gold-300) 0%,
+    var(--color-gold-500) 50%,
+    var(--color-gold-700) 100%
+  );
+}
+
+/* Navy gradient — used for premium dark surfaces */
+.bg-navy-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--color-navy-900) 0%,
+    var(--color-navy-700) 100%
+  );
+}
+
+/* Gold underline — small premium touch on headings */
+.gold-underline {
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+.gold-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 2.5rem;
+  height: 2px;
+  background: var(--color-gold-500);
 }

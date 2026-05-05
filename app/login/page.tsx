@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
+import { BrandMark } from "@/components/brand-mark";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -33,23 +34,68 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-semibold tracking-tight">BEYOND DON LLC</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Operations dashboard. Sign in to continue.
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-navy-950 px-4 text-cream-50">
+      {/* Decorative gold chevron — echo of the business card */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-32 top-1/2 hidden h-[140%] w-[60%] -translate-y-1/2 md:block"
+      >
+        <svg
+          viewBox="0 0 600 800"
+          preserveAspectRatio="none"
+          className="h-full w-full opacity-90"
+        >
+          <defs>
+            <linearGradient id="gold-1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#E5C77E" />
+              <stop offset="50%" stopColor="#C9A96A" />
+              <stop offset="100%" stopColor="#8B6E34" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M150 0 L320 400 L150 800 L210 800 L380 400 L210 0 Z"
+            fill="url(#gold-1)"
+            opacity="0.85"
+          />
+          <path
+            d="M260 0 L430 400 L260 800 L320 800 L490 400 L320 0 Z"
+            fill="#1a3263"
+          />
+          <path
+            d="M370 0 L540 400 L370 800 L430 800 L600 400 L430 0 Z"
+            fill="url(#gold-1)"
+            opacity="0.85"
+          />
+        </svg>
+      </div>
+
+      <div className="relative z-10 w-full max-w-md">
+        <BrandMark tone="light" size="lg" showWordmark={false} className="mb-8" />
+
+        <h1 className="text-3xl font-light tracking-tight text-cream-50">
+          Beyond Don
+        </h1>
+        <p className="mt-1 text-sm font-medium uppercase tracking-[0.22em] text-gold-400">
+          Operations Dashboard
+        </p>
+        <p className="mt-6 text-sm text-cream-200/80">
+          Maximize Your Property&apos;s Potential.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-          <label className="block text-sm">
-            <span className="font-medium text-neutral-700">Email</span>
+        <div className="mt-10 h-px w-12 bg-gold-500" />
+
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+          <label className="block">
+            <span className="text-xs font-medium uppercase tracking-wider text-cream-200/70">
+              Email
+            </span>
             <input
               type="email"
               required
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 text-base shadow-sm focus:border-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900"
-              placeholder="you@example.com"
+              className="mt-2 block w-full rounded-md border border-navy-700 bg-navy-900/60 px-3 py-2.5 text-base text-cream-50 placeholder:text-cream-200/40 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
+              placeholder="you@beyonddon.com"
               autoComplete="email"
             />
           </label>
@@ -57,16 +103,20 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:opacity-50"
+            className="group relative w-full overflow-hidden rounded-md bg-gold-gradient px-4 py-2.5 text-sm font-semibold uppercase tracking-wider text-navy-950 transition hover:brightness-110 disabled:opacity-50"
           >
             {submitting ? "Sending…" : "Send magic link"}
           </button>
 
           {message && (
-            <p className="text-sm text-emerald-700">{message}</p>
+            <p className="text-sm text-gold-300">{message}</p>
           )}
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-red-300">{error}</p>}
         </form>
+
+        <p className="mt-12 text-[11px] uppercase tracking-[0.22em] text-cream-200/50">
+          Beyond Don, LLC
+        </p>
       </div>
     </main>
   );
