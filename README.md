@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BEYOND DON LLC — Operations Dashboard
 
-## Getting Started
+Unified property management dashboard for Donovan Stewart's BEYOND DON LLC Airbnb portfolio.
+Consolidates **Airbnb iCal feeds**, **PriceLabs**, and **Turno** into one view for Donovan
+(admin) and his sister (operations manager).
 
-First, run the development server:
+This is **Phase 0** of the [project brief](../BeyondDon_Airbnb_Automation_Project_Brief.md).
+It replaces the brief's "master Google Sheets workbook" with a Postgres-backed web app and
+leaves room for the brief's later phases (guest messaging, inventory, owner reports).
+
+## Stack
+
+- **Next.js 16** (App Router, TypeScript, Server Components)
+- **Supabase** — Postgres + Auth (magic link) + Row Level Security
+- **Tailwind CSS** for styling
+- **Vercel Cron** for scheduled syncs
+- Integrations: **ical.js** (Airbnb iCal), **PriceLabs API**, **Turno API**
+
+## One-time setup
+
+### 1. Supabase project
+
+1. Create a new project at [supabase.com](https://supabase.com).
+2. Open **SQL Editor**, paste the contents of `supabase/migrations/0001_init.sql`, run it.
+3. Open **Settings → API**, copy the URL, anon key, and service role key.
+4. Open **Authentication → Providers** and confirm Email magic-link is enabled.
+5. Create your first user: **Authentication → Users → Invite** (use your email).
+6. After signing in once, run this in the SQL editor to make yourself admin:
+   ```sql
+   insert into user_roles (user_id, role)
+   select id, 'admin' from auth.users where email = 'donovan@example.com';
+   ```
+7. Add your sister the same way once she has signed in (use role `operator`).
+
+### 2. Local dev
 
 ```bash
+cp .env.local.example .env.local
+# Fill in Supabase + PriceLabs + Turno keys
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit `http://localhost:3000`. Sign in with your email, then add your first property
+under **Settings → Add property**.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Run a sync manually
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+curl -X POST http://localhost:3000/api/sync/airbnb-ical \
+  -H "Authorization: Bearer $CRON_SECRET"
 
-## Learn More
+curl -X POST http://localhost:3000/api/sync/pricelabs \
+  -H "Authorization: Bearer $CRON_SECRET"
 
-To learn more about Next.js, take a look at the following resources:
+curl -X POST http://localhost:3000/api/sync/turno \
+  -H "Authorization: Bearer $CRON_SECRET"
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Or click **Run sync** under **Settings → Manual sync**.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 4. Deploy
 
-## Deploy on Vercel
+1. Push the repo to GitHub.
+2. Import into Vercel.
+3. Set the env vars in Vercel (same as `.env.local.example`).
+4. Vercel Cron picks up `vercel.json` automatically. The schedule is:
+   - iCal sync: every 2 hours
+   - Turno sync: every hour (offset 5 min)
+   - PriceLabs sync: every 6 hours (offset 10 min)
+5. (Optional) Add a custom domain like `dash.beyonddon.com`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## What the API does
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Route | Purpose | Auth |
+|---|---|---|
+| `GET/POST /api/sync/airbnb-ical` | Fetch each property's iCal feed, upsert reservations | Cron secret |
+| `GET/POST /api/sync/pricelabs` | Pull suggested prices for next ~30 days | Cron secret |
+| `GET/POST /api/sync/turno` | Pull cleanings between -7 and +60 days | Cron secret |
+| `POST /api/pricing/override` | Push a date-specific PriceLabs override | Admin session |
+
+## Roles
+
+| Role | Sees | Can write |
+|---|---|---|
+| `admin` (Donovan) | Everything | Properties, settings, pricing overrides, sync log |
+| `operator` (sister) | Calendar, properties, cleaning, dashboard | Nothing in v1 (read-only) |
+
+## What's intentionally not in v1
+
+- Owner portal
+- Guest messaging automation (brief Phase 2)
+- Inventory automation (brief Phase 3)
+- Auto-generated owner reports (brief Phase 4)
+- AI listing optimizer (planned v1.5 — generates titles, descriptions, amenity suggestions
+  using PriceLabs comp data + Claude API)
+- Real-time revenue from Airbnb (no public API — needs CSV upload or Cowork browser
+  automation; brief Phase 5)
+
+## Notes
+
+- **Airbnb iCal limits**: feeds expose dates and a reservation code only. No guest names,
+  no revenue. Revenue must come from CSV import or browser automation.
+- **PriceLabs API shape**: response fields can drift; the parser in
+  `lib/integrations/pricelabs.ts` is defensive but verify the first sync against the live
+  API and adjust field names if needed.
+- **Turno API**: requires partner access. If keys aren't visible in your Turno UI, email
+  Turno support to request API access.
