@@ -2,15 +2,15 @@
   "crons": [
     {
       "path": "/api/sync/airbnb-ical",
-      "schedule": "0 */2 * * *"
+      "schedule": "0 9 * * *"
     },
     {
       "path": "/api/sync/turno",
-      "schedule": "5 * * * *"
+      "schedule": "10 9 * * *"
     },
     {
       "path": "/api/sync/pricelabs",
-      "schedule": "10 */6 * * *"
+      "schedule": "20 9 * * *"
     }
   ]
 }
