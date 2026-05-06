@@ -1,34 +1,28 @@
-// Server component — generates the QR code on the server using the qrcode lib,
-// returns an inline SVG. Phone scans → opens dashboard → "Add to Home Screen"
-// in Safari makes it behave like a native app.
-
-import QRCode from "qrcode";
+// Server component — generates QR code via qr-server.com API (no npm dep).
+// Phone scans → opens dashboard → "Add to Home Screen" in Safari = native app.
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ||
   process.env.VERCEL_PROJECT_PRODUCTION_URL ||
   "https://beyond-don-dashboard.vercel.app";
 
-export async function MobileQR() {
+export function MobileQR() {
   const url = SITE_URL.startsWith("http") ? SITE_URL : `https://${SITE_URL}`;
-  const svg = await QRCode.toString(url, {
-    type: "svg",
-    errorCorrectionLevel: "M",
-    margin: 1,
-    width: 220,
-    color: {
-      dark: "#0a1f44",
-      light: "#fbf9f3",
-    },
-  });
+  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&color=0a1f44&bgcolor=fbf9f3&data=${encodeURIComponent(url)}&format=png&margin=4`;
 
   return (
     <div className="grid gap-6 rounded-lg border border-cream-200 bg-white p-6 md:grid-cols-[220px,1fr]">
       <div className="flex flex-col items-center gap-3">
-        <div
-          className="rounded-md border border-cream-300 bg-cream-50 p-3"
-          dangerouslySetInnerHTML={{ __html: svg }}
-        />
+        <div className="rounded-md border border-cream-300 bg-cream-50 p-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={qrSrc}
+            alt="QR code to open Beyond Don dashboard"
+            width={220}
+            height={220}
+            className="rounded"
+          />
+        </div>
         <a
           href={url}
           className="text-[10px] uppercase tracking-wider text-navy-500 hover:text-navy-800"

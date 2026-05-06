@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/server";
@@ -33,7 +34,9 @@ export default async function SettingsPage() {
 
       <section className="mb-10">
         <h2 className="mb-3 text-sm font-semibold">Mobile / home-screen install</h2>
-        <MobileQR />
+        <Suspense fallback={<div className="h-48 animate-pulse rounded-lg bg-cream-100" />}>
+          <MobileQR />
+        </Suspense>
       </section>
 
       <section className="mb-10">
