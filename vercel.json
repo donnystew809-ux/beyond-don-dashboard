@@ -11,6 +11,10 @@
     {
       "path": "/api/sync/pricelabs",
       "schedule": "20 9 * * *"
+    },
+    {
+      "path": "/api/sync/auto-pricing",
+      "schedule": "30 9 * * *"
     }
   ]
 }

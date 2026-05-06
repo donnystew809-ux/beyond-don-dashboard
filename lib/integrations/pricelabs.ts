@@ -117,19 +117,29 @@ export async function pushPriceLabsOverride(
   price: number,
   pms = "airbnb",
 ): Promise<void> {
-  const body = {
-    overrides: [{ date, price }],
-    pms,
-  };
-  const res = await fetch(`${BASE}/listings/${encodeURIComponent(listingId)}/overrides`, {
-    method: "POST",
-    headers: headers(),
-    body: JSON.stringify(body),
-  });
+  await pushPriceLabsOverrides(listingId, [{ date, price }], pms);
+}
+
+/**
+ * Push many date overrides in a single request. PriceLabs accepts an array.
+ * Returns the raw response text for audit logging.
+ */
+export async function pushPriceLabsOverrides(
+  listingId: string,
+  overrides: Array<{ date: string; price: number }>,
+  pms = "airbnb",
+): Promise<string> {
+  if (overrides.length === 0) return "no overrides";
+  const body = { overrides, pms };
+  const res = await fetch(
+    `${BASE}/listings/${encodeURIComponent(listingId)}/overrides`,
+    { method: "POST", headers: headers(), body: JSON.stringify(body) },
+  );
+  const text = await res.text();
   if (!res.ok) {
-    const text = await res.text();
     throw new Error(`PriceLabs override ${res.status}: ${text}`);
   }
+  return text;
 }
 
 function parseBookingStatus(value: unknown): "free" | "booked" | "checkin" {

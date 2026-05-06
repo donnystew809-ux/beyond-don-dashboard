@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatCurrency } from "@/lib/utils";
 
 import { PageHeader } from "@/components/page-header";
+import { AutoPricingControls } from "./_components/auto-pricing-controls";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,9 @@ export default async function PricingPage() {
   const [{ data: properties }, { data: prices }] = await Promise.all([
     supabase
       .from("properties")
-      .select("id, name, pricelabs_listing_id, status")
+      .select(
+        "id, name, pricelabs_listing_id, status, auto_accept_pricing, auto_accept_max_deviation_pct, auto_accept_horizon_days, auto_accept_min_price, auto_accept_max_price",
+      )
       .eq("status", "active")
       .order("name"),
     supabase
@@ -30,11 +33,30 @@ export default async function PricingPage() {
       .order("date"),
   ]);
 
-  const pricesByProperty = new Map<
-    string,
-    Map<string, NonNullable<typeof prices>[number]>
-  >();
-  for (const p of prices ?? []) {
+  type PropertyRow = {
+    id: string;
+    name: string;
+    pricelabs_listing_id: string | null;
+    status: string;
+    auto_accept_pricing: boolean | null;
+    auto_accept_max_deviation_pct: number | null;
+    auto_accept_horizon_days: number | null;
+    auto_accept_min_price: number | null;
+    auto_accept_max_price: number | null;
+  };
+  type PriceRow = {
+    property_id: string;
+    date: string;
+    base_price: number | null;
+    suggested_price: number | null;
+    override_price: number | null;
+    currency: string | null;
+  };
+  const propertyRows = (properties ?? []) as unknown as PropertyRow[];
+  const priceRows = (prices ?? []) as unknown as PriceRow[];
+
+  const pricesByProperty = new Map<string, Map<string, PriceRow>>();
+  for (const p of priceRows) {
     const list = pricesByProperty.get(p.property_id) ?? new Map();
     list.set(p.date, p);
     pricesByProperty.set(p.property_id, list);
@@ -46,10 +68,18 @@ export default async function PricingPage() {
     <div>
       <PageHeader
         title="Pricing review"
-        description="PriceLabs suggested rates. Override individual nights when needed."
+        description="PriceLabs suggested rates. Apply manually or flip Auto on per property."
       />
 
-      {!properties || properties.length === 0 ? (
+      <div className="mb-6 rounded-lg border border-gold-300 bg-gold-50 p-4 text-sm text-navy-800">
+        <strong className="text-gold-800">How auto-pricing works:</strong>{" "}
+        With Auto on, the dashboard pushes PriceLabs&apos; suggested prices to
+        Airbnb every morning at 9:30am for the next N days. Guardrails (deviation
+        %, min/max price) prevent runaway suggestions. Click <em>Config</em> per
+        row to tune. Click <em>Apply</em> for a one-shot manual push.
+      </div>
+
+      {propertyRows.length === 0 ? (
         <div className="rounded-lg border border-dashed border-cream-300 bg-white p-10 text-center text-sm text-navy-500">
           Add a property with a PriceLabs listing ID to start.
         </div>
@@ -70,10 +100,13 @@ export default async function PricingPage() {
                     <div className="text-[10px] text-navy-400">{format(d, "M/d")}</div>
                   </th>
                 ))}
+                <th className="border-l border-cream-200 px-3 py-2 text-right font-medium text-navy-600">
+                  Auto
+                </th>
               </tr>
             </thead>
             <tbody>
-              {properties.map((p) => {
+              {propertyRows.map((p) => {
                 const propertyPrices = pricesByProperty.get(p.id) ?? new Map();
                 return (
                   <tr key={p.id} className="border-t border-cream-200">
@@ -82,6 +115,11 @@ export default async function PricingPage() {
                       {!p.pricelabs_listing_id && (
                         <span className="ml-2 rounded-full bg-gold-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-gold-800">
                           not connected
+                        </span>
+                      )}
+                      {p.auto_accept_pricing && (
+                        <span className="ml-2 rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-green-800">
+                          auto on
                         </span>
                       )}
                     </td>
@@ -113,6 +151,9 @@ export default async function PricingPage() {
                         </td>
                       );
                     })}
+                    <td className="border-l border-cream-200 px-3 py-2 text-right">
+                      <AutoPricingControls property={p} />
+                    </td>
                   </tr>
                 );
               })}
@@ -122,8 +163,8 @@ export default async function PricingPage() {
       )}
 
       <p className="mt-4 text-xs text-navy-500">
-        Highlighted cells show manual overrides. Click a cell on a property page to override
-        a specific night (coming next iteration).
+        Highlighted cells = manual or auto overrides. Gold = an override is in
+        place. Audit trail in <code>pricing_override_log</code>.
       </p>
     </div>
   );

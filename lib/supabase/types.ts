@@ -32,6 +32,11 @@ type PropertyRow = {
   owner_name: string | null;
   owner_email: string | null;
   status: PropertyStatus;
+  auto_accept_pricing: boolean;
+  auto_accept_max_deviation_pct: number;
+  auto_accept_horizon_days: number;
+  auto_accept_min_price: number | null;
+  auto_accept_max_price: number | null;
   created_at: string;
   updated_at: string;
 };
@@ -48,6 +53,11 @@ type PropertyInsert = {
   owner_name?: string | null;
   owner_email?: string | null;
   status?: PropertyStatus;
+  auto_accept_pricing?: boolean;
+  auto_accept_max_deviation_pct?: number;
+  auto_accept_horizon_days?: number;
+  auto_accept_min_price?: number | null;
+  auto_accept_max_price?: number | null;
   created_at?: string;
   updated_at?: string;
 };
@@ -336,6 +346,32 @@ type ToneBrainInsert = {
 
 type ToneBrainUpdate = Partial<ToneBrainInsert>;
 
+type PricingOverrideLogRow = {
+  id: string;
+  property_id: string;
+  date: string;
+  old_price: number | null;
+  new_price: number;
+  source: "manual" | "auto_cron";
+  pushed_by: string | null;
+  pushed_at: string;
+  pricelabs_response: string | null;
+};
+
+type PricingOverrideLogInsert = {
+  id?: string;
+  property_id: string;
+  date: string;
+  old_price?: number | null;
+  new_price: number;
+  source: "manual" | "auto_cron";
+  pushed_by?: string | null;
+  pushed_at?: string;
+  pricelabs_response?: string | null;
+};
+
+type PricingOverrideLogUpdate = Partial<PricingOverrideLogInsert>;
+
 export type Database = {
   public: {
     Tables: {
@@ -403,6 +439,12 @@ export type Database = {
         Row: ToneBrainRow;
         Insert: ToneBrainInsert;
         Update: ToneBrainUpdate;
+        Relationships: [];
+      };
+      pricing_override_log: {
+        Row: PricingOverrideLogRow;
+        Insert: PricingOverrideLogInsert;
+        Update: PricingOverrideLogUpdate;
         Relationships: [];
       };
     };

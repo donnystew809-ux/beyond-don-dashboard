@@ -1,66 +1,38 @@
-# Morning handoff — 2026-05-06
+# Status — 2026-05-06
 
-## What happened overnight
+## Live in production
+- Phase 2 messaging system: AI drafter + inbox UI for Jasmin
+- Tone brain v0 seeded from the Anthony thread
+- All 4 messaging tables + RLS in Supabase
+- Property context baked into the drafter (Sweet Suite Relief offline, Oak Arbor 3 winding down to June 30, Caramel Cabin handled)
 
-### Outlook check
-Searched `donnys132@hotmail.com` for Airbnb mail. Result: **only transactional notifications** — payouts, reservation confirmations, review reminders, login alerts. **No actual guest message bodies.** All real conversation content lives inside the Airbnb host inbox itself. Don't waste time mining Outlook for tone data.
+## Try it now
+1. Sign in at https://beyond-don-dashboard.vercel.app
+2. Click **Messages** in the sidebar → **+ Paste new message**
+3. Paste any real guest message + their first name + property
+4. Claude drafts a reply in your voice. Approve/edit/copy/paste into Airbnb.
 
-### Browser scrape of host inbox — partial
-- Got into `/hosting/messages` while you were signed in.
-- Successfully scraped **1 full thread** (Anthony, current 6-week stay) — every message, both sides.
-- Captured **16 unique list-row previews** (last-message snippets per conversation).
-- The bulk re-scrape attempt got bitten by Airbnb's virtualized list — clicking convos in a loop kept reopening the same one. Fixable, but not worth more cycles tonight.
-- Saved to: `.tone-brain/airbnb-corpus-seed.json` (62 KB, gitignored).
+## Waiting on Airbnb data export (24–48h)
+The data request is submitted (or pending your SMS 2FA confirmation — finish that if you haven't). When the email arrives:
 
-### Tone brain v0
-Wrote `.tone-brain/tone-brain-v0.md` distilling **your actual voice** from the Anthony thread. Captures your patterns:
-- "Hey [Name]," opener
-- "we / us" first-person plural
-- emoji on friendly check-ins, never on operational replies
-- explicit "5 star stay" framing in mid-stay check-ins
-- empathy → action → consent → check-in pattern for issues
-- "Oh my goodness! Thank you for letting us know!"
-- "you definitely won't get blamed!"
+```bash
+cd beyond-don-dashboard
+node scripts/ingest-airbnb-export.mjs ~/Downloads/airbnb-data.zip
+node scripts/build-tone-brain.mjs
+```
 
-Read it. Edit anything that doesn't sound like you. This becomes the system prompt for the AI drafter.
+That replaces v0 with v1 trained on hundreds of your real messages.
 
-### Messaging schema
-Created `supabase/migrations/0003_messaging.sql` — four new tables:
-- `message_threads` — one row per Airbnb conversation
-- `messages` — individual messages (inbound from guest, outbound from you)
-- `message_drafts` — Claude-generated reply drafts awaiting Jasmin's review
-- `tone_brain` — single-row markdown that gets fed to the drafter as system prompt
+## Property context (for reference)
+- **Sweet Suite Relief**: offline, flood damage, owner divorce delaying floor repairs. Drafter knows not to promise reactivation.
+- **The Oak Arbor 3**: subleased, lease expires June 30, NOT renewing. Current guest has backup code. Drafter knows not to promise long-term improvements.
+- **The Caramel Cabin**: smart lock battery — team notified by Donovan.
 
-RLS: members read everything, admins write. Same pattern as the rest of the app.
-
-`lib/supabase/types.ts` updated to match.
-
----
-
-## YOUR ACTIONS THIS MORNING
-
-1. **Apply the migration.** Open Supabase SQL Editor → paste `0003_messaging.sql` → Run.
-2. **Click "Download My Data"** in Airbnb (Account → Privacy & sharing → Request your data). It takes 24–48h to email you a ZIP. **Do this before coffee.** That ZIP contains every message you've ever exchanged — way better than my browser scrape.
-3. **Read `.tone-brain/tone-brain-v0.md`.** Edit anything wrong. We'll regenerate v1 once the full corpus arrives.
-
----
-
-## NEXT BUILD SESSION
-
-In priority order:
-1. Insert `tone-brain-v0.md` into `tone_brain` table (one-time seed).
-2. Drafter endpoint: `POST /api/messages/draft` — takes a `thread_id`, pulls last N messages + tone brain, calls Claude Opus 4.7 with adaptive thinking, writes a `message_drafts` row.
-3. Inbox UI: `/messages` and `/messages/[id]` — left panel = thread list, right panel = thread + draft + Approve/Edit/Reject buttons.
-4. Once the data download arrives: ingest the ZIP into `messages` + `message_threads`, then regenerate the tone brain on the full corpus.
-
-**Sending stays manual.** Jasmin pastes approved drafts into Airbnb herself. That's the agreed Phase 2 model — no auto-send.
-
----
-
-## Open question
-
-The browser scrape proved the corpus exists but is hard to get cleanly. Two paths once the data download arrives:
-- **A**: One-time JSON ingest, then live messages come in via you/Jasmin manually pasting screenshots/text into the dashboard.
-- **B**: Periodic browser scrape (now that we know the DOM shape, we can write a more careful sequencer).
-
-Recommend A for v1. Revisit B if it becomes a real pain point.
+## Files of note
+- `lib/messaging/drafter.ts` — Claude Opus 4.7 drafter
+- `app/(dashboard)/messages/` — inbox UI
+- `app/api/messages/{draft,action,paste,follow-up}/route.ts` — API endpoints
+- `scripts/seed-tone-brain.mjs` — already run; reseed if you edit `.tone-brain/tone-brain-v0.md`
+- `scripts/ingest-airbnb-export.mjs` — run when ZIP arrives
+- `scripts/build-tone-brain.mjs` — run after ingest to upgrade to v1
+- `supabase/migrations/0003_messaging.sql` — already applied
