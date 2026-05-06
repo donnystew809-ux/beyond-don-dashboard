@@ -11,6 +11,9 @@ import {
   Settings,
   Wand2,
   MessageSquare,
+  Sun,
+  Bell,
+  Receipt,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -27,11 +30,14 @@ type NavItem = {
 
 const NAV: NavItem[] = [
   { href: "/", label: "Dashboard", icon: Home },
+  { href: "/today", label: "Today", icon: Sun },
+  { href: "/alerts", label: "Alerts", icon: Bell },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
   { href: "/properties", label: "Properties", icon: Building2 },
   { href: "/pricing", label: "Pricing", icon: DollarSign, adminOnly: true },
   { href: "/cleaning", label: "Cleaning", icon: Sparkles },
   { href: "/messages", label: "Messages", icon: MessageSquare },
+  { href: "/expenses", label: "Expenses", icon: Receipt, adminOnly: true },
   { href: "/optimizer", label: "Listing Optimizer", icon: Wand2, adminOnly: true },
   { href: "/settings", label: "Settings", icon: Settings, adminOnly: true },
 ];

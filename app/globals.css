@@ -118,3 +118,37 @@ body {
   height: 2px;
   background: var(--color-gold-500);
 }
+
+/* ─── Blueprint background — mobile parallax layers ─────────────────────── */
+/* Fallback idle drift animation used when gyroscope is unavailable           */
+.blueprint-layer {
+  animation-duration: 20s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  will-change: transform;
+}
+
+@keyframes blueprintDrift1 {
+  0%   { transform: translate(0px, 0px); }
+  33%  { transform: translate(4px, -3px); }
+  66%  { transform: translate(-3px, 5px); }
+  100% { transform: translate(3px, 2px); }
+}
+
+@keyframes blueprintDrift2 {
+  0%   { transform: translate(0px, 0px); }
+  25%  { transform: translate(-6px, 4px); }
+  50%  { transform: translate(5px, -6px); }
+  75%  { transform: translate(-4px, -3px); }
+  100% { transform: translate(6px, 5px); }
+}
+
+@keyframes blueprintDrift3 {
+  0%   { transform: translate(0px, 0px); }
+  20%  { transform: translate(8px, -5px); }
+  40%  { transform: translate(-7px, 8px); }
+  60%  { transform: translate(6px, 6px); }
+  80%  { transform: translate(-8px, -4px); }
+  100% { transform: translate(5px, -7px); }
+}

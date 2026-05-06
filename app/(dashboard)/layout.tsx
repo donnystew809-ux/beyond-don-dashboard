@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { Sidebar } from "./_components/sidebar";
 import { Header } from "./_components/header";
+import { BlueprintBackground } from "@/components/blueprint-background";
 
 export default async function DashboardLayout({
   children,
@@ -28,7 +29,8 @@ export default async function DashboardLayout({
   const role = roleRow?.role ?? null;
 
   return (
-    <div className="flex min-h-screen">
+    <div className="relative flex min-h-screen">
+      <BlueprintBackground />
       <Sidebar role={role} />
       <div className="flex flex-1 flex-col">
         <Header email={user.email ?? ""} role={role} />
