@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
 
 import { SyncControls } from "./_components/sync-controls";
+import { MobileQR } from "./_components/mobile-qr";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,11 @@ export default async function SettingsPage() {
         title="Settings"
         description="Manage properties, integrations, and run manual syncs."
       />
+
+      <section className="mb-10">
+        <h2 className="mb-3 text-sm font-semibold">Mobile / home-screen install</h2>
+        <MobileQR />
+      </section>
 
       <section className="mb-10">
         <div className="mb-3 flex items-center justify-between">
