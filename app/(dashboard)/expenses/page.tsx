@@ -26,17 +26,30 @@ export default async function ExpensesPage() {
   const monthStart = format(startOfMonth(now), "yyyy-MM-dd");
   const yearStart = format(startOfYear(now), "yyyy-MM-dd");
 
-  const [{ data: properties }, { data: expenses }] = await Promise.all([
+  const [{ data: properties }, { data: expensesRaw }] = await Promise.all([
     supabase.from("properties").select("id, name").eq("status", "active").order("name"),
-    supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
       .from("expenses")
       .select("id, property_id, date, category, amount, currency, vendor, description, created_at")
       .order("date", { ascending: false })
       .limit(200),
   ]);
 
+  type ExpenseRow = {
+    id: string;
+    property_id: string;
+    date: string;
+    category: string;
+    amount: number;
+    currency: string | null;
+    vendor: string | null;
+    description: string | null;
+    created_at: string;
+  };
+
   const propMap = new Map((properties ?? []).map((p) => [p.id, p.name]));
-  const expList = expenses ?? [];
+  const expList = (expensesRaw ?? []) as unknown as ExpenseRow[];
 
   // KPI roll-ups
   const mtdTotal = expList
