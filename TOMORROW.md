@@ -1,131 +1,66 @@
-# Tomorrow's punch list — read this first
+# Morning handoff — 2026-05-06
 
-> Status as of tonight: **the dashboard is LIVE in production** at
-> **https://beyond-don-dashboard.vercel.app**.
-> 11 properties, 28 reservations, 2,164 daily price rows synced from
-> PriceLabs. Vercel cron runs daily at 9:00/9:10/9:20 UTC. Two things still
-> need your attention: signing in tomorrow, and pasting in Airbnb iCal URLs
-> per listing (Airbnb requires you to be logged in there, so I couldn't grab
-> them).
+## What happened overnight
 
----
+### Outlook check
+Searched `donnys132@hotmail.com` for Airbnb mail. Result: **only transactional notifications** — payouts, reservation confirmations, review reminders, login alerts. **No actual guest message bodies.** All real conversation content lives inside the Airbnb host inbox itself. Don't waste time mining Outlook for tone data.
 
-## What's done
+### Browser scrape of host inbox — partial
+- Got into `/hosting/messages` while you were signed in.
+- Successfully scraped **1 full thread** (Anthony, current 6-week stay) — every message, both sides.
+- Captured **16 unique list-row previews** (last-message snippets per conversation).
+- The bulk re-scrape attempt got bitten by Airbnb's virtualized list — clicking convos in a loop kept reopening the same one. Fixable, but not worth more cycles tonight.
+- Saved to: `.tone-brain/airbnb-corpus-seed.json` (62 KB, gitignored).
 
-| Thing | State |
-|---|---|
-| GitHub repo | https://github.com/donnystew809-ux/beyond-don-dashboard *(private)* |
-| Supabase project | `beyond-don-dashboard` (org `BeyondDonLLC`) — schema + 11 properties + admin user seeded |
-| PriceLabs API | Enabled on your account, key stored in `.env.local`, sync working — 2,164 price rows, 27 derived reservations |
-| Auth | Magic-link sign-in for **beyonddonllc@outlook.com** (you, admin role) |
-| Local dashboard | Runs at `npm run dev` → http://localhost:3000 |
-| **Production dashboard** | **https://beyond-don-dashboard.vercel.app** (live, magic-link auth) |
-| Vercel cron | Daily syncs at 9:00 / 9:10 / 9:20 UTC (Hobby tier max = once per day) |
+### Tone brain v0
+Wrote `.tone-brain/tone-brain-v0.md` distilling **your actual voice** from the Anthony thread. Captures your patterns:
+- "Hey [Name]," opener
+- "we / us" first-person plural
+- emoji on friendly check-ins, never on operational replies
+- explicit "5 star stay" framing in mid-stay check-ins
+- empathy → action → consent → check-in pattern for issues
+- "Oh my goodness! Thank you for letting us know!"
+- "you definitely won't get blamed!"
 
-## What you need to do (~15 minutes)
+Read it. Edit anything that doesn't sound like you. This becomes the system prompt for the AI drafter.
 
-### 1. Sign in and look at the dashboard
-Open **https://beyond-don-dashboard.vercel.app** on any device — your phone, the Surface Pro, anywhere. Enter `beyonddonllc@outlook.com`, click the magic link Supabase emails you, and you'll land on the portfolio dashboard with real numbers. Click around — Calendar, Pricing, Properties — all populated from PriceLabs.
+### Messaging schema
+Created `supabase/migrations/0003_messaging.sql` — four new tables:
+- `message_threads` — one row per Airbnb conversation
+- `messages` — individual messages (inbound from guest, outbound from you)
+- `message_drafts` — Claude-generated reply drafts awaiting Jasmin's review
+- `tone_brain` — single-row markdown that gets fed to the drafter as system prompt
 
-(If you want to run it locally too: `cd beyond-don-dashboard && npm run dev` — same login.)
+RLS: members read everything, admins write. Same pattern as the rest of the app.
 
-### 2. Paste in Airbnb iCal URLs (per listing)
-PriceLabs gave us booking *status*, but the Airbnb iCal feed has reservation
-codes and (after some massaging) more detail. To wire it up:
-
-For each of your 11 listings:
-1. Go to Airbnb → Hosting → Calendar → pick the listing → **Sync calendars**
-2. Copy the **Export Calendar** URL (`https://www.airbnb.com/calendar/ical/…`)
-3. In the dashboard, **Settings → Properties → Edit** that property and paste
-   the URL into the "Airbnb iCal export URL" field
-4. Click **Settings → Manual sync → Run sync** on "Airbnb iCal"
-
-Don't *have* to do this — PriceLabs alone gives you a working calendar — but
-it's a useful cross-check.
-
-### 3. Vercel deploy — done
-Already deployed at https://beyond-don-dashboard.vercel.app. Crons run daily
-at 9:00, 9:10, 9:20 UTC (Hobby tier limit). If you want hourly syncs,
-upgrade to Pro ($20/mo) and update `vercel.json` to the schedules in git
-history. Otherwise, hit **Settings → Run sync** any time you want fresher
-data.
-
-To deploy code changes: `npm run build` locally first to catch errors, then
-either push to GitHub master (auto-deploys) or run `npx vercel --prod`.
-
-Add a custom domain like `dash.beyonddon.com` in Vercel → project →
-Settings → Domains.
-
-### 4. Add your sister
-Once she has an email she'll log into:
-```bash
-node scripts/bootstrap-admin.mjs sister@example.com operator
-```
-She gets `operator` access — she sees calendar, properties, cleanings, but
-not API keys or sync logs.
-
-### 5. (Optional) Email Turno for an API key
-The Turno UI doesn't expose API access; it's request-only. Email
-`support@turno.com`:
-
-> Subject: API access for partner integration
->
-> Hi — I'd like API access to my Turno host account so I can pull my
-> cleaning schedule into a custom internal dashboard. Please enable Partner
-> API access on the account associated with beyonddonllc@outlook.com and
-> let me know how to retrieve my API key.
->
-> Thanks,
-> Donovan Stewart, BEYOND DON LLC
-
-When you get the key, paste it into `TURNO_API_KEY=` in `.env.local`
-(and Vercel) and the cleaning page will populate.
+`lib/supabase/types.ts` updated to match.
 
 ---
 
-## Heads up — small things to know
+## YOUR ACTIONS THIS MORNING
 
-- **Sweet Suite Relief, Sapphire Suite, Urban Jungle, Clock Out Cottage,
-  and Sweet Suite Escape have PriceLabs sync turned OFF** (gray toggle in
-  PriceLabs UI). The dashboard works for them, but you won't see suggested
-  prices until you flip those toggles ON in PriceLabs.
-- **Property names are imported verbatim from PriceLabs**, including the
-  duplicate "The Caramel Cabin Getaway" listing. You can rename / remove /
-  pause any property under **Settings → Properties → Edit**.
-- **`.env.local` is git-ignored** — your keys never leave your machine.
-  When you set up Vercel, paste the values into Vercel's env-var UI, don't
-  commit them.
-- **PriceLabs override endpoint**: I built it but haven't tested it
-  end-to-end against a real listing. Try one override on a non-critical
-  date first to confirm the round-trip works before relying on it.
-- **AGENTS.md note**: this Next.js scaffold ships with a one-line "this is
-  not the Next.js you know" warning. Next.js 16 is real and stable — that
-  warning is just there to make me read the docs. You can delete
-  `AGENTS.md` and `CLAUDE.md` when you want.
-
-## Things planned for later (not built tonight)
-
-- **v1.5 Listing Optimizer** — AI-generated title/description/amenity
-  suggestions per listing using PriceLabs comp data + Claude API. Would
-  use the `Market Research` and `Listing Optimizer` data I already see in
-  your PriceLabs UI. ~$10–20 of Claude API per full portfolio analysis.
-- **Owner reports** (brief Phase 4) — Sunday-night PDF per owner.
-- **Guest message automation** (brief Phase 2) — needs Cowork on Surface
-  Pro.
-- **Inventory tracking** (brief Phase 3) — once the dashboard is in
-  steady use.
+1. **Apply the migration.** Open Supabase SQL Editor → paste `0003_messaging.sql` → Run.
+2. **Click "Download My Data"** in Airbnb (Account → Privacy & sharing → Request your data). It takes 24–48h to email you a ZIP. **Do this before coffee.** That ZIP contains every message you've ever exchanged — way better than my browser scrape.
+3. **Read `.tone-brain/tone-brain-v0.md`.** Edit anything wrong. We'll regenerate v1 once the full corpus arrives.
 
 ---
 
-## If something goes sideways
+## NEXT BUILD SESSION
 
-- **Sign-in email never arrives** — Supabase free tier sends ~3 emails per
-  hour. Wait, or in Supabase → Authentication → Users, click the user → Send
-  magic link manually.
-- **Sync says "error"** — Settings → Recent sync runs shows the error
-  message. Most common cause: a property's Sync toggle is OFF in PriceLabs.
-- **Numbers look off** — revenue is derived from PriceLabs ADR × nights,
-  which is an estimate. Real Airbnb earnings come from CSV upload (planned
-  later) or a Cowork browser-automation pull.
+In priority order:
+1. Insert `tone-brain-v0.md` into `tone_brain` table (one-time seed).
+2. Drafter endpoint: `POST /api/messages/draft` — takes a `thread_id`, pulls last N messages + tone brain, calls Claude Opus 4.7 with adaptive thinking, writes a `message_drafts` row.
+3. Inbox UI: `/messages` and `/messages/[id]` — left panel = thread list, right panel = thread + draft + Approve/Edit/Reject buttons.
+4. Once the data download arrives: ingest the ZIP into `messages` + `message_threads`, then regenerate the tone brain on the full corpus.
 
-That's it. Get some sleep. Sister can be on this Monday.
+**Sending stays manual.** Jasmin pastes approved drafts into Airbnb herself. That's the agreed Phase 2 model — no auto-send.
+
+---
+
+## Open question
+
+The browser scrape proved the corpus exists but is hard to get cleanly. Two paths once the data download arrives:
+- **A**: One-time JSON ingest, then live messages come in via you/Jasmin manually pasting screenshots/text into the dashboard.
+- **B**: Periodic browser scrape (now that we know the DOM shape, we can write a more careful sequencer).
+
+Recommend A for v1. Revisit B if it becomes a real pain point.

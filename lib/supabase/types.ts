@@ -211,6 +211,131 @@ type OptimizationInsert = {
 
 type OptimizationUpdate = Partial<OptimizationInsert>;
 
+export type ThreadStatus = "active" | "archived" | "flagged";
+export type MessageDirection = "inbound" | "outbound";
+export type DraftStatus =
+  | "pending"
+  | "approved"
+  | "edited"
+  | "rejected"
+  | "sent";
+
+type MessageThreadRow = {
+  id: string;
+  property_id: string | null;
+  airbnb_thread_id: string | null;
+  guest_name: string | null;
+  guest_first_name: string | null;
+  reservation_code: string | null;
+  check_in: string | null;
+  check_out: string | null;
+  city: string | null;
+  status: ThreadStatus;
+  last_message_at: string | null;
+  last_message_preview: string | null;
+  unread_count: number;
+  created_at: string;
+  updated_at: string;
+};
+
+type MessageThreadInsert = {
+  id?: string;
+  property_id?: string | null;
+  airbnb_thread_id?: string | null;
+  guest_name?: string | null;
+  guest_first_name?: string | null;
+  reservation_code?: string | null;
+  check_in?: string | null;
+  check_out?: string | null;
+  city?: string | null;
+  status?: ThreadStatus;
+  last_message_at?: string | null;
+  last_message_preview?: string | null;
+  unread_count?: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
+type MessageThreadUpdate = Partial<MessageThreadInsert>;
+
+type MessageRow = {
+  id: string;
+  thread_id: string;
+  direction: MessageDirection;
+  sender: string | null;
+  body: string | null;
+  sent_at: string;
+  airbnb_message_id: string | null;
+  raw: Json | null;
+  created_at: string;
+};
+
+type MessageInsert = {
+  id?: string;
+  thread_id: string;
+  direction: MessageDirection;
+  sender?: string | null;
+  body?: string | null;
+  sent_at: string;
+  airbnb_message_id?: string | null;
+  raw?: Json | null;
+  created_at?: string;
+};
+
+type MessageUpdate = Partial<MessageInsert>;
+
+type MessageDraftRow = {
+  id: string;
+  thread_id: string;
+  in_reply_to_message_id: string | null;
+  draft_body: string;
+  reasoning: string | null;
+  model: string;
+  status: DraftStatus;
+  approved_by: string | null;
+  approved_at: string | null;
+  edited_body: string | null;
+  input_tokens: number | null;
+  output_tokens: number | null;
+  cost_usd: number | null;
+  created_at: string;
+};
+
+type MessageDraftInsert = {
+  id?: string;
+  thread_id: string;
+  in_reply_to_message_id?: string | null;
+  draft_body: string;
+  reasoning?: string | null;
+  model?: string;
+  status?: DraftStatus;
+  approved_by?: string | null;
+  approved_at?: string | null;
+  edited_body?: string | null;
+  input_tokens?: number | null;
+  output_tokens?: number | null;
+  cost_usd?: number | null;
+  created_at?: string;
+};
+
+type MessageDraftUpdate = Partial<MessageDraftInsert>;
+
+type ToneBrainRow = {
+  id: number;
+  body_md: string;
+  source: string | null;
+  updated_at: string;
+};
+
+type ToneBrainInsert = {
+  id?: number;
+  body_md: string;
+  source?: string | null;
+  updated_at?: string;
+};
+
+type ToneBrainUpdate = Partial<ToneBrainInsert>;
+
 export type Database = {
   public: {
     Tables: {
@@ -254,6 +379,30 @@ export type Database = {
         Row: OptimizationRow;
         Insert: OptimizationInsert;
         Update: OptimizationUpdate;
+        Relationships: [];
+      };
+      message_threads: {
+        Row: MessageThreadRow;
+        Insert: MessageThreadInsert;
+        Update: MessageThreadUpdate;
+        Relationships: [];
+      };
+      messages: {
+        Row: MessageRow;
+        Insert: MessageInsert;
+        Update: MessageUpdate;
+        Relationships: [];
+      };
+      message_drafts: {
+        Row: MessageDraftRow;
+        Insert: MessageDraftInsert;
+        Update: MessageDraftUpdate;
+        Relationships: [];
+      };
+      tone_brain: {
+        Row: ToneBrainRow;
+        Insert: ToneBrainInsert;
+        Update: ToneBrainUpdate;
         Relationships: [];
       };
     };

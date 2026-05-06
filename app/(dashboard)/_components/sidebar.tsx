@@ -10,6 +10,7 @@ import {
   Sparkles,
   Settings,
   Wand2,
+  MessageSquare,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -30,6 +31,7 @@ const NAV: NavItem[] = [
   { href: "/properties", label: "Properties", icon: Building2 },
   { href: "/pricing", label: "Pricing", icon: DollarSign, adminOnly: true },
   { href: "/cleaning", label: "Cleaning", icon: Sparkles },
+  { href: "/messages", label: "Messages", icon: MessageSquare },
   { href: "/optimizer", label: "Listing Optimizer", icon: Wand2, adminOnly: true },
   { href: "/settings", label: "Settings", icon: Settings, adminOnly: true },
 ];
