@@ -1,4 +1,4 @@
-import { addDays, eachDayOfInterval, format, startOfWeek } from "date-fns";
+import { addDays, eachDayOfInterval, format, startOfWeek, isToday } from "date-fns";
 
 import { createClient } from "@/lib/supabase/server";
 
@@ -56,68 +56,98 @@ export default async function CalendarPage() {
           Add properties to see the calendar.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-cream-200 bg-white">
-          <table className="min-w-full text-xs">
-            <thead className="bg-cream-50">
-              <tr>
-                <th className="sticky left-0 z-10 bg-cream-50 px-3 py-2 text-left font-medium text-navy-600">
-                  Property
-                </th>
-                {days.map((d) => (
-                  <th
-                    key={d.toISOString()}
-                    className="min-w-[44px] border-l border-cream-200 px-1 py-2 text-center text-navy-600"
-                  >
-                    <div>{format(d, "EEE")}</div>
-                    <div className="text-[10px] text-navy-400">{format(d, "M/d")}</div>
+        <>
+          {/* Scroll hint — mobile only */}
+          <p className="mb-2 text-xs text-navy-400 sm:hidden">
+            ← Swipe left to see more days →
+          </p>
+          <div className="overflow-x-auto rounded-lg border border-cream-200 bg-white">
+            <table className="min-w-full text-xs">
+              <thead className="bg-cream-50">
+                <tr>
+                  {/* Narrower property column on mobile */}
+                  <th className="sticky left-0 z-10 w-24 bg-cream-50 px-2 py-2 text-left font-medium text-navy-600 sm:w-auto sm:px-3">
+                    Property
                   </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {properties.map((property) => {
-                const reservedDays = new Set<string>();
-                for (const r of reservationsByProperty.get(property.id) ?? []) {
-                  for (const d of eachDayOfInterval({
-                    start: r.check_in,
-                    end: addDays(r.check_out, -1),
-                  })) {
-                    reservedDays.add(format(d, "yyyy-MM-dd"));
+                  {days.map((d) => {
+                    const todayCell = isToday(d);
+                    return (
+                      <th
+                        key={d.toISOString()}
+                        className={`min-w-[40px] border-l border-cream-200 px-1 py-2 text-center ${
+                          todayCell ? "bg-gold-50 text-gold-800" : "text-navy-600"
+                        }`}
+                      >
+                        <div className="hidden sm:block">{format(d, "EEE")}</div>
+                        <div className={`text-[10px] ${todayCell ? "font-bold text-gold-700" : "text-navy-400"}`}>
+                          {format(d, "M/d")}
+                        </div>
+                      </th>
+                    );
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {properties.map((property) => {
+                  const reservedDays = new Set<string>();
+                  for (const r of reservationsByProperty.get(property.id) ?? []) {
+                    for (const d of eachDayOfInterval({
+                      start: r.check_in,
+                      end: addDays(r.check_out, -1),
+                    })) {
+                      reservedDays.add(format(d, "yyyy-MM-dd"));
+                    }
                   }
-                }
 
-                return (
-                  <tr key={property.id} className="border-t border-cream-200">
-                    <td className="sticky left-0 z-10 bg-white px-3 py-2 text-left text-sm font-medium">
-                      {property.name}
-                    </td>
-                    {days.map((d) => {
-                      const key = format(d, "yyyy-MM-dd");
-                      const reserved = reservedDays.has(key);
-                      return (
-                        <td
-                          key={key}
-                          className={`border-l border-cream-200 ${
-                            reserved
-                              ? "bg-emerald-200"
-                              : d < today
-                                ? "bg-cream-50"
-                                : ""
-                          }`}
-                        >
-                          <div className="h-6" />
-                        </td>
-                      );
-                    })}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                  return (
+                    <tr key={property.id} className="border-t border-cream-200">
+                      <td className="sticky left-0 z-10 w-24 max-w-[96px] truncate bg-white px-2 py-2 text-left text-sm font-medium sm:w-auto sm:max-w-none sm:px-3">
+                        {property.name}
+                      </td>
+                      {days.map((d) => {
+                        const key = format(d, "yyyy-MM-dd");
+                        const reserved = reservedDays.has(key);
+                        const todayCell = isToday(d);
+                        return (
+                          <td
+                            key={key}
+                            className={`border-l border-cream-200 ${
+                              reserved
+                                ? "bg-emerald-200"
+                                : todayCell
+                                  ? "bg-gold-50/50"
+                                  : d < today
+                                    ? "bg-cream-50"
+                                    : ""
+                            }`}
+                          >
+                            <div className="h-6" />
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Legend */}
+          <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-navy-500">
+            <span className="flex items-center gap-1.5">
+              <span className="h-3 w-4 rounded-sm bg-emerald-200" /> Booked
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-3 w-4 rounded-sm bg-gold-50 ring-1 ring-gold-300" /> Today
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-3 w-4 rounded-sm bg-cream-50 ring-1 ring-cream-200" /> Past
+            </span>
+          </div>
+        </>
       )}
 
-      <p className="mt-4 text-xs text-navy-500">
+      <p className="mt-3 text-xs text-navy-500">
         Reservations sync from each Airbnb listing&apos;s iCal feed every 2 hours.
       </p>
     </div>

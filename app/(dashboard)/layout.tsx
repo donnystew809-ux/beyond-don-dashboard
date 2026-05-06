@@ -32,7 +32,7 @@ export default async function DashboardLayout({
       <Sidebar role={role} />
       <div className="flex flex-1 flex-col">
         <Header email={user.email ?? ""} role={role} />
-        <main className="flex-1 overflow-y-auto px-6 py-8">{children}</main>
+        <main className="flex-1 overflow-y-auto px-4 py-6 md:px-6 md:py-8">{children}</main>
       </div>
     </div>
   );

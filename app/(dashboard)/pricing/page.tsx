@@ -84,11 +84,16 @@ export default async function PricingPage() {
           Add a property with a PriceLabs listing ID to start.
         </div>
       ) : (
+        <>
+          {/* Scroll hint — mobile only */}
+          <p className="mb-2 text-xs text-navy-400 sm:hidden">
+            ← Swipe left to see all dates →
+          </p>
         <div className="overflow-x-auto rounded-lg border border-cream-200 bg-white">
           <table className="min-w-full text-xs">
             <thead className="bg-cream-50">
               <tr>
-                <th className="sticky left-0 z-10 bg-cream-50 px-3 py-2 text-left font-medium text-navy-600">
+                <th className="sticky left-0 z-10 w-28 bg-cream-50 px-2 py-2 text-left font-medium text-navy-600 sm:w-auto sm:px-3">
                   Property
                 </th>
                 {days.map((d) => (
@@ -110,7 +115,7 @@ export default async function PricingPage() {
                 const propertyPrices = pricesByProperty.get(p.id) ?? new Map();
                 return (
                   <tr key={p.id} className="border-t border-cream-200">
-                    <td className="sticky left-0 z-10 bg-white px-3 py-2 text-left text-sm font-medium">
+                    <td className="sticky left-0 z-10 w-28 max-w-[112px] truncate bg-white px-2 py-2 text-left text-sm font-medium sm:w-auto sm:max-w-none sm:px-3">
                       {p.name}
                       {!p.pricelabs_listing_id && (
                         <span className="ml-2 rounded-full bg-gold-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-gold-800">
@@ -160,6 +165,7 @@ export default async function PricingPage() {
             </tbody>
           </table>
         </div>
+        </>
       )}
 
       <p className="mt-4 text-xs text-navy-500">

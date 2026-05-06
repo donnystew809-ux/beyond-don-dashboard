@@ -49,16 +49,16 @@ export default async function MessagesPage() {
         description="Guest message threads. AI drafts a reply in Donovan's voice, you review and paste into Airbnb."
       />
 
-      <div className="mb-6 flex items-start justify-between gap-4">
-        <div className="rounded-lg border border-gold-300 bg-gold-50 p-4 text-sm text-navy-800">
-          <strong className="text-gold-800">How this works:</strong> When a
-          guest messages you on Airbnb, paste their message here. Claude drafts
-          a reply matching Donovan&apos;s voice. Approve / edit / reject, then
-          paste the approved reply into Airbnb. Sends stay manual on purpose.
+      {/* Header row — stacks on mobile */}
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
+        <div className="flex-1 rounded-lg border border-gold-300 bg-gold-50 p-4 text-sm text-navy-800">
+          <strong className="text-gold-800">How this works:</strong> Paste a
+          guest message, Claude drafts a reply in Donovan&apos;s voice. Review,
+          edit, then copy into Airbnb. Sends are always manual.
         </div>
         <Link
           href="/messages/new"
-          className="shrink-0 rounded-md bg-gold-gradient px-4 py-2 text-xs font-semibold uppercase tracking-wider text-navy-950 hover:brightness-110"
+          className="inline-flex items-center justify-center rounded-md bg-gold-gradient px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-navy-950 hover:brightness-110 sm:shrink-0"
         >
           + Paste new message
         </Link>
@@ -69,14 +69,14 @@ export default async function MessagesPage() {
           No threads yet. Click <em>Paste new message</em> above to start one.
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-cream-200 bg-white">
+        <div className="overflow-x-auto rounded-lg border border-cream-200 bg-white">
           <table className="w-full text-sm">
             <thead className="bg-cream-50 text-left text-xs uppercase tracking-wide text-navy-500">
               <tr>
                 <th className="px-4 py-3">Guest</th>
-                <th className="px-4 py-3">Property</th>
+                <th className="hidden px-4 py-3 sm:table-cell">Property</th>
                 <th className="px-4 py-3">Last message</th>
-                <th className="px-4 py-3">When</th>
+                <th className="hidden px-4 py-3 md:table-cell">When</th>
                 <th className="px-4 py-3 text-right">Status</th>
               </tr>
             </thead>
@@ -95,16 +95,28 @@ export default async function MessagesPage() {
                       >
                         {t.guest_name || t.guest_first_name || "Unknown"}
                       </Link>
+                      {/* Property + time inline on mobile */}
+                      <div className="mt-0.5 text-[10px] text-navy-400 sm:hidden">
+                        {property?.name ?? "—"}
+                        {t.last_message_at && (
+                          <>
+                            {" · "}
+                            {formatDistanceToNow(new Date(t.last_message_at), {
+                              addSuffix: true,
+                            })}
+                          </>
+                        )}
+                      </div>
                     </td>
-                    <td className="px-4 py-3 text-navy-600">
+                    <td className="hidden px-4 py-3 text-navy-600 sm:table-cell">
                       {property?.name ?? "—"}
                     </td>
                     <td className="px-4 py-3 text-navy-600">
-                      <span className="line-clamp-1 max-w-md">
+                      <span className="line-clamp-1 max-w-[160px] sm:max-w-xs md:max-w-md">
                         {t.last_message_preview ?? ""}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-navy-500">
+                    <td className="hidden px-4 py-3 text-navy-500 md:table-cell">
                       {t.last_message_at
                         ? formatDistanceToNow(new Date(t.last_message_at), {
                             addSuffix: true,
@@ -113,8 +125,8 @@ export default async function MessagesPage() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       {pending > 0 ? (
-                        <span className="rounded-full bg-gold-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-gold-800">
-                          {pending} draft{pending > 1 ? "s" : ""} pending
+                        <span className="whitespace-nowrap rounded-full bg-gold-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-gold-800">
+                          {pending} draft{pending > 1 ? "s" : ""}
                         </span>
                       ) : (
                         <span className="text-xs text-navy-400">—</span>

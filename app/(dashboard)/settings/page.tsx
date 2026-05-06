@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
 
 import { createClient } from "@/lib/supabase/server";
 
@@ -44,7 +45,7 @@ export default async function SettingsPage() {
           <h2 className="text-sm font-semibold">Properties</h2>
           <Link
             href="/settings/properties/new"
-            className="rounded-md bg-navy-700 px-3 py-1.5 text-xs font-medium text-cream-50 hover:bg-navy-800"
+            className="rounded-md bg-navy-700 px-3 py-2 text-xs font-medium text-cream-50 hover:bg-navy-800"
           >
             Add property
           </Link>
@@ -54,7 +55,7 @@ export default async function SettingsPage() {
         ) : (
           <ul className="divide-y divide-cream-200 overflow-hidden rounded-lg border border-cream-200 bg-white">
             {properties.map((p) => (
-              <li key={p.id} className="flex items-center justify-between px-4 py-3">
+              <li key={p.id} className="flex items-center justify-between px-4 py-3.5">
                 <div>
                   <div className="text-sm font-medium">{p.name}</div>
                   <div className="text-xs uppercase tracking-wide text-navy-500">
@@ -63,7 +64,7 @@ export default async function SettingsPage() {
                 </div>
                 <Link
                   href={`/settings/properties/${p.id}`}
-                  className="text-xs font-medium text-navy-700 hover:underline"
+                  className="rounded px-3 py-2 text-xs font-medium text-navy-700 hover:bg-cream-100 hover:underline"
                 >
                   Edit
                 </Link>
@@ -83,22 +84,29 @@ export default async function SettingsPage() {
         {!syncs || syncs.length === 0 ? (
           <p className="text-sm text-navy-500">No sync runs yet.</p>
         ) : (
-          <div className="overflow-hidden rounded-lg border border-cream-200 bg-white">
+          <div className="overflow-x-auto rounded-lg border border-cream-200 bg-white">
             <table className="w-full text-xs">
               <thead className="bg-cream-50 text-left text-navy-500">
                 <tr>
                   <th className="px-4 py-2">Source</th>
-                  <th className="px-4 py-2">Started</th>
+                  {/* Hide full timestamp on mobile — show relative time */}
+                  <th className="hidden px-4 py-2 sm:table-cell">Started</th>
+                  <th className="px-4 py-2 sm:hidden">When</th>
                   <th className="px-4 py-2">Status</th>
-                  <th className="px-4 py-2">Records</th>
+                  <th className="hidden px-4 py-2 sm:table-cell">Records</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-cream-200">
                 {syncs.map((s, i) => (
                   <tr key={i}>
                     <td className="px-4 py-2 font-medium">{s.source}</td>
-                    <td className="px-4 py-2 text-navy-600">
+                    {/* Full timestamp on sm+ */}
+                    <td className="hidden px-4 py-2 text-navy-600 sm:table-cell">
                       {new Date(s.started_at).toLocaleString()}
+                    </td>
+                    {/* Relative time on mobile */}
+                    <td className="px-4 py-2 text-navy-600 sm:hidden">
+                      {formatDistanceToNow(new Date(s.started_at), { addSuffix: true })}
                     </td>
                     <td className="px-4 py-2">
                       <span
@@ -113,12 +121,10 @@ export default async function SettingsPage() {
                         {s.status}
                       </span>
                       {s.error && (
-                        <div className="mt-1 text-[10px] text-red-600">
-                          {s.error}
-                        </div>
+                        <div className="mt-1 text-[10px] text-red-600">{s.error}</div>
                       )}
                     </td>
-                    <td className="px-4 py-2 text-navy-600">
+                    <td className="hidden px-4 py-2 text-navy-600 sm:table-cell">
                       {s.records_processed}
                     </td>
                   </tr>
