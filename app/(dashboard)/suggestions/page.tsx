@@ -89,7 +89,7 @@ export default async function SuggestionsPage() {
   }
 
   // ── 2. SYNCING: Failed sync sources ────────────────────────────────────────
-  const sourceLatest = new Map<string, { status: string; started_at: string; error?: string }>();
+  const sourceLatest = new Map<string, { status: string; started_at: string; error?: string | null }>();
   for (const log of syncLogs ?? []) {
     if (!sourceLatest.has(log.source)) sourceLatest.set(log.source, log);
   }
