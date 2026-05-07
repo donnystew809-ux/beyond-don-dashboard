@@ -155,14 +155,14 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: `PriceLabs error: ${err}` }, { status: 500 });
         }
 
-        // Log overrides
+        // Log overrides — match the pricing_override_log schema exactly
         await supabase.from("pricing_override_log").insert(
           overrides.map((o) => ({
             property_id,
             date: o.date,
-            override_price: o.price,
-            reason: `last_minute_discount_${discount_pct}pct`,
-            applied_by: user.email,
+            new_price: o.price,
+            source: "manual" as const,
+            pushed_by: user.id,
           }))
         );
 
