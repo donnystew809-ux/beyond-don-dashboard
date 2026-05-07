@@ -17,6 +17,7 @@ import {
   Sun,
   Bell,
   Receipt,
+  Zap,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -34,6 +35,7 @@ const NAV: NavItem[] = [
   { href: "/", label: "Dashboard", icon: Home },
   { href: "/today", label: "Today", icon: Sun },
   { href: "/alerts", label: "Alerts", icon: Bell },
+  { href: "/suggestions", label: "Suggestions", icon: Zap, adminOnly: true },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
   { href: "/properties", label: "Properties", icon: Building2 },
   { href: "/pricing", label: "Pricing", icon: DollarSign, adminOnly: true },
