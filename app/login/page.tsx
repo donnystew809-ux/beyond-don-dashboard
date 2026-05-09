@@ -1,18 +1,50 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
 import { BrandMark } from "@/components/brand-mark";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handlePasswordSignIn(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!password) {
+      setError("Enter your password, or tap 'Send magic link' instead.");
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    setMessage(null);
+
+    const supabase = createClient();
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (signInError) {
+      setError(signInError.message);
+      setSubmitting(false);
+    } else {
+      // Session cookie is set; route to the dashboard.
+      router.push("/today");
+      router.refresh();
+    }
+  }
+
+  async function handleMagicLink() {
+    if (!email) {
+      setError("Enter your email first.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     setMessage(null);
@@ -84,7 +116,7 @@ export default function LoginPage() {
 
         <div className="mt-10 h-px w-12 bg-gold-500" />
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+        <form onSubmit={handlePasswordSignIn} className="mt-8 space-y-5">
           <label className="block">
             <span className="text-xs font-medium uppercase tracking-wider text-cream-200/70">
               Email
@@ -100,12 +132,35 @@ export default function LoginPage() {
             />
           </label>
 
+          <label className="block">
+            <span className="text-xs font-medium uppercase tracking-wider text-cream-200/70">
+              Password
+            </span>
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              className="mt-2 block w-full rounded-md border border-navy-700 bg-navy-900/60 px-3 py-2.5 text-base text-cream-50 placeholder:text-cream-200/40 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
+              placeholder="Your password"
+              autoComplete="current-password"
+            />
+          </label>
+
           <button
             type="submit"
             disabled={submitting}
             className="group relative w-full overflow-hidden rounded-md bg-gold-gradient px-4 py-2.5 text-sm font-semibold uppercase tracking-wider text-navy-950 transition hover:brightness-110 disabled:opacity-50"
           >
-            {submitting ? "Sending…" : "Send magic link"}
+            {submitting ? "Signing in…" : "Sign in"}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleMagicLink}
+            disabled={submitting}
+            className="block w-full text-center text-xs uppercase tracking-[0.22em] text-cream-200/60 transition hover:text-gold-300 disabled:opacity-50"
+          >
+            Or send me a magic link
           </button>
 
           {message && (
