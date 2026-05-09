@@ -15,6 +15,7 @@ import {
   Bell,
   Receipt,
   Zap,
+  KeyRound,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -41,6 +42,7 @@ const NAV: NavItem[] = [
   { href: "/messages", label: "Messages", icon: MessageSquare },
   { href: "/expenses", label: "Expenses", icon: Receipt, adminOnly: true },
   { href: "/optimizer", label: "Listing Optimizer", icon: Wand2, adminOnly: true },
+  { href: "/account", label: "Account", icon: KeyRound },
   { href: "/settings", label: "Settings", icon: Settings, adminOnly: true },
 ];
 
