@@ -27,6 +27,16 @@ export default async function TodayPage() {
   const tomorrowStr = format(addDays(now, 1), "yyyy-MM-dd");
   const in3dStr = format(addDays(now, 3), "yyyy-MM-dd");
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const meta = (user?.user_metadata ?? {}) as Record<string, string | undefined>;
+  const displayName =
+    meta.name ||
+    meta.full_name ||
+    user?.email?.split("@")[0] ||
+    "there";
+
   const [
     { data: properties },
     { data: checkoutsToday },
@@ -101,7 +111,7 @@ export default async function TodayPage() {
   return (
     <div>
       <PageHeader
-        title={`${greet()}, Jasmin`}
+        title={`${greet()}, ${displayName}`}
         description={`${format(now, "EEEE, MMMM d, yyyy")} · ${dayLabel}`}
       />
 
