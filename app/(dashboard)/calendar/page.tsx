@@ -52,21 +52,21 @@ export default async function CalendarPage() {
       />
 
       {!properties || properties.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-cream-300 bg-white p-10 text-center text-sm text-navy-500">
+        <div className="rounded-lg border border-dashed border-navy-700/50 bg-navy-900/60 backdrop-blur-sm p-10 text-center text-sm text-cream-200/60">
           Add properties to see the calendar.
         </div>
       ) : (
         <>
           {/* Scroll hint — mobile only */}
-          <p className="mb-2 text-xs text-navy-400 sm:hidden">
+          <p className="mb-2 text-xs text-cream-200/50 sm:hidden">
             ← Swipe left to see more days →
           </p>
-          <div className="overflow-x-auto rounded-lg border border-cream-200 bg-white">
+          <div className="overflow-x-auto rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm">
             <table className="min-w-full text-xs">
-              <thead className="bg-cream-50">
+              <thead className="bg-navy-800/40">
                 <tr>
                   {/* Narrower property column on mobile */}
-                  <th className="sticky left-0 z-10 w-24 bg-cream-50 px-2 py-2 text-left font-medium text-navy-600 sm:w-auto sm:px-3">
+                  <th className="sticky left-0 z-10 w-24 bg-navy-800/40 px-2 py-2 text-left font-medium text-cream-200/80 sm:w-auto sm:px-3">
                     Property
                   </th>
                   {days.map((d) => {
@@ -74,12 +74,12 @@ export default async function CalendarPage() {
                     return (
                       <th
                         key={d.toISOString()}
-                        className={`min-w-[40px] border-l border-cream-200 px-1 py-2 text-center ${
-                          todayCell ? "bg-gold-50 text-gold-800" : "text-navy-600"
+                        className={`min-w-[40px] border-l border-navy-700/40 px-1 py-2 text-center ${
+                          todayCell ? "bg-gold-500/15 text-gold-300" : "text-cream-200/80"
                         }`}
                       >
                         <div className="hidden sm:block">{format(d, "EEE")}</div>
-                        <div className={`text-[10px] ${todayCell ? "font-bold text-gold-700" : "text-navy-400"}`}>
+                        <div className={`text-[10px] ${todayCell ? "font-bold text-gold-300" : "text-cream-200/50"}`}>
                           {format(d, "M/d")}
                         </div>
                       </th>
@@ -100,8 +100,8 @@ export default async function CalendarPage() {
                   }
 
                   return (
-                    <tr key={property.id} className="border-t border-cream-200">
-                      <td className="sticky left-0 z-10 w-24 max-w-[96px] truncate bg-white px-2 py-2 text-left text-sm font-medium sm:w-auto sm:max-w-none sm:px-3">
+                    <tr key={property.id} className="border-t border-navy-700/40">
+                      <td className="sticky left-0 z-10 w-24 max-w-[96px] truncate bg-navy-900/60 backdrop-blur-sm px-2 py-2 text-left text-sm font-medium sm:w-auto sm:max-w-none sm:px-3">
                         {property.name}
                       </td>
                       {days.map((d) => {
@@ -111,13 +111,13 @@ export default async function CalendarPage() {
                         return (
                           <td
                             key={key}
-                            className={`border-l border-cream-200 ${
+                            className={`border-l border-navy-700/40 ${
                               reserved
                                 ? "bg-emerald-200"
                                 : todayCell
-                                  ? "bg-gold-50/50"
+                                  ? "bg-gold-500/30"
                                   : d < today
-                                    ? "bg-cream-50"
+                                    ? "bg-navy-800/40"
                                     : ""
                             }`}
                           >
@@ -133,21 +133,21 @@ export default async function CalendarPage() {
           </div>
 
           {/* Legend */}
-          <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-navy-500">
+          <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-cream-200/60">
             <span className="flex items-center gap-1.5">
               <span className="h-3 w-4 rounded-sm bg-emerald-200" /> Booked
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="h-3 w-4 rounded-sm bg-gold-50 ring-1 ring-gold-300" /> Today
+              <span className="h-3 w-4 rounded-sm bg-gold-500/15 ring-1 ring-gold-300" /> Today
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="h-3 w-4 rounded-sm bg-cream-50 ring-1 ring-cream-200" /> Past
+              <span className="h-3 w-4 rounded-sm bg-navy-800/40 ring-1 ring-cream-200" /> Past
             </span>
           </div>
         </>
       )}
 
-      <p className="mt-3 text-xs text-navy-500">
+      <p className="mt-3 text-xs text-cream-200/60">
         Reservations sync from each Airbnb listing&apos;s iCal feed every 2 hours.
       </p>
     </div>

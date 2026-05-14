@@ -117,13 +117,13 @@ export default async function TodayPage() {
 
       {/* Pending drafts banner */}
       {draftsCount > 0 && (
-        <div className="mb-6 flex items-center gap-3 rounded-lg border border-gold-300 bg-gold-50 p-4">
+        <div className="mb-6 flex items-center gap-3 rounded-lg border border-gold-500/50 bg-gold-500/15 p-4">
           <span className="text-2xl">💬</span>
           <div>
-            <div className="text-sm font-semibold text-gold-800">
+            <div className="text-sm font-semibold text-gold-300">
               {draftsCount} AI draft{draftsCount > 1 ? "s" : ""} waiting for review
             </div>
-            <a href="/messages" className="text-xs text-navy-600 underline">
+            <a href="/messages" className="text-xs text-cream-200/80 underline">
               Go to Messages →
             </a>
           </div>
@@ -176,33 +176,33 @@ export default async function TodayPage() {
       {/* TOMORROW preview */}
       {(tomorrowCheckouts.length > 0 || tomorrowCheckins.length > 0) && (
         <section className="mb-8">
-          <h2 className="mb-3 text-sm font-semibold text-navy-600">Tomorrow&apos;s preview</h2>
+          <h2 className="mb-3 text-sm font-semibold text-cream-200/80">Tomorrow&apos;s preview</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {tomorrowCheckouts.length > 0 && (
-              <div className="rounded-lg border border-cream-200 bg-white p-4">
-                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-navy-500">
+              <div className="rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-4">
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-cream-200/60">
                   🧳 Check-outs tomorrow ({tomorrowCheckouts.length})
                 </div>
                 <ul className="space-y-1.5">
                   {tomorrowCheckouts.map((r, i) => (
                     <li key={i} className="text-sm">
                       <span className="font-medium">{propMap.get(r.property_id) ?? "—"}</span>
-                      <span className="ml-2 text-navy-500">{r.guest_name ?? "Guest"}</span>
+                      <span className="ml-2 text-cream-200/60">{r.guest_name ?? "Guest"}</span>
                     </li>
                   ))}
                 </ul>
               </div>
             )}
             {tomorrowCheckins.length > 0 && (
-              <div className="rounded-lg border border-cream-200 bg-white p-4">
-                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-navy-500">
+              <div className="rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-4">
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-cream-200/60">
                   🔑 Check-ins tomorrow ({tomorrowCheckins.length})
                 </div>
                 <ul className="space-y-1.5">
                   {tomorrowCheckins.map((r, i) => (
                     <li key={i} className="text-sm">
                       <span className="font-medium">{propMap.get(r.property_id) ?? "—"}</span>
-                      <span className="ml-2 text-navy-500">
+                      <span className="ml-2 text-cream-200/60">
                         {r.guest_name ?? "Guest"} · thru {format(new Date(r.check_out), "MMM d")}
                       </span>
                     </li>
@@ -216,7 +216,7 @@ export default async function TodayPage() {
 
       {/* Quick links */}
       <section>
-        <h2 className="mb-3 text-sm font-semibold text-navy-600">Quick actions</h2>
+        <h2 className="mb-3 text-sm font-semibold text-cream-200/80">Quick actions</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
             { href: "/messages/new", label: "Paste guest message", emoji: "✍️" },
@@ -227,7 +227,7 @@ export default async function TodayPage() {
             <a
               key={q.href}
               href={q.href}
-              className="flex flex-col items-center gap-2 rounded-lg border border-cream-200 bg-white p-4 text-center text-sm font-medium text-navy-800 hover:border-gold-300 hover:bg-gold-50 transition"
+              className="flex flex-col items-center gap-2 rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-4 text-center text-sm font-medium text-cream-50 hover:border-gold-500/50 hover:bg-gold-500/15 transition"
             >
               <span className="text-2xl">{q.emoji}</span>
               {q.label}
@@ -259,15 +259,15 @@ function TodayCard({
   accent: "blue" | "green" | "gold";
 }) {
   const accentBg = {
-    blue: "bg-navy-50 border-navy-200",
-    green: "bg-emerald-50 border-emerald-200",
-    gold: "bg-gold-50 border-gold-200",
+    blue: "bg-navy-700/40 border-navy-400/50",
+    green: "bg-emerald-500/10 border-emerald-500/30",
+    gold: "bg-gold-500/15 border-gold-200",
   }[accent];
 
   const accentBadge = {
-    blue: "bg-navy-100 text-navy-800",
-    green: "bg-emerald-100 text-emerald-800",
-    gold: "bg-gold-100 text-gold-800",
+    blue: "bg-navy-700/50 text-cream-50",
+    green: "bg-emerald-500/15 text-emerald-300",
+    gold: "bg-gold-500/20 text-gold-300",
   }[accent];
 
   return (
@@ -275,22 +275,22 @@ function TodayCard({
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-lg">{emoji}</span>
-          <span className="text-sm font-semibold text-navy-800">{title}</span>
+          <span className="text-sm font-semibold text-cream-50">{title}</span>
         </div>
         <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${accentBadge}`}>
           {count}
         </span>
       </div>
       {items.length === 0 ? (
-        <p className="text-sm text-navy-400">{emptyText}</p>
+        <p className="text-sm text-cream-200/50">{emptyText}</p>
       ) : (
         <ul className="space-y-2">
           {items.map((item, i) => (
             <li key={i}>
-              <div className="text-sm font-medium text-navy-900">{item.primary}</div>
-              <div className="text-xs text-navy-500">{item.secondary}</div>
+              <div className="text-sm font-medium text-cream-50">{item.primary}</div>
+              <div className="text-xs text-cream-200/60">{item.secondary}</div>
               {item.badge && (
-                <span className="mt-0.5 inline-block rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700">
+                <span className="mt-0.5 inline-block rounded-full bg-red-500/15 px-2 py-0.5 text-[10px] font-semibold text-red-300">
                   {item.badge}
                 </span>
               )}

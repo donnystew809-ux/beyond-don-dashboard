@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   X,
-  Menu,
   CalendarDays,
   Home,
   Building2,
@@ -46,6 +45,15 @@ const NAV: NavItem[] = [
   { href: "/settings", label: "Settings", icon: Settings, adminOnly: true },
 ];
 
+/**
+ * MobileDrawer — the slide-out overflow nav for mobile. Triggered by the
+ * BottomNav's "More" tab via the window event `bd-open-drawer`. No
+ * visible trigger of its own; the drawer panel is always in the DOM but
+ * translated off-screen when closed.
+ *
+ * Exported as MobileMenuButton for backward-compat with the header
+ * import (which renders this component but no longer shows a hamburger).
+ */
 export function MobileMenuButton({ role }: { role: UserRole | null }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -62,19 +70,17 @@ export function MobileMenuButton({ role }: { role: UserRole | null }) {
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
+  // External trigger: BottomNav's "More" tab dispatches this event.
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener("bd-open-drawer", handler);
+    return () => window.removeEventListener("bd-open-drawer", handler);
+  }, []);
+
   const items = NAV.filter((item) => !item.adminOnly || role === "admin");
 
   return (
     <>
-      {/* Hamburger button — only visible on mobile */}
-      <button
-        onClick={() => setOpen(true)}
-        className="flex h-10 w-10 items-center justify-center rounded-md text-navy-700 hover:bg-cream-200 md:hidden"
-        aria-label="Open navigation"
-      >
-        <Menu className="h-5 w-5" />
-      </button>
-
       {/* Drawer overlay + panel — always in DOM, animated via transform/opacity */}
       <div
         className={cn(
@@ -83,10 +89,10 @@ export function MobileMenuButton({ role }: { role: UserRole | null }) {
         )}
         aria-hidden={!open}
       >
-        {/* Backdrop — fades in/out */}
+        {/* Backdrop — keeps the magnetic field visible through it */}
         <div
           className={cn(
-            "absolute inset-0 bg-navy-950/60 backdrop-blur-sm transition-opacity duration-300 ease-out",
+            "absolute inset-0 bg-navy-950/40 transition-opacity duration-300 ease-out",
             open ? "opacity-100" : "opacity-0",
           )}
           onClick={() => setOpen(false)}

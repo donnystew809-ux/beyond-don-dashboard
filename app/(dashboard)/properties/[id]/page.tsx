@@ -76,12 +76,12 @@ export default async function PropertyDetailPage(
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <section className="rounded-lg border border-cream-200 bg-white p-5">
+        <section className="rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-5">
           <h2 className="text-sm font-semibold">Upcoming reservations</h2>
           {reservationsList.filter((r) => new Date(r.check_in) >= now).length === 0 ? (
-            <p className="mt-3 text-sm text-navy-500">No upcoming reservations.</p>
+            <p className="mt-3 text-sm text-cream-200/60">No upcoming reservations.</p>
           ) : (
-            <ul className="mt-3 divide-y divide-cream-200">
+            <ul className="mt-3 divide-y divide-navy-700/40">
               {reservationsList
                 .filter((r) => new Date(r.check_in) >= now)
                 .slice(0, 8)
@@ -89,9 +89,9 @@ export default async function PropertyDetailPage(
                   <li key={i} className="flex items-center justify-between py-2 text-sm">
                     <div>
                       <div className="font-medium">{r.guest_name ?? "Reserved"}</div>
-                      <div className="text-xs text-navy-500">{r.source}</div>
+                      <div className="text-xs text-cream-200/60">{r.source}</div>
                     </div>
-                    <div className="text-right text-xs text-navy-600">
+                    <div className="text-right text-xs text-cream-200/80">
                       {format(new Date(r.check_in), "MMM d")} →{" "}
                       {format(new Date(r.check_out), "MMM d")}
                     </div>
@@ -101,17 +101,17 @@ export default async function PropertyDetailPage(
           )}
         </section>
 
-        <section className="rounded-lg border border-cream-200 bg-white p-5">
+        <section className="rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-5">
           <h2 className="text-sm font-semibold">Pricing (next 30 days)</h2>
           {!prices || prices.length === 0 ? (
-            <p className="mt-3 text-sm text-navy-500">
+            <p className="mt-3 text-sm text-cream-200/60">
               No PriceLabs data synced yet.
             </p>
           ) : (
-            <ul className="mt-3 max-h-72 divide-y divide-cream-200 overflow-y-auto">
+            <ul className="mt-3 max-h-72 divide-y divide-navy-700/40 overflow-y-auto">
               {prices.map((p) => (
                 <li key={p.date} className="flex items-center justify-between py-1.5 text-sm">
-                  <span className="text-navy-700">{format(new Date(p.date), "EEE MMM d")}</span>
+                  <span className="text-cream-100">{format(new Date(p.date), "EEE MMM d")}</span>
                   <span className="font-medium">
                     {formatCurrency(
                       p.override_price ?? p.suggested_price ?? p.base_price ?? 0,
@@ -123,19 +123,19 @@ export default async function PropertyDetailPage(
           )}
         </section>
 
-        <section className="rounded-lg border border-cream-200 bg-white p-5 lg:col-span-2">
+        <section className="rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-5 lg:col-span-2">
           <h2 className="text-sm font-semibold">Cleanings</h2>
           {!cleanings || cleanings.length === 0 ? (
-            <p className="mt-3 text-sm text-navy-500">No cleanings on the schedule.</p>
+            <p className="mt-3 text-sm text-cream-200/60">No cleanings on the schedule.</p>
           ) : (
-            <ul className="mt-3 divide-y divide-cream-200">
+            <ul className="mt-3 divide-y divide-navy-700/40">
               {cleanings.map((c) => (
                 <li key={c.id} className="flex items-center justify-between py-2 text-sm">
                   <div>
                     <div className="font-medium">{c.cleaner_name ?? "Unassigned"}</div>
-                    <div className="text-xs uppercase tracking-wide text-navy-500">{c.status}</div>
+                    <div className="text-xs uppercase tracking-wide text-cream-200/60">{c.status}</div>
                   </div>
-                  <div className="text-right text-xs text-navy-600">
+                  <div className="text-right text-xs text-cream-200/80">
                     {format(new Date(c.scheduled_for), "EEE MMM d, h:mma")}
                   </div>
                 </li>

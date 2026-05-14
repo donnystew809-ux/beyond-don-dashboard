@@ -35,7 +35,7 @@ export default async function SettingsPage() {
 
       <section className="mb-10">
         <h2 className="mb-3 text-sm font-semibold">Mobile / home-screen install</h2>
-        <Suspense fallback={<div className="h-48 animate-pulse rounded-lg bg-cream-100" />}>
+        <Suspense fallback={<div className="h-48 animate-pulse rounded-lg bg-navy-800/50" />}>
           <MobileQR />
         </Suspense>
       </section>
@@ -51,20 +51,20 @@ export default async function SettingsPage() {
           </Link>
         </div>
         {!properties || properties.length === 0 ? (
-          <p className="text-sm text-navy-500">No properties yet.</p>
+          <p className="text-sm text-cream-200/60">No properties yet.</p>
         ) : (
-          <ul className="divide-y divide-cream-200 overflow-hidden rounded-lg border border-cream-200 bg-white">
+          <ul className="divide-y divide-navy-700/40 overflow-hidden rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm">
             {properties.map((p) => (
               <li key={p.id} className="flex items-center justify-between px-4 py-3.5">
                 <div>
                   <div className="text-sm font-medium">{p.name}</div>
-                  <div className="text-xs uppercase tracking-wide text-navy-500">
+                  <div className="text-xs uppercase tracking-wide text-cream-200/60">
                     {p.status}
                   </div>
                 </div>
                 <Link
                   href={`/settings/properties/${p.id}`}
-                  className="rounded px-3 py-2 text-xs font-medium text-navy-700 hover:bg-cream-100 hover:underline"
+                  className="rounded px-3 py-2 text-xs font-medium text-cream-100 hover:bg-navy-800/50 hover:underline"
                 >
                   Edit
                 </Link>
@@ -82,11 +82,11 @@ export default async function SettingsPage() {
       <section>
         <h2 className="mb-3 text-sm font-semibold">Recent sync runs</h2>
         {!syncs || syncs.length === 0 ? (
-          <p className="text-sm text-navy-500">No sync runs yet.</p>
+          <p className="text-sm text-cream-200/60">No sync runs yet.</p>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-cream-200 bg-white">
+          <div className="overflow-x-auto rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm">
             <table className="w-full text-xs">
-              <thead className="bg-cream-50 text-left text-navy-500">
+              <thead className="bg-navy-800/40 text-left text-cream-200/60">
                 <tr>
                   <th className="px-4 py-2">Source</th>
                   {/* Hide full timestamp on mobile — show relative time */}
@@ -96,35 +96,35 @@ export default async function SettingsPage() {
                   <th className="hidden px-4 py-2 sm:table-cell">Records</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-cream-200">
+              <tbody className="divide-y divide-navy-700/40">
                 {syncs.map((s, i) => (
                   <tr key={i}>
                     <td className="px-4 py-2 font-medium">{s.source}</td>
                     {/* Full timestamp on sm+ */}
-                    <td className="hidden px-4 py-2 text-navy-600 sm:table-cell">
+                    <td className="hidden px-4 py-2 text-cream-200/80 sm:table-cell">
                       {new Date(s.started_at).toLocaleString()}
                     </td>
                     {/* Relative time on mobile */}
-                    <td className="px-4 py-2 text-navy-600 sm:hidden">
+                    <td className="px-4 py-2 text-cream-200/80 sm:hidden">
                       {formatDistanceToNow(new Date(s.started_at), { addSuffix: true })}
                     </td>
                     <td className="px-4 py-2">
                       <span
                         className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wide ${
                           s.status === "ok"
-                            ? "bg-emerald-100 text-emerald-800"
+                            ? "bg-emerald-500/15 text-emerald-300"
                             : s.status === "error"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-cream-100 text-navy-700"
+                              ? "bg-red-500/15 text-red-300"
+                              : "bg-navy-800/50 text-cream-100"
                         }`}
                       >
                         {s.status}
                       </span>
                       {s.error && (
-                        <div className="mt-1 text-[10px] text-red-600">{s.error}</div>
+                        <div className="mt-1 text-[10px] text-red-400">{s.error}</div>
                       )}
                     </td>
-                    <td className="hidden px-4 py-2 text-navy-600 sm:table-cell">
+                    <td className="hidden px-4 py-2 text-cream-200/80 sm:table-cell">
                       {s.records_processed}
                     </td>
                   </tr>

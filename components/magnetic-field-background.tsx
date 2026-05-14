@@ -20,9 +20,17 @@ import { useEffect, useRef } from "react";
  */
 export function MagneticFieldBackground({
   tone = "dark",
+  transparent = false,
   className,
 }: {
   tone?: "dark" | "light";
+  /**
+   * When true, the canvas clears each frame instead of filling with the
+   * palette's bg gradient. Use for ambient backdrops where the field
+   * should sit BEHIND the page body color (e.g. the dashboard navy-950
+   * showing through). Line alphas are also halved for a faded feel.
+   */
+  transparent?: boolean;
   className?: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -88,21 +96,25 @@ export function MagneticFieldBackground({
       goldShadow: string;
     };
 
+    // Faded mode halves line/node alphas so the field reads as ambient
+    // rather than hero — used for the dashboard backdrop.
+    const fadeMul = transparent ? 0.5 : 1;
+
     const palettes: Record<"dark" | "light", Palette> = {
       dark: {
-        transparentBg: false,
+        transparentBg: transparent,
         bgInner: "#0a1230",
         bgOuter: "#04081a",
-        linkBlue: (a) => `rgba(80, 130, 240, ${a * 0.6})`,
-        linkGold: (a) => `rgba(212, 168, 87, ${a * 0.7})`,
-        linkMixed: (a) => `rgba(150, 160, 200, ${a * 0.55})`,
-        nodeRegularFill: "rgba(170, 200, 255, 0.95)",
+        linkBlue: (a) => `rgba(80, 130, 240, ${a * 0.6 * fadeMul})`,
+        linkGold: (a) => `rgba(212, 168, 87, ${a * 0.7 * fadeMul})`,
+        linkMixed: (a) => `rgba(150, 160, 200, ${a * 0.55 * fadeMul})`,
+        nodeRegularFill: `rgba(170, 200, 255, ${0.95 * fadeMul})`,
         nodeRegularShadow: "#3a66e8",
-        goldHaloInner: "rgba(240, 200, 110, 0.55)",
-        goldHaloMid: "rgba(212, 168, 87, 0.18)",
+        goldHaloInner: `rgba(240, 200, 110, ${0.55 * fadeMul})`,
+        goldHaloMid: `rgba(212, 168, 87, ${0.18 * fadeMul})`,
         goldHaloOuter: "rgba(212, 168, 87, 0)",
-        goldCore: "rgba(255, 230, 170, 1)",
-        goldPin: "rgba(255, 245, 220, 1)",
+        goldCore: `rgba(255, 230, 170, ${fadeMul})`,
+        goldPin: `rgba(255, 245, 220, ${fadeMul})`,
         goldShadow: "#f4c870",
       },
       light: {
@@ -344,19 +356,19 @@ export function MagneticFieldBackground({
       window.removeEventListener("resize", onResize);
       cancelAnimationFrame(rafId);
     };
-  }, [tone]);
+  }, [tone, transparent]);
 
-  // Positioning depends on tone:
-  // - "light": fixed inset-0 -z-10 transparent — paints above the body
-  //   cream bg but below all normal-flow content (sidebar, header, cards).
-  //   The field reads as a backdrop behind every dashboard page.
-  // - "dark": absolute inset-0 with a dark CSS fallback — fills its
-  //   positioned parent (login main / splash overlay). Content inside
-  //   that parent needs a positive z-index to sit on top.
-  const positionClasses =
-    tone === "light"
-      ? "pointer-events-none fixed inset-0 -z-10 h-full w-full"
-      : "pointer-events-none absolute inset-0 z-0 h-full w-full bg-navy-950";
+  // Positioning depends on whether the canvas is acting as an ambient
+  // backdrop or a hero canvas:
+  // - transparent=true: fixed inset-0 -z-10 — paints above the body's
+  //   bg color but below all normal-flow content. The field reads as a
+  //   subtle backdrop behind every dashboard page.
+  // - transparent=false (default): absolute inset-0 with a dark CSS
+  //   fallback — fills its positioned parent (login main / splash
+  //   overlay). Content inside that parent needs a positive z-index.
+  const positionClasses = transparent
+    ? "pointer-events-none fixed inset-0 -z-10 h-full w-full"
+    : "pointer-events-none absolute inset-0 z-0 h-full w-full bg-navy-950";
 
   return (
     <canvas

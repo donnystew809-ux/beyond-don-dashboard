@@ -23,30 +23,30 @@ export function AnalysisView({
   return (
     <div className="space-y-8">
       {positioning && (
-        <section className="overflow-hidden rounded-lg border border-cream-200 bg-white p-6">
-          <h2 className="gold-underline mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-navy-700">
+        <section className="overflow-hidden rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-6">
+          <h2 className="gold-underline mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-cream-100">
             Positioning
           </h2>
-          <p className="text-sm leading-relaxed text-navy-800">{positioning}</p>
+          <p className="text-sm leading-relaxed text-cream-50">{positioning}</p>
         </section>
       )}
 
-      <section className="overflow-hidden rounded-lg border border-cream-200 bg-white p-6">
-        <h2 className="gold-underline mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-navy-700">
+      <section className="overflow-hidden rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-6">
+        <h2 className="gold-underline mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-cream-100">
           Title alternatives
         </h2>
         {titles.length === 0 ? (
-          <p className="text-sm text-navy-500">None generated.</p>
+          <p className="text-sm text-cream-200/60">None generated.</p>
         ) : (
           <ol className="space-y-4">
             {titles.map((t, i) => (
               <li key={i} className="flex gap-4">
-                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gold-100 text-xs font-semibold text-gold-800">
+                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gold-500/20 text-xs font-semibold text-gold-300">
                   {i + 1}
                 </span>
                 <div>
-                  <div className="font-semibold text-navy-900">{t.title}</div>
-                  <div className="mt-1 text-xs text-navy-600">{t.rationale}</div>
+                  <div className="font-semibold text-cream-50">{t.title}</div>
+                  <div className="mt-1 text-xs text-cream-200/80">{t.rationale}</div>
                 </div>
               </li>
             ))}
@@ -55,35 +55,35 @@ export function AnalysisView({
       </section>
 
       {description && (
-        <section className="overflow-hidden rounded-lg border border-cream-200 bg-white p-6">
-          <h2 className="gold-underline mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-navy-700">
+        <section className="overflow-hidden rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-6">
+          <h2 className="gold-underline mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-cream-100">
             Suggested description
           </h2>
-          <p className="text-base font-medium text-navy-900">
+          <p className="text-base font-medium text-cream-50">
             {description.headline}
           </p>
-          <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-navy-800">
+          <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-cream-50">
             {description.body}
           </p>
         </section>
       )}
 
-      <section className="overflow-hidden rounded-lg border border-cream-200 bg-white p-6">
-        <h2 className="gold-underline mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-navy-700">
+      <section className="overflow-hidden rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-6">
+        <h2 className="gold-underline mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-cream-100">
           Amenity gaps
         </h2>
         {amenityGaps.length === 0 ? (
-          <p className="text-sm text-navy-500">None identified.</p>
+          <p className="text-sm text-cream-200/60">None identified.</p>
         ) : (
           <ul className="space-y-4">
             {amenityGaps.map((a, i) => (
               <li
                 key={i}
-                className="flex flex-col gap-1 border-b border-cream-200 pb-4 last:border-b-0 last:pb-0 md:flex-row md:items-start md:justify-between md:gap-6"
+                className="flex flex-col gap-1 border-b border-navy-700/40 pb-4 last:border-b-0 last:pb-0 md:flex-row md:items-start md:justify-between md:gap-6"
               >
                 <div>
-                  <div className="font-semibold text-navy-900">{a.amenity}</div>
-                  <div className="mt-1 text-xs text-navy-600">{a.rationale}</div>
+                  <div className="font-semibold text-cream-50">{a.amenity}</div>
+                  <div className="mt-1 text-xs text-cream-200/80">{a.rationale}</div>
                 </div>
                 <RoiPill roi={a.estimated_roi} />
               </li>
@@ -93,11 +93,11 @@ export function AnalysisView({
       </section>
 
       {pricingNotes && (
-        <section className="overflow-hidden rounded-lg border border-cream-200 bg-white p-6">
-          <h2 className="gold-underline mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-navy-700">
+        <section className="overflow-hidden rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-6">
+          <h2 className="gold-underline mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-cream-100">
             Pricing notes
           </h2>
-          <p className="text-sm leading-relaxed text-navy-800">
+          <p className="text-sm leading-relaxed text-cream-50">
             {pricingNotes}
           </p>
         </section>
@@ -108,9 +108,9 @@ export function AnalysisView({
 
 function RoiPill({ roi }: { roi: "high" | "medium" | "low" }) {
   const styles = {
-    high: "border-gold-500 bg-gold-50 text-gold-800",
-    medium: "border-navy-200 bg-cream-50 text-navy-700",
-    low: "border-cream-300 bg-cream-100 text-navy-500",
+    high: "border-gold-500 bg-gold-500/15 text-gold-300",
+    medium: "border-navy-400/50 bg-navy-800/40 text-cream-100",
+    low: "border-navy-700/50 bg-navy-800/50 text-cream-200/60",
   } as const;
   return (
     <span

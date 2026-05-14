@@ -108,7 +108,7 @@ export function PropertyForm({ property }: { property?: Initial }) {
               f.key === "address" || f.key === "ical_url" ? "md:col-span-2" : ""
             }`}
           >
-            <span className="font-medium text-navy-700">{f.label}</span>
+            <span className="font-medium text-cream-100">{f.label}</span>
             <input
               type={f.type ?? "text"}
               value={values[f.key]}
@@ -116,13 +116,13 @@ export function PropertyForm({ property }: { property?: Initial }) {
               onChange={(e) =>
                 setValues((v) => ({ ...v, [f.key]: e.target.value }))
               }
-              className="mt-1 block w-full rounded-md border border-cream-300 px-3 py-2 text-sm shadow-sm focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
+              className="mt-1 block w-full rounded-md border border-navy-700/50 px-3 py-2 text-sm shadow-sm focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
             />
           </label>
         ))}
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-red-400">{error}</p>}
 
       <div className="flex items-center gap-2">
         <button
@@ -135,7 +135,7 @@ export function PropertyForm({ property }: { property?: Initial }) {
         <button
           type="button"
           onClick={() => router.back()}
-          className="rounded-md border border-cream-300 px-4 py-2 text-sm font-medium text-navy-700 hover:bg-cream-50"
+          className="rounded-md border border-navy-700/50 px-4 py-2 text-sm font-medium text-cream-100 hover:bg-navy-800/40"
         >
           Cancel
         </button>

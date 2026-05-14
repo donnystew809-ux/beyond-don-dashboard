@@ -59,17 +59,17 @@ export function AddExpenseForm({ properties }: { properties: Property[] }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border border-cream-200 bg-white p-5">
+    <form onSubmit={handleSubmit} className="rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-5">
       <h2 className="mb-4 text-sm font-semibold">Add expense</h2>
 
       <div className="grid gap-4 sm:grid-cols-2">
         {/* Property */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-navy-700">Property *</label>
+          <label className="mb-1 block text-xs font-medium text-cream-100">Property *</label>
           <select
             name="property_id"
             required
-            className="w-full rounded-md border border-cream-300 bg-cream-50 px-3 py-2 text-sm focus:border-navy-500 focus:outline-none"
+            className="w-full rounded-md border border-navy-700/50 bg-navy-800/40 px-3 py-2 text-sm focus:border-navy-500 focus:outline-none"
           >
             <option value="">Select property…</option>
             {properties.map((p) => (
@@ -80,23 +80,23 @@ export function AddExpenseForm({ properties }: { properties: Property[] }) {
 
         {/* Date */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-navy-700">Date *</label>
+          <label className="mb-1 block text-xs font-medium text-cream-100">Date *</label>
           <input
             name="date"
             type="date"
             required
             defaultValue={new Date().toISOString().split("T")[0]}
-            className="w-full rounded-md border border-cream-300 bg-cream-50 px-3 py-2 text-sm focus:border-navy-500 focus:outline-none"
+            className="w-full rounded-md border border-navy-700/50 bg-navy-800/40 px-3 py-2 text-sm focus:border-navy-500 focus:outline-none"
           />
         </div>
 
         {/* Category */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-navy-700">Category *</label>
+          <label className="mb-1 block text-xs font-medium text-cream-100">Category *</label>
           <select
             name="category"
             required
-            className="w-full rounded-md border border-cream-300 bg-cream-50 px-3 py-2 text-sm focus:border-navy-500 focus:outline-none"
+            className="w-full rounded-md border border-navy-700/50 bg-navy-800/40 px-3 py-2 text-sm focus:border-navy-500 focus:outline-none"
           >
             <option value="">Select category…</option>
             {CATEGORIES.map((c) => (
@@ -107,7 +107,7 @@ export function AddExpenseForm({ properties }: { properties: Property[] }) {
 
         {/* Amount */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-navy-700">Amount (USD) *</label>
+          <label className="mb-1 block text-xs font-medium text-cream-100">Amount (USD) *</label>
           <input
             name="amount"
             type="number"
@@ -115,35 +115,35 @@ export function AddExpenseForm({ properties }: { properties: Property[] }) {
             min="0"
             required
             placeholder="0.00"
-            className="w-full rounded-md border border-cream-300 bg-cream-50 px-3 py-2 text-sm focus:border-navy-500 focus:outline-none"
+            className="w-full rounded-md border border-navy-700/50 bg-navy-800/40 px-3 py-2 text-sm focus:border-navy-500 focus:outline-none"
           />
         </div>
 
         {/* Vendor */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-navy-700">Vendor / Payee</label>
+          <label className="mb-1 block text-xs font-medium text-cream-100">Vendor / Payee</label>
           <input
             name="vendor"
             type="text"
             placeholder="e.g. Maria's Cleaning Co."
-            className="w-full rounded-md border border-cream-300 bg-cream-50 px-3 py-2 text-sm focus:border-navy-500 focus:outline-none"
+            className="w-full rounded-md border border-navy-700/50 bg-navy-800/40 px-3 py-2 text-sm focus:border-navy-500 focus:outline-none"
           />
         </div>
 
         {/* Description */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-navy-700">Notes</label>
+          <label className="mb-1 block text-xs font-medium text-cream-100">Notes</label>
           <input
             name="description"
             type="text"
             placeholder="Optional details…"
-            className="w-full rounded-md border border-cream-300 bg-cream-50 px-3 py-2 text-sm focus:border-navy-500 focus:outline-none"
+            className="w-full rounded-md border border-navy-700/50 bg-navy-800/40 px-3 py-2 text-sm focus:border-navy-500 focus:outline-none"
           />
         </div>
       </div>
 
-      {error && <p className="mt-3 text-xs text-red-600">{error}</p>}
-      {success && <p className="mt-3 text-xs text-emerald-600">Expense saved ✓</p>}
+      {error && <p className="mt-3 text-xs text-red-400">{error}</p>}
+      {success && <p className="mt-3 text-xs text-emerald-400">Expense saved ✓</p>}
 
       <div className="mt-4 flex justify-end">
         <button

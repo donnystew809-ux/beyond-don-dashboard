@@ -19,12 +19,12 @@ type Suggestion = {
 };
 
 const CATEGORY_META = {
-  pricing:     { emoji: "💰", label: "Pricing",     bg: "bg-gold-50",    border: "border-gold-200",    badge: "bg-gold-100 text-gold-800" },
-  automation:  { emoji: "🤖", label: "Automation",  bg: "bg-navy-50",    border: "border-navy-200",    badge: "bg-navy-100 text-navy-700" },
+  pricing:     { emoji: "💰", label: "Pricing",     bg: "bg-gold-500/15",    border: "border-gold-200",    badge: "bg-gold-500/20 text-gold-300" },
+  automation:  { emoji: "🤖", label: "Automation",  bg: "bg-navy-700/40",    border: "border-navy-400/50",    badge: "bg-navy-700/50 text-cream-100" },
   syncing:     { emoji: "🔄", label: "Sync",        bg: "bg-blue-50",    border: "border-blue-200",    badge: "bg-blue-100 text-blue-700" },
   messaging:   { emoji: "💬", label: "Messaging",   bg: "bg-purple-50",  border: "border-purple-200",  badge: "bg-purple-100 text-purple-700" },
-  gaps:        { emoji: "📅", label: "Gap Fill",    bg: "bg-amber-50",   border: "border-amber-200",   badge: "bg-amber-100 text-amber-800" },
-  integration: { emoji: "🔗", label: "Integration", bg: "bg-red-50",     border: "border-red-200",     badge: "bg-red-100 text-red-700" },
+  gaps:        { emoji: "📅", label: "Gap Fill",    bg: "bg-amber-500/10",   border: "border-amber-500/30",   badge: "bg-amber-500/15 text-amber-300" },
+  integration: { emoji: "🔗", label: "Integration", bg: "bg-red-500/10",     border: "border-red-500/30",     badge: "bg-red-500/15 text-red-300" },
 };
 
 const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
@@ -323,25 +323,25 @@ export default async function SuggestionsPage() {
 
       {/* Summary bar */}
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-lg border border-cream-200 bg-white p-4">
-          <div className="text-xs uppercase tracking-wide text-navy-500">Total suggestions</div>
-          <div className="mt-1 text-2xl font-bold text-navy-900">{suggestions.length}</div>
+        <div className="rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-4">
+          <div className="text-xs uppercase tracking-wide text-cream-200/60">Total suggestions</div>
+          <div className="mt-1 text-2xl font-bold text-cream-50">{suggestions.length}</div>
         </div>
-        <div className={`rounded-lg border p-4 ${totalHigh > 0 ? "border-red-200 bg-red-50" : "border-emerald-200 bg-emerald-50"}`}>
-          <div className={`text-xs uppercase tracking-wide ${totalHigh > 0 ? "text-red-600" : "text-emerald-600"}`}>High priority</div>
-          <div className={`mt-1 text-2xl font-bold ${totalHigh > 0 ? "text-red-700" : "text-emerald-700"}`}>{totalHigh}</div>
+        <div className={`rounded-lg border p-4 ${totalHigh > 0 ? "border-red-500/30 bg-red-500/10" : "border-emerald-500/30 bg-emerald-500/10"}`}>
+          <div className={`text-xs uppercase tracking-wide ${totalHigh > 0 ? "text-red-400" : "text-emerald-400"}`}>High priority</div>
+          <div className={`mt-1 text-2xl font-bold ${totalHigh > 0 ? "text-red-300" : "text-emerald-300"}`}>{totalHigh}</div>
         </div>
-        <div className="rounded-lg border border-cream-200 bg-white p-4">
-          <div className="text-xs uppercase tracking-wide text-navy-500">Properties swept</div>
-          <div className="mt-1 text-2xl font-bold text-navy-900">{active.length}</div>
+        <div className="rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-4">
+          <div className="text-xs uppercase tracking-wide text-cream-200/60">Properties swept</div>
+          <div className="mt-1 text-2xl font-bold text-cream-50">{active.length}</div>
         </div>
       </div>
 
       {suggestions.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-emerald-300 bg-emerald-50 p-14 text-center">
+        <div className="rounded-lg border border-dashed border-emerald-500/40 bg-emerald-500/10 p-14 text-center">
           <div className="text-4xl">🏆</div>
-          <div className="mt-3 text-sm font-semibold text-emerald-800">Portfolio is fully optimized!</div>
-          <div className="mt-1 text-xs text-emerald-600">No suggestions at this time. Check back later.</div>
+          <div className="mt-3 text-sm font-semibold text-emerald-300">Portfolio is fully optimized!</div>
+          <div className="mt-1 text-xs text-emerald-400">No suggestions at this time. Check back later.</div>
         </div>
       ) : (
         <div className="space-y-8">
@@ -353,7 +353,7 @@ export default async function SuggestionsPage() {
               <section key={cat}>
                 <div className="mb-3 flex items-center gap-2">
                   <span className="text-lg">{meta.emoji}</span>
-                  <h2 className="text-sm font-semibold text-navy-800">{meta.label}</h2>
+                  <h2 className="text-sm font-semibold text-cream-50">{meta.label}</h2>
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${meta.badge}`}>
                     {items.length}
                   </span>
@@ -377,10 +377,10 @@ function SuggestionCard({ suggestion: s }: { suggestion: Suggestion }) {
   const meta = CATEGORY_META[s.category];
   const priorityBadge =
     s.priority === "high"
-      ? "bg-red-100 text-red-700"
+      ? "bg-red-500/15 text-red-300"
       : s.priority === "medium"
-      ? "bg-amber-100 text-amber-700"
-      : "bg-cream-100 text-navy-500";
+      ? "bg-amber-500/15 text-amber-300"
+      : "bg-navy-800/50 text-cream-200/60";
 
   return (
     <div className={`rounded-lg border p-4 ${meta.border} ${meta.bg}`}>
@@ -388,7 +388,7 @@ function SuggestionCard({ suggestion: s }: { suggestion: Suggestion }) {
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             {s.property && (
-              <span className="text-xs font-semibold text-navy-600 bg-white rounded px-2 py-0.5 border border-cream-200">
+              <span className="text-xs font-semibold text-cream-200/80 bg-navy-900/60 backdrop-blur-sm rounded px-2 py-0.5 border border-navy-700/40">
                 {s.property}
               </span>
             )}
@@ -396,10 +396,10 @@ function SuggestionCard({ suggestion: s }: { suggestion: Suggestion }) {
               {s.priority}
             </span>
           </div>
-          <div className="text-sm font-semibold text-navy-900">{s.title}</div>
-          <p className="mt-1 text-xs text-navy-600 leading-relaxed">{s.detail}</p>
+          <div className="text-sm font-semibold text-cream-50">{s.title}</div>
+          <p className="mt-1 text-xs text-cream-200/80 leading-relaxed">{s.detail}</p>
           {s.impact && (
-            <p className="mt-1.5 text-[11px] font-medium text-navy-500">
+            <p className="mt-1.5 text-[11px] font-medium text-cream-200/60">
               💡 {s.impact}
             </p>
           )}

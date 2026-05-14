@@ -70,12 +70,12 @@ export default async function ThreadPage({
 
       <div className="grid gap-6 lg:grid-cols-[1fr,400px]">
         {/* Conversation */}
-        <section className="rounded-lg border border-cream-200 bg-white p-6">
-          <h2 className="gold-underline mb-5 text-sm font-semibold uppercase tracking-[0.16em] text-navy-700">
+        <section className="rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-6">
+          <h2 className="gold-underline mb-5 text-sm font-semibold uppercase tracking-[0.16em] text-cream-100">
             Conversation
           </h2>
           {!messages || messages.length === 0 ? (
-            <p className="text-sm text-navy-500">No messages yet.</p>
+            <p className="text-sm text-cream-200/60">No messages yet.</p>
           ) : (
             <ol className="space-y-4">
               {messages.map((m) => (
@@ -87,7 +87,7 @@ export default async function ThreadPage({
                     className={`max-w-[80%] rounded-lg px-4 py-3 ${
                       m.direction === "outbound"
                         ? "bg-navy-700 text-cream-50"
-                        : "bg-cream-100 text-navy-900"
+                        : "bg-navy-800/50 text-cream-50"
                     }`}
                   >
                     <div className="text-[10px] uppercase tracking-wider opacity-70">
@@ -103,7 +103,7 @@ export default async function ThreadPage({
               ))}
             </ol>
           )}
-          <div className="mt-6 border-t border-cream-200 pt-6">
+          <div className="mt-6 border-t border-navy-700/40 pt-6">
             <PasteFollowUp threadId={id} />
           </div>
         </section>

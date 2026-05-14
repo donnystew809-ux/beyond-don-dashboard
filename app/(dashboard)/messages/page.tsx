@@ -51,8 +51,8 @@ export default async function MessagesPage() {
 
       {/* Header row — stacks on mobile */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
-        <div className="flex-1 rounded-lg border border-gold-300 bg-gold-50 p-4 text-sm text-navy-800">
-          <strong className="text-gold-800">How this works:</strong> Paste a
+        <div className="flex-1 rounded-lg border border-gold-500/50 bg-gold-500/15 p-4 text-sm text-cream-50">
+          <strong className="text-gold-300">How this works:</strong> Paste a
           guest message, Claude drafts a reply in Donovan&apos;s voice. Review,
           edit, then copy into Airbnb. Sends are always manual.
         </div>
@@ -65,13 +65,13 @@ export default async function MessagesPage() {
       </div>
 
       {ts.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-cream-300 bg-white p-10 text-center text-sm text-navy-500">
+        <div className="rounded-lg border border-dashed border-navy-700/50 bg-navy-900/60 backdrop-blur-sm p-10 text-center text-sm text-cream-200/60">
           No threads yet. Click <em>Paste new message</em> above to start one.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-cream-200 bg-white">
+        <div className="overflow-x-auto rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm">
           <table className="w-full text-sm">
-            <thead className="bg-cream-50 text-left text-xs uppercase tracking-wide text-navy-500">
+            <thead className="bg-navy-800/40 text-left text-xs uppercase tracking-wide text-cream-200/60">
               <tr>
                 <th className="px-4 py-3">Guest</th>
                 <th className="hidden px-4 py-3 sm:table-cell">Property</th>
@@ -80,23 +80,23 @@ export default async function MessagesPage() {
                 <th className="px-4 py-3 text-right">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-cream-200">
+            <tbody className="divide-y divide-navy-700/40">
               {ts.map((t) => {
                 const pending = pendingByThread.get(t.id) ?? 0;
                 const property = Array.isArray(t.properties)
                   ? t.properties[0]
                   : t.properties;
                 return (
-                  <tr key={t.id} className="hover:bg-cream-50">
+                  <tr key={t.id} className="hover:bg-navy-800/40">
                     <td className="px-4 py-3">
                       <Link
                         href={`/messages/${t.id}`}
-                        className="font-medium text-navy-900 hover:underline"
+                        className="font-medium text-cream-50 hover:underline"
                       >
                         {t.guest_name || t.guest_first_name || "Unknown"}
                       </Link>
                       {/* Property + time inline on mobile */}
-                      <div className="mt-0.5 text-[10px] text-navy-400 sm:hidden">
+                      <div className="mt-0.5 text-[10px] text-cream-200/50 sm:hidden">
                         {property?.name ?? "—"}
                         {t.last_message_at && (
                           <>
@@ -108,15 +108,15 @@ export default async function MessagesPage() {
                         )}
                       </div>
                     </td>
-                    <td className="hidden px-4 py-3 text-navy-600 sm:table-cell">
+                    <td className="hidden px-4 py-3 text-cream-200/80 sm:table-cell">
                       {property?.name ?? "—"}
                     </td>
-                    <td className="px-4 py-3 text-navy-600">
+                    <td className="px-4 py-3 text-cream-200/80">
                       <span className="line-clamp-1 max-w-[160px] sm:max-w-xs md:max-w-md">
                         {t.last_message_preview ?? ""}
                       </span>
                     </td>
-                    <td className="hidden px-4 py-3 text-navy-500 md:table-cell">
+                    <td className="hidden px-4 py-3 text-cream-200/60 md:table-cell">
                       {t.last_message_at
                         ? formatDistanceToNow(new Date(t.last_message_at), {
                             addSuffix: true,
@@ -125,11 +125,11 @@ export default async function MessagesPage() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       {pending > 0 ? (
-                        <span className="whitespace-nowrap rounded-full bg-gold-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-gold-800">
+                        <span className="whitespace-nowrap rounded-full bg-gold-500/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-gold-300">
                           {pending} draft{pending > 1 ? "s" : ""}
                         </span>
                       ) : (
-                        <span className="text-xs text-navy-400">—</span>
+                        <span className="text-xs text-cream-200/50">—</span>
                       )}
                     </td>
                   </tr>

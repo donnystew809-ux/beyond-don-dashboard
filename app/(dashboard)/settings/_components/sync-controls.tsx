@@ -37,18 +37,18 @@ export function SyncControls() {
       {SYNCS.map((s) => (
         <div
           key={s.id}
-          className="flex items-center justify-between rounded-lg border border-cream-200 bg-white px-4 py-3"
+          className="flex items-center justify-between rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm px-4 py-3"
         >
           <div>
             <div className="text-sm font-medium">{s.label}</div>
             {results[s.id] && (
-              <div className="text-xs text-navy-500">{results[s.id]}</div>
+              <div className="text-xs text-cream-200/60">{results[s.id]}</div>
             )}
           </div>
           <button
             onClick={() => runSync(s.id)}
             disabled={running !== null}
-            className="rounded-md border border-cream-300 px-3 py-1.5 text-xs font-medium hover:bg-cream-50 disabled:opacity-50"
+            className="rounded-md border border-navy-700/50 px-3 py-1.5 text-xs font-medium hover:bg-navy-800/40 disabled:opacity-50"
           >
             {running === s.id ? "Running…" : "Run sync"}
           </button>

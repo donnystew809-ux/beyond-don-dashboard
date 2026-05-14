@@ -37,9 +37,9 @@
   --color-cream-200: #ece4d2;
   --color-cream-300: #d9ceb5;
 
-  /* Surface */
-  --background: var(--color-cream-50);
-  --foreground: var(--color-navy-900);
+  /* Surface — premium dark theme: royal blue primary, cream as accent */
+  --background: var(--color-navy-950);
+  --foreground: var(--color-cream-50);
 }
 
 @theme inline {

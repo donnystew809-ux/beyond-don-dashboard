@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { Sidebar } from "./_components/sidebar";
 import { Header } from "./_components/header";
+import { BottomNav } from "./_components/bottom-nav";
 import { MagneticFieldBackground } from "@/components/magnetic-field-background";
 
 export default async function DashboardLayout({
@@ -30,12 +31,16 @@ export default async function DashboardLayout({
 
   return (
     <div className="relative flex min-h-screen">
-      <MagneticFieldBackground tone="light" />
+      <MagneticFieldBackground tone="dark" transparent />
       <Sidebar role={role} />
       <div className="flex flex-1 flex-col">
         <Header email={user.email ?? ""} role={role} />
-        <main className="flex-1 overflow-y-auto px-4 py-6 md:px-6 md:py-8">{children}</main>
+        {/* Bottom padding on mobile leaves room for BottomNav (h ~64px + safe-area) */}
+        <main className="flex-1 overflow-y-auto px-4 pb-24 pt-6 md:px-6 md:pb-8 md:pt-8">
+          {children}
+        </main>
       </div>
+      <BottomNav role={role} />
     </div>
   );
 }

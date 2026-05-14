@@ -40,7 +40,7 @@ export function PasteFollowUp({ threadId }: { threadId: string }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="text-xs font-semibold uppercase tracking-wider text-navy-600 hover:text-navy-900"
+        className="text-xs font-semibold uppercase tracking-wider text-cream-200/80 hover:text-cream-50"
       >
         + Paste new guest reply
       </button>
@@ -49,7 +49,7 @@ export function PasteFollowUp({ threadId }: { threadId: string }) {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs font-semibold uppercase tracking-wider text-navy-500">
+      <p className="text-xs font-semibold uppercase tracking-wider text-cream-200/60">
         Paste the guest&apos;s new message
       </p>
       <textarea
@@ -57,7 +57,7 @@ export function PasteFollowUp({ threadId }: { threadId: string }) {
         onChange={(e) => setText(e.target.value)}
         rows={4}
         placeholder="What the guest just sent on Airbnb…"
-        className="w-full rounded-md border border-cream-300 bg-cream-50 p-3 text-sm text-navy-900 focus:border-gold-500 focus:outline-none"
+        className="w-full rounded-md border border-navy-700/50 bg-navy-800/40 p-3 text-sm text-cream-50 focus:border-gold-500 focus:outline-none"
       />
       <div className="flex gap-2">
         <button
@@ -73,12 +73,12 @@ export function PasteFollowUp({ threadId }: { threadId: string }) {
             setText("");
             setError(null);
           }}
-          className="rounded-md border border-cream-300 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-navy-700 hover:bg-cream-100"
+          className="rounded-md border border-navy-700/50 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-cream-100 hover:bg-navy-800/50"
         >
           Cancel
         </button>
       </div>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-red-400">{error}</p>}
     </div>
   );
 }

@@ -71,8 +71,8 @@ export default async function PricingPage() {
         description="PriceLabs suggested rates. Apply manually or flip Auto on per property."
       />
 
-      <div className="mb-6 rounded-lg border border-gold-300 bg-gold-50 p-4 text-sm text-navy-800">
-        <strong className="text-gold-800">How auto-pricing works:</strong>{" "}
+      <div className="mb-6 rounded-lg border border-gold-500/50 bg-gold-500/15 p-4 text-sm text-cream-50">
+        <strong className="text-gold-300">How auto-pricing works:</strong>{" "}
         With Auto on, the dashboard pushes PriceLabs&apos; suggested prices to
         Airbnb every morning at 9:30am for the next N days. Guardrails (deviation
         %, min/max price) prevent runaway suggestions. Click <em>Config</em> per
@@ -80,32 +80,32 @@ export default async function PricingPage() {
       </div>
 
       {propertyRows.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-cream-300 bg-white p-10 text-center text-sm text-navy-500">
+        <div className="rounded-lg border border-dashed border-navy-700/50 bg-navy-900/60 backdrop-blur-sm p-10 text-center text-sm text-cream-200/60">
           Add a property with a PriceLabs listing ID to start.
         </div>
       ) : (
         <>
           {/* Scroll hint — mobile only */}
-          <p className="mb-2 text-xs text-navy-400 sm:hidden">
+          <p className="mb-2 text-xs text-cream-200/50 sm:hidden">
             ← Swipe left to see all dates →
           </p>
-        <div className="overflow-x-auto rounded-lg border border-cream-200 bg-white">
+        <div className="overflow-x-auto rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm">
           <table className="min-w-full text-xs">
-            <thead className="bg-cream-50">
+            <thead className="bg-navy-800/40">
               <tr>
-                <th className="sticky left-0 z-10 w-28 bg-cream-50 px-2 py-2 text-left font-medium text-navy-600 sm:w-auto sm:px-3">
+                <th className="sticky left-0 z-10 w-28 bg-navy-800/40 px-2 py-2 text-left font-medium text-cream-200/80 sm:w-auto sm:px-3">
                   Property
                 </th>
                 {days.map((d) => (
                   <th
                     key={d.toISOString()}
-                    className="border-l border-cream-200 px-2 py-2 text-center text-navy-600"
+                    className="border-l border-navy-700/40 px-2 py-2 text-center text-cream-200/80"
                   >
                     <div>{format(d, "EEE")}</div>
-                    <div className="text-[10px] text-navy-400">{format(d, "M/d")}</div>
+                    <div className="text-[10px] text-cream-200/50">{format(d, "M/d")}</div>
                   </th>
                 ))}
-                <th className="border-l border-cream-200 px-3 py-2 text-right font-medium text-navy-600">
+                <th className="border-l border-navy-700/40 px-3 py-2 text-right font-medium text-cream-200/80">
                   Auto
                 </th>
               </tr>
@@ -114,11 +114,11 @@ export default async function PricingPage() {
               {propertyRows.map((p) => {
                 const propertyPrices = pricesByProperty.get(p.id) ?? new Map();
                 return (
-                  <tr key={p.id} className="border-t border-cream-200">
-                    <td className="sticky left-0 z-10 w-28 max-w-[112px] truncate bg-white px-2 py-2 text-left text-sm font-medium sm:w-auto sm:max-w-none sm:px-3">
+                  <tr key={p.id} className="border-t border-navy-700/40">
+                    <td className="sticky left-0 z-10 w-28 max-w-[112px] truncate bg-navy-900/60 backdrop-blur-sm px-2 py-2 text-left text-sm font-medium sm:w-auto sm:max-w-none sm:px-3">
                       {p.name}
                       {!p.pricelabs_listing_id && (
-                        <span className="ml-2 rounded-full bg-gold-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-gold-800">
+                        <span className="ml-2 rounded-full bg-gold-500/20 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-gold-300">
                           not connected
                         </span>
                       )}
@@ -140,13 +140,13 @@ export default async function PricingPage() {
                       return (
                         <td
                           key={key}
-                          className={`border-l border-cream-200 px-2 py-2 text-center ${
-                            overridden ? "bg-gold-50" : ""
+                          className={`border-l border-navy-700/40 px-2 py-2 text-center ${
+                            overridden ? "bg-gold-500/15" : ""
                           }`}
                         >
                           {value != null ? (
                             <span
-                              className={`text-sm ${overridden ? "font-semibold text-gold-800" : "text-navy-800"}`}
+                              className={`text-sm ${overridden ? "font-semibold text-gold-300" : "text-cream-50"}`}
                             >
                               {formatCurrency(Number(value), price?.currency ?? "USD")}
                             </span>
@@ -156,7 +156,7 @@ export default async function PricingPage() {
                         </td>
                       );
                     })}
-                    <td className="border-l border-cream-200 px-3 py-2 text-right">
+                    <td className="border-l border-navy-700/40 px-3 py-2 text-right">
                       <AutoPricingControls property={p} />
                     </td>
                   </tr>
@@ -168,7 +168,7 @@ export default async function PricingPage() {
         </>
       )}
 
-      <p className="mt-4 text-xs text-navy-500">
+      <p className="mt-4 text-xs text-cream-200/60">
         Highlighted cells = manual or auto overrides. Gold = an override is in
         place. Audit trail in <code>pricing_override_log</code>.
       </p>

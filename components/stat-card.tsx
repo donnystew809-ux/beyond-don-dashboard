@@ -16,10 +16,10 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-lg border bg-white p-5 shadow-sm transition",
+        "relative overflow-hidden rounded-lg border bg-navy-900/60 p-5 shadow-lg backdrop-blur-sm transition",
         highlight
-          ? "border-gold-300 ring-1 ring-gold-200"
-          : "border-cream-200 hover:border-cream-300",
+          ? "border-gold-500/40 ring-1 ring-gold-500/20"
+          : "border-navy-700/50 hover:border-gold-500/30",
         className,
       )}
     >
@@ -28,16 +28,16 @@ export function StatCard({
         aria-hidden
         className={cn(
           "absolute left-0 right-0 top-0 h-[3px]",
-          highlight ? "bg-gold-gradient" : "bg-cream-200",
+          highlight ? "bg-gold-gradient" : "bg-gold-500/20",
         )}
       />
-      <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-navy-500">
+      <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-cream-200/70">
         {label}
       </div>
-      <div className="mt-2 text-2xl font-semibold tracking-tight text-navy-900">
+      <div className="mt-2 text-2xl font-semibold tracking-tight text-cream-50">
         {value}
       </div>
-      {hint && <div className="mt-1 text-xs text-navy-500">{hint}</div>}
+      {hint && <div className="mt-1 text-xs text-cream-200/60">{hint}</div>}
     </div>
   );
 }

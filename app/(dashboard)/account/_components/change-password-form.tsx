@@ -43,7 +43,7 @@ export function ChangePasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="max-w-md space-y-4">
       <label className="block">
-        <span className="text-xs font-medium uppercase tracking-wider text-navy-600">
+        <span className="text-xs font-medium uppercase tracking-wider text-cream-200/80">
           New password
         </span>
         <input
@@ -53,12 +53,12 @@ export function ChangePasswordForm() {
           onChange={(event) => setPassword(event.target.value)}
           autoComplete="new-password"
           minLength={8}
-          className="mt-2 block w-full rounded-md border border-cream-200 bg-white px-3 py-2.5 text-base text-navy-900 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
+          className="mt-2 block w-full rounded-md border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm px-3 py-2.5 text-base text-cream-50 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
         />
       </label>
 
       <label className="block">
-        <span className="text-xs font-medium uppercase tracking-wider text-navy-600">
+        <span className="text-xs font-medium uppercase tracking-wider text-cream-200/80">
           Confirm password
         </span>
         <input
@@ -68,7 +68,7 @@ export function ChangePasswordForm() {
           onChange={(event) => setConfirm(event.target.value)}
           autoComplete="new-password"
           minLength={8}
-          className="mt-2 block w-full rounded-md border border-cream-200 bg-white px-3 py-2.5 text-base text-navy-900 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
+          className="mt-2 block w-full rounded-md border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm px-3 py-2.5 text-base text-cream-50 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
         />
       </label>
 
@@ -81,11 +81,11 @@ export function ChangePasswordForm() {
       </button>
 
       {success && (
-        <p className="text-sm text-emerald-700">
+        <p className="text-sm text-emerald-300">
           Password updated. Use your new password next time you sign in.
         </p>
       )}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-red-400">{error}</p>}
     </form>
   );
 }

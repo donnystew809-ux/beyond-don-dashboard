@@ -11,9 +11,9 @@ export function MobileQR() {
   const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&color=0a1f44&bgcolor=fbf9f3&data=${encodeURIComponent(url)}&format=png&margin=4`;
 
   return (
-    <div className="grid gap-6 rounded-lg border border-cream-200 bg-white p-6 md:grid-cols-[220px,1fr]">
+    <div className="grid gap-6 rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-6 md:grid-cols-[220px,1fr]">
       <div className="flex flex-col items-center gap-3">
-        <div className="rounded-md border border-cream-300 bg-cream-50 p-3">
+        <div className="rounded-md border border-navy-700/50 bg-navy-800/40 p-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={qrSrc}
@@ -25,13 +25,13 @@ export function MobileQR() {
         </div>
         <a
           href={url}
-          className="text-[10px] uppercase tracking-wider text-navy-500 hover:text-navy-800"
+          className="text-[10px] uppercase tracking-wider text-cream-200/60 hover:text-cream-50"
         >
           {url.replace(/^https?:\/\//, "")}
         </a>
       </div>
-      <div className="space-y-3 text-sm text-navy-700">
-        <h3 className="text-base font-semibold text-navy-900">
+      <div className="space-y-3 text-sm text-cream-100">
+        <h3 className="text-base font-semibold text-cream-50">
           Add to your iPhone home screen
         </h3>
         <ol className="list-decimal space-y-2 pl-5 text-sm">
@@ -50,7 +50,7 @@ export function MobileQR() {
             <strong>Add</strong>.
           </li>
         </ol>
-        <p className="rounded-md bg-cream-50 p-3 text-xs leading-relaxed text-navy-600">
+        <p className="rounded-md bg-navy-800/40 p-3 text-xs leading-relaxed text-cream-200/80">
           The icon will look like a native app — full-screen, no Safari UI, gold
           + navy theme. Sign-in persists, so after the first magic link you
           won&apos;t need to log in again on that device.

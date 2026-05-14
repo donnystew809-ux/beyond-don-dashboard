@@ -58,7 +58,7 @@ export function AnalyzeButton({
             : "Analyze with AI"}
       </button>
       {error && (
-        <p className="max-w-xs text-right text-xs text-red-600">{error}</p>
+        <p className="max-w-xs text-right text-xs text-red-400">{error}</p>
       )}
     </div>
   );

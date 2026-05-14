@@ -91,13 +91,13 @@ export default async function ExpensesPage() {
 
       {/* Table */}
       {expList.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-cream-300 bg-white p-10 text-center text-sm text-navy-500">
+        <div className="rounded-lg border border-dashed border-navy-700/50 bg-navy-900/60 backdrop-blur-sm p-10 text-center text-sm text-cream-200/60">
           No expenses logged yet. Add one above.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-cream-200 bg-white">
+        <div className="overflow-x-auto rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm">
           <table className="w-full text-sm">
-            <thead className="bg-cream-50 text-left text-xs uppercase tracking-wide text-navy-500">
+            <thead className="bg-navy-800/40 text-left text-xs uppercase tracking-wide text-cream-200/60">
               <tr>
                 <th className="px-4 py-3">Date</th>
                 <th className="px-4 py-3">Property</th>
@@ -107,34 +107,34 @@ export default async function ExpensesPage() {
                 <th className="px-4 py-3 text-right">Amount</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-cream-200">
+            <tbody className="divide-y divide-navy-700/40">
               {expList.map((e) => (
-                <tr key={e.id} className="hover:bg-cream-50">
-                  <td className="px-4 py-3 text-navy-600">{format(new Date(e.date), "MMM d, yyyy")}</td>
-                  <td className="px-4 py-3 font-medium text-navy-900">
+                <tr key={e.id} className="hover:bg-navy-800/40">
+                  <td className="px-4 py-3 text-cream-200/80">{format(new Date(e.date), "MMM d, yyyy")}</td>
+                  <td className="px-4 py-3 font-medium text-cream-50">
                     {propMap.get(e.property_id) ?? "—"}
                   </td>
-                  <td className="px-4 py-3 text-navy-600">
+                  <td className="px-4 py-3 text-cream-200/80">
                     {CATEGORY_LABELS[e.category] ?? e.category}
                   </td>
-                  <td className="hidden px-4 py-3 text-navy-500 sm:table-cell">
+                  <td className="hidden px-4 py-3 text-cream-200/60 sm:table-cell">
                     {e.vendor ?? "—"}
                   </td>
-                  <td className="hidden px-4 py-3 text-navy-400 md:table-cell">
+                  <td className="hidden px-4 py-3 text-cream-200/50 md:table-cell">
                     <span className="line-clamp-1 max-w-[200px]">{e.description ?? "—"}</span>
                   </td>
-                  <td className="px-4 py-3 text-right font-semibold text-navy-900">
+                  <td className="px-4 py-3 text-right font-semibold text-cream-50">
                     {formatUSD(Number(e.amount))}
                   </td>
                 </tr>
               ))}
             </tbody>
-            <tfoot className="border-t-2 border-cream-300 bg-cream-50">
+            <tfoot className="border-t-2 border-navy-700/50 bg-navy-800/40">
               <tr>
-                <td colSpan={5} className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-navy-600">
+                <td colSpan={5} className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-cream-200/80">
                   Total shown
                 </td>
-                <td className="px-4 py-3 text-right font-bold text-navy-900">
+                <td className="px-4 py-3 text-right font-bold text-cream-50">
                   {formatUSD(expList.reduce((s, e) => s + Number(e.amount), 0))}
                 </td>
               </tr>
@@ -148,10 +148,10 @@ export default async function ExpensesPage() {
 
 function KpiCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-lg border border-cream-200 bg-white p-4">
-      <div className="text-xs uppercase tracking-wide text-navy-500">{label}</div>
-      <div className="mt-1 text-xl font-bold text-navy-900">{value}</div>
-      {sub && <div className="text-xs text-navy-400">{sub}</div>}
+    <div className="rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-4">
+      <div className="text-xs uppercase tracking-wide text-cream-200/60">{label}</div>
+      <div className="mt-1 text-xl font-bold text-cream-50">{value}</div>
+      {sub && <div className="text-xs text-cream-200/50">{sub}</div>}
     </div>
   );
 }

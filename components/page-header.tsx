@@ -8,13 +8,13 @@ export function PageHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-col gap-3 border-b border-cream-200 pb-5 sm:mb-8 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+    <div className="mb-6 flex flex-col gap-3 border-b border-navy-700/40 pb-5 sm:mb-8 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
       <div>
-        <h1 className="gold-underline text-2xl font-semibold tracking-tight text-navy-900">
+        <h1 className="gold-underline text-2xl font-semibold tracking-tight text-cream-50">
           {title}
         </h1>
         {description && (
-          <p className="mt-3 text-sm text-navy-600">{description}</p>
+          <p className="mt-3 text-sm text-cream-200/70">{description}</p>
         )}
       </div>
       {action && <div className="shrink-0">{action}</div>}

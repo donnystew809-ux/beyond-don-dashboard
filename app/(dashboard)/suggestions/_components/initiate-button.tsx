@@ -51,7 +51,7 @@ export function InitiateButton({
 
   if (state === "done") {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-100 px-3 py-2 text-xs font-semibold text-emerald-800">
+      <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-300">
         ✓ {msg}
       </span>
     );
@@ -59,7 +59,7 @@ export function InitiateButton({
 
   if (state === "error") {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-md bg-red-100 px-3 py-2 text-xs font-semibold text-red-700">
+      <span className="inline-flex items-center gap-1.5 rounded-md bg-red-500/15 px-3 py-2 text-xs font-semibold text-red-300">
         ✗ {msg}
       </span>
     );

@@ -167,22 +167,22 @@ export default async function AlertsPage() {
       />
 
       {alerts.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-emerald-300 bg-emerald-50 p-12 text-center">
+        <div className="rounded-lg border border-dashed border-emerald-500/40 bg-emerald-500/10 p-12 text-center">
           <div className="text-4xl">✅</div>
-          <div className="mt-3 text-sm font-semibold text-emerald-800">All clear!</div>
-          <div className="mt-1 text-xs text-emerald-600">No alerts at this time. Check back later.</div>
+          <div className="mt-3 text-sm font-semibold text-emerald-300">All clear!</div>
+          <div className="mt-1 text-xs text-emerald-400">No alerts at this time. Check back later.</div>
         </div>
       ) : (
         <div className="space-y-3">
           {/* Summary bar */}
-          <div className="flex flex-wrap gap-3 rounded-lg border border-cream-200 bg-white px-4 py-3 text-xs">
+          <div className="flex flex-wrap gap-3 rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm px-4 py-3 text-xs">
             {(["critical", "warning", "info"] as const).map((sev) => {
               const n = alerts.filter((a) => a.severity === sev).length;
               if (!n) return null;
               const colors = {
-                critical: "text-red-700 bg-red-100",
-                warning: "text-amber-700 bg-amber-100",
-                info: "text-navy-700 bg-navy-100",
+                critical: "text-red-300 bg-red-500/15",
+                warning: "text-amber-300 bg-amber-500/15",
+                info: "text-cream-100 bg-navy-700/50",
               }[sev];
               return (
                 <span key={sev} className={`rounded-full px-2.5 py-1 font-semibold ${colors}`}>
@@ -204,27 +204,27 @@ export default async function AlertsPage() {
 function AlertCard({ alert }: { alert: Alert }) {
   const config = {
     critical: {
-      border: "border-red-200",
-      bg: "bg-red-50",
+      border: "border-red-500/30",
+      bg: "bg-red-500/10",
       icon: "🚨",
-      titleColor: "text-red-800",
-      badgeBg: "bg-red-100 text-red-700",
+      titleColor: "text-red-300",
+      badgeBg: "bg-red-500/15 text-red-300",
       badgeLabel: "Critical",
     },
     warning: {
-      border: "border-amber-200",
-      bg: "bg-amber-50",
+      border: "border-amber-500/30",
+      bg: "bg-amber-500/10",
       icon: "⚠️",
-      titleColor: "text-amber-800",
-      badgeBg: "bg-amber-100 text-amber-700",
+      titleColor: "text-amber-300",
+      badgeBg: "bg-amber-500/15 text-amber-300",
       badgeLabel: "Warning",
     },
     info: {
-      border: "border-navy-200",
-      bg: "bg-navy-50",
+      border: "border-navy-400/50",
+      bg: "bg-navy-700/40",
       icon: "ℹ️",
-      titleColor: "text-navy-800",
-      badgeBg: "bg-navy-100 text-navy-700",
+      titleColor: "text-cream-50",
+      badgeBg: "bg-navy-700/50 text-cream-100",
       badgeLabel: "Info",
     },
   }[alert.severity];
@@ -241,13 +241,13 @@ function AlertCard({ alert }: { alert: Alert }) {
                 {config.badgeLabel}
               </span>
             </div>
-            <p className="mt-1 text-xs text-navy-600">{alert.detail}</p>
+            <p className="mt-1 text-xs text-cream-200/80">{alert.detail}</p>
           </div>
         </div>
         {alert.action && (
           <a
             href={alert.action.href}
-            className="shrink-0 rounded-md border border-navy-200 bg-white px-3 py-1.5 text-xs font-medium text-navy-700 hover:bg-navy-50 transition whitespace-nowrap"
+            className="shrink-0 rounded-md border border-navy-400/50 bg-navy-900/60 backdrop-blur-sm px-3 py-1.5 text-xs font-medium text-cream-100 hover:bg-navy-700/40 transition whitespace-nowrap"
           >
             {alert.action.label} →
           </a>

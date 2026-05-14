@@ -35,7 +35,7 @@ export function AutoPricingControls({ property }: { property: Property }) {
 
   if (!property.pricelabs_listing_id) {
     return (
-      <span className="text-[10px] uppercase tracking-wide text-navy-400">
+      <span className="text-[10px] uppercase tracking-wide text-cream-200/50">
         not connected
       </span>
     );
@@ -107,12 +107,12 @@ export function AutoPricingControls({ property }: { property: Property }) {
         <button
           onClick={applyNow}
           disabled={busy}
-          className="rounded-md border border-navy-700 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-navy-700 hover:bg-navy-700 hover:text-cream-50 disabled:opacity-50"
+          className="rounded-md border border-navy-700 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-cream-100 hover:bg-navy-700 hover:text-cream-50 disabled:opacity-50"
           title={`Apply suggested prices for next ${horizon} days`}
         >
           {busy ? "…" : "Apply"}
         </button>
-        <label className="flex cursor-pointer items-center gap-1 text-[10px] uppercase tracking-wider text-navy-600">
+        <label className="flex cursor-pointer items-center gap-1 text-[10px] uppercase tracking-wider text-cream-200/80">
           <input
             type="checkbox"
             checked={auto}
@@ -124,13 +124,13 @@ export function AutoPricingControls({ property }: { property: Property }) {
         </label>
         <button
           onClick={() => setShowConfig((s) => !s)}
-          className="text-[10px] uppercase tracking-wider text-navy-500 hover:text-navy-800"
+          className="text-[10px] uppercase tracking-wider text-cream-200/60 hover:text-cream-50"
         >
           {showConfig ? "Hide" : "Config"}
         </button>
       </div>
       {showConfig && (
-        <div className="mt-1 flex flex-col gap-1 rounded border border-cream-300 bg-cream-50 p-2 text-[10px]">
+        <div className="mt-1 flex flex-col gap-1 rounded border border-navy-700/50 bg-navy-800/40 p-2 text-[10px]">
           <Field label={`Deviation cap: ±${deviation}%`}>
             <input
               type="range"
@@ -158,7 +158,7 @@ export function AutoPricingControls({ property }: { property: Property }) {
               onChange={(e) =>
                 setMinPrice(e.target.value === "" ? "" : Number(e.target.value))
               }
-              className="w-16 rounded border border-cream-300 px-1 py-0.5 text-right"
+              className="w-16 rounded border border-navy-700/50 px-1 py-0.5 text-right"
             />
           </Field>
           <Field label="Max $">
@@ -168,7 +168,7 @@ export function AutoPricingControls({ property }: { property: Property }) {
               onChange={(e) =>
                 setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))
               }
-              className="w-16 rounded border border-cream-300 px-1 py-0.5 text-right"
+              className="w-16 rounded border border-navy-700/50 px-1 py-0.5 text-right"
             />
           </Field>
           <button
@@ -180,14 +180,14 @@ export function AutoPricingControls({ property }: { property: Property }) {
           </button>
         </div>
       )}
-      {msg && <p className="max-w-[200px] text-right text-[9px] text-navy-500">{msg}</p>}
+      {msg && <p className="max-w-[200px] text-right text-[9px] text-cream-200/60">{msg}</p>}
     </div>
   );
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="flex items-center justify-between gap-2 text-navy-600">
+    <label className="flex items-center justify-between gap-2 text-cream-200/80">
       <span>{label}</span>
       {children}
     </label>

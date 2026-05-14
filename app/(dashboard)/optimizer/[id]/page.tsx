@@ -41,11 +41,11 @@ export default async function OptimizerDetailPage(
       />
 
       {!optimization ? (
-        <div className="rounded-lg border border-dashed border-cream-300 bg-white p-10 text-center">
-          <p className="text-sm text-navy-600">
+        <div className="rounded-lg border border-dashed border-navy-700/50 bg-navy-900/60 backdrop-blur-sm p-10 text-center">
+          <p className="text-sm text-cream-200/80">
             No analysis yet for this property.
           </p>
-          <p className="mt-1 text-xs text-navy-500">
+          <p className="mt-1 text-xs text-cream-200/60">
             Click <strong>Analyze with AI</strong> to generate one.
           </p>
         </div>
@@ -54,7 +54,7 @@ export default async function OptimizerDetailPage(
       )}
 
       {optimization && (
-        <p className="mt-8 text-xs text-navy-500">
+        <p className="mt-8 text-xs text-cream-200/60">
           Generated {format(new Date(optimization.generated_at), "MMM d, yyyy 'at' h:mma")}{" "}
           using {optimization.model}
           {optimization.cost_usd != null && (

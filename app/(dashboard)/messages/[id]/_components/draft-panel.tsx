@@ -50,8 +50,8 @@ export function DraftPanel({
 
   return (
     <>
-      <div className="rounded-lg border border-cream-200 bg-white p-5">
-        <h2 className="gold-underline mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-navy-700">
+      <div className="rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-5">
+        <h2 className="gold-underline mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-cream-100">
           AI Draft
         </h2>
 
@@ -59,7 +59,7 @@ export function DraftPanel({
           <DraftActions threadId={threadId} draft={pendingDraft} />
         ) : (
           <div className="space-y-3">
-            <p className="text-sm text-navy-600">
+            <p className="text-sm text-cream-200/80">
               No pending draft. Generate one based on the latest guest message.
             </p>
             <button
@@ -69,29 +69,29 @@ export function DraftPanel({
             >
               {generating ? "Drafting…" : "Generate draft"}
             </button>
-            {error && <p className="text-xs text-red-600">{error}</p>}
+            {error && <p className="text-xs text-red-400">{error}</p>}
           </div>
         )}
       </div>
 
       {recentDrafts.length > 0 && (
-        <div className="rounded-lg border border-cream-200 bg-white p-5">
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-navy-500">
+        <div className="rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-5">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-cream-200/60">
             History ({recentDrafts.length})
           </h3>
           <ul className="space-y-3 text-xs">
             {recentDrafts.map((d) => (
               <li
                 key={d.id}
-                className="border-l-2 border-cream-300 pl-3 text-navy-600"
+                className="border-l-2 border-navy-700/50 pl-3 text-cream-200/80"
               >
                 <div className="flex items-center gap-2">
                   <StatusBadge status={d.status} />
-                  <span className="text-navy-400">
+                  <span className="text-cream-200/50">
                     {format(new Date(d.created_at), "MMM d, h:mma")}
                   </span>
                 </div>
-                <p className="mt-1 line-clamp-2 text-navy-700">
+                <p className="mt-1 line-clamp-2 text-cream-100">
                   {d.edited_body || d.draft_body}
                 </p>
               </li>
@@ -149,10 +149,10 @@ function DraftActions({ threadId: _threadId, draft }: { threadId: string; draft:
         value={body}
         onChange={(e) => setBody(e.target.value)}
         rows={5}
-        className="w-full rounded-md border border-cream-300 bg-cream-50 p-3 text-sm text-navy-900 focus:border-gold-500 focus:outline-none"
+        className="w-full rounded-md border border-navy-700/50 bg-navy-800/40 p-3 text-sm text-cream-50 focus:border-gold-500 focus:outline-none"
       />
       {draft.reasoning && (
-        <p className="text-xs italic text-navy-500">
+        <p className="text-xs italic text-cream-200/60">
           Reasoning: {draft.reasoning}
         </p>
       )}
@@ -173,24 +173,24 @@ function DraftActions({ threadId: _threadId, draft }: { threadId: string; draft:
         <button
           onClick={() => action("mark_sent")}
           disabled={busy}
-          className="rounded-md border border-cream-300 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-navy-700 hover:bg-cream-100 disabled:opacity-50"
+          className="rounded-md border border-navy-700/50 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-cream-100 hover:bg-navy-800/50 disabled:opacity-50"
         >
           Mark sent
         </button>
         <button
           onClick={() => action("reject")}
           disabled={busy}
-          className="rounded-md border border-red-300 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-red-700 hover:bg-red-50 disabled:opacity-50"
+          className="rounded-md border border-red-300 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-red-300 hover:bg-red-500/10 disabled:opacity-50"
         >
           Reject
         </button>
       </div>
       {draft.cost_usd != null && (
-        <p className="text-[10px] text-navy-400">
+        <p className="text-[10px] text-cream-200/50">
           Cost: ${Number(draft.cost_usd).toFixed(4)}
         </p>
       )}
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-red-400">{error}</p>}
     </div>
   );
 }
@@ -198,14 +198,14 @@ function DraftActions({ threadId: _threadId, draft }: { threadId: string; draft:
 function StatusBadge({ status }: { status: string }) {
   const cls =
     status === "pending"
-      ? "bg-gold-100 text-gold-800"
+      ? "bg-gold-500/20 text-gold-300"
       : status === "approved" || status === "sent"
         ? "bg-green-100 text-green-800"
         : status === "edited"
-          ? "bg-navy-100 text-navy-800"
+          ? "bg-navy-700/50 text-cream-50"
           : status === "rejected"
-            ? "bg-red-100 text-red-800"
-            : "bg-cream-200 text-navy-600";
+            ? "bg-red-500/15 text-red-300"
+            : "bg-cream-200 text-cream-200/80";
   return (
     <span
       className={`rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${cls}`}

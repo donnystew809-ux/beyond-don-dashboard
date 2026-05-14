@@ -24,14 +24,14 @@ export function Header({
   }
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-cream-200 bg-cream-50 px-4 md:px-6">
+    <header className="flex h-14 items-center justify-between border-b border-navy-700/40 bg-navy-900/60 px-4 backdrop-blur-sm md:px-6">
       <div className="flex items-center gap-2">
-        {/* Hamburger — visible on mobile only */}
+        {/* Hamburger — visible on mobile only (bottom-nav More also opens drawer) */}
         <MobileMenuButton role={role} />
 
-        <div className="text-sm text-navy-700">
-          <span className="hidden text-navy-500 sm:inline">Signed in as </span>
-          <span className="font-medium text-navy-900">
+        <div className="text-sm text-cream-100">
+          <span className="hidden text-cream-200/60 sm:inline">Signed in as </span>
+          <span className="font-medium text-cream-50">
             <span className="hidden sm:inline">{email}</span>
             <span className="inline sm:hidden">{email.split("@")[0]}</span>
           </span>
@@ -39,8 +39,8 @@ export function Header({
             <span
               className={
                 role === "admin"
-                  ? "ml-2 rounded-full border border-gold-500 bg-gold-50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-gold-700"
-                  : "ml-2 rounded-full border border-navy-200 bg-navy-50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-navy-700"
+                  ? "ml-2 rounded-full border border-gold-500/60 bg-gold-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-gold-300"
+                  : "ml-2 rounded-full border border-navy-400/60 bg-navy-700/40 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-cream-200"
               }
             >
               {role}
@@ -51,7 +51,7 @@ export function Header({
 
       <button
         onClick={handleSignOut}
-        className="rounded-md border border-navy-200 px-3 py-2 text-xs font-medium uppercase tracking-wider text-navy-700 transition hover:border-navy-700 hover:bg-navy-700 hover:text-cream-50"
+        className="rounded-md border border-cream-200/30 px-3 py-2 text-xs font-medium uppercase tracking-wider text-cream-100 transition hover:border-gold-400 hover:bg-gold-500/10 hover:text-gold-200"
       >
         Sign out
       </button>

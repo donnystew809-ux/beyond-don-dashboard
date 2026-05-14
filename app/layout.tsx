@@ -47,7 +47,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-cream-50 text-navy-900">
+      <body className="min-h-full bg-navy-950 text-cream-50">
         <SplashScreen />
         {children}
       </body>
