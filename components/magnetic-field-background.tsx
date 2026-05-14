@@ -66,7 +66,13 @@ export function MagneticFieldBackground({
     }
 
     // ── palette ────────────────────────────────────────────────────────
+    // `transparentBg: true` makes the canvas clear each frame so whatever
+    // is BEHIND it (the page's body bg, etc.) shows through. We use that
+    // for the dashboard (light tone) so the field reads as a subtle
+    // backdrop over cream. The login/splash uses an opaque gradient so it
+    // looks like a finished hero canvas.
     type Palette = {
+      transparentBg: boolean;
       bgInner: string;
       bgOuter: string;
       linkBlue: (a: number) => string;
@@ -84,6 +90,7 @@ export function MagneticFieldBackground({
 
     const palettes: Record<"dark" | "light", Palette> = {
       dark: {
+        transparentBg: false,
         bgInner: "#0a1230",
         bgOuter: "#04081a",
         linkBlue: (a) => `rgba(80, 130, 240, ${a * 0.6})`,
@@ -99,18 +106,21 @@ export function MagneticFieldBackground({
         goldShadow: "#f4c870",
       },
       light: {
-        // Subtle gradient over cream — the field is the accent, not the focus.
-        bgInner: "#fbf9f3", // cream-50
-        bgOuter: "#f5f1e8", // cream-100
-        linkBlue: (a) => `rgba(26, 50, 99, ${a * 0.32})`, // navy-700 lines
-        linkGold: (a) => `rgba(176, 140, 74, ${a * 0.55})`, // gold-600 lines
-        linkMixed: (a) => `rgba(90, 124, 175, ${a * 0.28})`, // navy-400 lines
-        nodeRegularFill: "rgba(26, 50, 99, 0.72)",
+        // Transparent so the body's cream shows through — the field is the
+        // accent, not the focus. Opacities bumped so navy lines on cream
+        // actually register without overpowering UI cards above.
+        transparentBg: true,
+        bgInner: "rgba(0,0,0,0)", // unused when transparentBg
+        bgOuter: "rgba(0,0,0,0)",
+        linkBlue: (a) => `rgba(26, 50, 99, ${a * 0.62})`, // navy-700 lines
+        linkGold: (a) => `rgba(176, 140, 74, ${a * 0.85})`, // gold-600 lines
+        linkMixed: (a) => `rgba(90, 124, 175, ${a * 0.55})`, // navy-400 lines
+        nodeRegularFill: "rgba(26, 50, 99, 0.90)",
         nodeRegularShadow: "#294476",
-        goldHaloInner: "rgba(212, 168, 87, 0.42)",
-        goldHaloMid: "rgba(176, 140, 74, 0.14)",
+        goldHaloInner: "rgba(212, 168, 87, 0.65)",
+        goldHaloMid: "rgba(176, 140, 74, 0.22)",
         goldHaloOuter: "rgba(176, 140, 74, 0)",
-        goldCore: "rgba(176, 140, 74, 0.95)",
+        goldCore: "rgba(176, 140, 74, 1)",
         goldPin: "rgba(139, 110, 52, 1)",
         goldShadow: "#c9a96a",
       },
@@ -183,12 +193,17 @@ export function MagneticFieldBackground({
 
     function drawFrame() {
       const c = ctx!;
-      // background
-      const bgGrad = c.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H));
-      bgGrad.addColorStop(0, P.bgInner);
-      bgGrad.addColorStop(1, P.bgOuter);
-      c.fillStyle = bgGrad;
-      c.fillRect(0, 0, W, H);
+      // background — opaque gradient for dark tone, clear for light tone
+      // so the body bg shows through and the field reads as a backdrop.
+      if (P.transparentBg) {
+        c.clearRect(0, 0, W, H);
+      } else {
+        const bgGrad = c.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H));
+        bgGrad.addColorStop(0, P.bgInner);
+        bgGrad.addColorStop(1, P.bgOuter);
+        c.fillStyle = bgGrad;
+        c.fillRect(0, 0, W, H);
+      }
 
       // attractors
       for (const a of attractors) {
@@ -331,14 +346,23 @@ export function MagneticFieldBackground({
     };
   }, [tone]);
 
+  // Positioning depends on tone:
+  // - "light": fixed inset-0 -z-10 transparent — paints above the body
+  //   cream bg but below all normal-flow content (sidebar, header, cards).
+  //   The field reads as a backdrop behind every dashboard page.
+  // - "dark": absolute inset-0 with a dark CSS fallback — fills its
+  //   positioned parent (login main / splash overlay). Content inside
+  //   that parent needs a positive z-index to sit on top.
+  const positionClasses =
+    tone === "light"
+      ? "pointer-events-none fixed inset-0 -z-10 h-full w-full"
+      : "pointer-events-none absolute inset-0 z-0 h-full w-full bg-navy-950";
+
   return (
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className={
-        "pointer-events-none fixed inset-0 z-0 h-full w-full" +
-        (className ? " " + className : "")
-      }
+      className={positionClasses + (className ? " " + className : "")}
     />
   );
 }
