@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
 import { BrandMark } from "@/components/brand-mark";
+import { MagneticFieldBackground } from "@/components/magnetic-field-background";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -67,6 +68,8 @@ export default function LoginPage() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-navy-950 px-4 text-cream-50">
+      <MagneticFieldBackground tone="dark" />
+
       {/* Decorative gold chevron — echo of the business card */}
       <div
         aria-hidden

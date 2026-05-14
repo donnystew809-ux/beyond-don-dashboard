@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { Sidebar } from "./_components/sidebar";
 import { Header } from "./_components/header";
-import { BlueprintBackground } from "@/components/blueprint-background";
+import { MagneticFieldBackground } from "@/components/magnetic-field-background";
 
 export default async function DashboardLayout({
   children,
@@ -30,7 +30,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="relative flex min-h-screen">
-      <BlueprintBackground />
+      <MagneticFieldBackground tone="light" />
       <Sidebar role={role} />
       <div className="flex flex-1 flex-col">
         <Header email={user.email ?? ""} role={role} />
