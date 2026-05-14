@@ -30,7 +30,7 @@ export default async function DashboardLayout({
   const role = roleRow?.role ?? null;
 
   return (
-    <div className="relative flex min-h-screen">
+    <div className="relative flex min-h-dvh">
       <MagneticFieldBackground tone="dark" transparent />
       <Sidebar role={role} />
       <div className="flex flex-1 flex-col">

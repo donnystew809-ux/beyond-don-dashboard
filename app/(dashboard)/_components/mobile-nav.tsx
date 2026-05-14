@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
+import { useMobileDrawer } from "@/lib/mobile-drawer-store";
 import {
   X,
   CalendarDays,
@@ -55,13 +57,13 @@ const NAV: NavItem[] = [
  * import (which renders this component but no longer shows a hamburger).
  */
 export function MobileMenuButton({ role }: { role: UserRole | null }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useMobileDrawer();
   const pathname = usePathname();
 
   // Close when navigating
   useEffect(() => {
     setOpen(false);
-  }, [pathname]);
+  }, [pathname, setOpen]);
 
   // Prevent body scroll when drawer is open
   useEffect(() => {
@@ -69,13 +71,6 @@ export function MobileMenuButton({ role }: { role: UserRole | null }) {
     else document.body.style.overflow = "";
     return () => { document.body.style.overflow = ""; };
   }, [open]);
-
-  // External trigger: BottomNav's "More" tab dispatches this event.
-  useEffect(() => {
-    const handler = () => setOpen(true);
-    window.addEventListener("bd-open-drawer", handler);
-    return () => window.removeEventListener("bd-open-drawer", handler);
-  }, []);
 
   const items = NAV.filter((item) => !item.adminOnly || role === "admin");
 
