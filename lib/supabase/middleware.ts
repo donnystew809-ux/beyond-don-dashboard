@@ -3,7 +3,17 @@ import { createServerClient } from "@supabase/ssr";
 
 import type { Database } from "./types";
 
-const PUBLIC_PATHS = ["/login", "/auth"];
+// Paths the auth middleware lets through without requiring a session.
+// /icon and /apple-icon are Next.js's generated icon routes (favicon, iOS
+// home-screen tile). /manifest.json is the PWA manifest — it has to be
+// publicly fetchable for the browser to install the dashboard as an app.
+const PUBLIC_PATHS = [
+  "/login",
+  "/auth",
+  "/icon",
+  "/apple-icon",
+  "/manifest.json",
+];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
