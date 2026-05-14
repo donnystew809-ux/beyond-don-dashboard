@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { UserRole } from "@/lib/supabase/types";
 
-import { MobileMenuButton } from "./mobile-nav";
-
 export function Header({
   email,
   role,
@@ -26,9 +24,6 @@ export function Header({
   return (
     <header className="flex h-14 items-center justify-between border-b border-navy-700/40 bg-navy-900/60 px-4 backdrop-blur-sm md:px-6">
       <div className="flex items-center gap-2">
-        {/* Hamburger — visible on mobile only (bottom-nav More also opens drawer) */}
-        <MobileMenuButton role={role} />
-
         <div className="text-sm text-cream-100">
           <span className="hidden text-cream-200/60 sm:inline">Signed in as </span>
           <span className="font-medium text-cream-50">

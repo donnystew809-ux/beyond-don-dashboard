@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "./_components/sidebar";
 import { Header } from "./_components/header";
 import { BottomNav } from "./_components/bottom-nav";
+import { MoreSheet } from "./_components/more-sheet";
 import { MagneticFieldBackground } from "@/components/magnetic-field-background";
 
 export default async function DashboardLayout({
@@ -41,6 +42,7 @@ export default async function DashboardLayout({
         </main>
       </div>
       <BottomNav role={role} />
+      <MoreSheet role={role} />
     </div>
   );
 }

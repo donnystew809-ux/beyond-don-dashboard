@@ -21,8 +21,9 @@ type Tab = {
 };
 
 // Four primary tabs + a "More" overflow button.
-// "More" dispatches the bd-open-drawer event so MobileMenuButton's
-// drawer (which has every nav item including admin-only) slides open.
+// "More" opens the MoreSheet bottom-sheet (slides up from the bottom)
+// via the shared mobile-drawer-store. The MoreSheet renders every
+// non-primary nav item in a grid of tiles.
 const TABS: Tab[] = [
   { href: "/today", label: "Today", icon: Sun },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },

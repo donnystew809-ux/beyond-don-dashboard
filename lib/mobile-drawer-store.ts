@@ -1,7 +1,7 @@
-// Tiny module-level store for the mobile drawer's open state.
+// Tiny module-level store for the mobile More-sheet's open state.
 //
 // Two components need to control the same boolean:
-//   - MobileMenuButton (renders the drawer panel + does the slide animation)
+//   - MoreSheet (renders the bottom-sheet panel + does the slide-up animation)
 //   - BottomNav (the "More" tab on the mobile bottom nav)
 //
 // We tried a window CustomEvent first but the listener wasn't reliably
