@@ -25,10 +25,8 @@ export const metadata: Metadata = {
     title: "Beyond Don",
     statusBarStyle: "black-translucent",
   },
-  icons: {
-    icon: "/brand/logo.png",
-    apple: "/brand/logo.png",
-  },
+  // Icons are auto-detected from app/icon.svg (favicon) and
+  // app/apple-icon.tsx (iOS home-screen tile, rendered to PNG via next/og).
 };
 
 export const viewport = {

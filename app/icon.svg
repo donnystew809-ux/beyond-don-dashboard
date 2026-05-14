@@ -1,0 +1,33 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <defs>
+    <linearGradient id="bd-icon-gold" x1="6" y1="6" x2="58" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#E5C77E"/>
+      <stop offset="50%" stop-color="#C9A96A"/>
+      <stop offset="100%" stop-color="#8B6E34"/>
+    </linearGradient>
+    <linearGradient id="bd-icon-navy" x1="0" y1="0" x2="0" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1a3263"/>
+      <stop offset="100%" stop-color="#0a1e3f"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Navy rounded-square tile -->
+  <rect width="64" height="64" rx="12" fill="url(#bd-icon-navy)"/>
+
+  <!-- Bow: gold ring via single path with even-odd fill -->
+  <path
+    d="M32 12 a10 10 0 1 1 0 20 a10 10 0 1 1 0 -20 z M32 18.5 a3.5 3.5 0 1 0 0 7 a3.5 3.5 0 1 0 0 -7 z"
+    fill="url(#bd-icon-gold)"
+    fill-rule="evenodd"
+  />
+
+  <!-- Shaft -->
+  <rect x="30.5" y="32" width="3" height="18" fill="url(#bd-icon-gold)"/>
+
+  <!-- Teeth (warding) -->
+  <rect x="33.5" y="42" width="6" height="2.5" fill="url(#bd-icon-gold)"/>
+  <rect x="33.5" y="47" width="4" height="2.5" fill="url(#bd-icon-gold)"/>
+
+  <!-- Cream chevron stamp inside the bow -->
+  <path d="M29 22 L32 19 L35 22 L32 25 Z" fill="#f5f1e8"/>
+</svg>
