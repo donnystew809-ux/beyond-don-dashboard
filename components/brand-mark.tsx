@@ -1,11 +1,15 @@
-import Image from "next/image";
-
 import { cn } from "@/lib/utils";
+
+import { KeyIcon } from "./key-icon";
 
 /**
  * BEYOND DON LLC brand mark — the key + wordmark.
  * `tone="dark"` is for use on cream/light backgrounds.
  * `tone="light"` is for use on navy backgrounds.
+ *
+ * The key is rendered as an inline SVG (see KeyIcon) instead of a PNG —
+ * keeps it sharp at every size and removes the static-asset dependency
+ * that used to 404 behind the auth middleware.
  */
 export function BrandMark({
   tone = "dark",
@@ -23,22 +27,7 @@ export function BrandMark({
 
   return (
     <div className={cn("flex items-center gap-3", className)}>
-      <div
-        className={cn(
-          "relative shrink-0 overflow-hidden",
-          tone === "light" && "[&>img]:invert",
-        )}
-        style={{ width: dim, height: dim }}
-      >
-        <Image
-          src="/brand/logo.png"
-          alt="BEYOND DON LLC"
-          width={dim}
-          height={dim}
-          priority
-          className="object-contain"
-        />
-      </div>
+      <KeyIcon tone={tone} size={dim} />
       {showWordmark && (
         <div className="flex flex-col leading-tight">
           <span

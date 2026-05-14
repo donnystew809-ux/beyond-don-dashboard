@@ -15,7 +15,13 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Run on every page/route except static assets and image optimization
-    "/((?!_next/static|_next/image|favicon.ico|api/sync|api/cron).*)",
+    // Run on every page/route except:
+    //  - Next.js internals (_next/static, _next/image)
+    //  - The sync/cron API routes (called by Vercel Cron, not by users)
+    //  - Any static asset by extension (png, jpg, svg, ico, webp, gif, etc.)
+    //    Without the file-extension exclusion, /brand/logo.png gets 307'd to
+    //    /login when the user isn't authenticated, so the login page itself
+    //    can't render its own brand mark.
+    "/((?!_next/static|_next/image|api/sync|api/cron|.*\\.(?:png|jpg|jpeg|svg|ico|webp|gif|avif)$).*)",
   ],
 };
