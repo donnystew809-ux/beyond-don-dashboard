@@ -1,40 +1,43 @@
-// Ingests an Airbnb "Download My Data" JSON export ZIP into the messaging
-// tables. Run after the email arrives:
+// Ingests an Airbnb "Download My Data" export ZIP into the messaging tables.
 //
-//   node scripts/ingest-airbnb-export.mjs path/to/airbnb-data.zip
+//   node scripts/ingest-airbnb-export.mjs path/to/package.zip
 //
-// What it does:
-//   1) Unzips into .tone-brain/airbnb-export/
-//   2) Finds the messaging JSON file(s) — Airbnb's export format includes
-//      a `messages` directory with one JSON per thread (or a single rollup —
-//      handled below).
-//   3) Upserts into message_threads + messages, deduping by airbnb_thread_id
-//      and the (thread_id, sent_at, sender, body) unique key.
+// As of 2026 Airbnb ships the export as a folder of HTML files (no longer
+// JSON). The structure we care about is `html/messages.html` — a giant
+// bootstrap-table document where each guest thread is a top-level row
+// containing a nested "Messages And Contents" subtable with one row per
+// message. The metadata + body are stored as <pre>{JSON}</pre> cells.
 //
-// The exact Airbnb export schema isn't 100% stable (they evolve it). This
-// script tries multiple known shapes and logs what it found. After running,
-// run scripts/build-tone-brain.mjs to regenerate the tone brain on the full
-// corpus.
+// This script:
+//   1. Unzips the export (cross-platform via PowerShell on Windows, unzip
+//      elsewhere) into .tone-brain/airbnb-export/
+//   2. Locates messages.html
+//   3. Walks each "Messages And Contents" subtable, identifying the parent
+//      threadId, and extracting every TextContent message (skipping system
+//      template content like booking inquiries, reservation cards, etc.)
+//   4. Upserts threads + messages into Supabase. Messages are deduped by
+//      airbnb_message_id; threads by airbnb_thread_id.
+//
+// After this runs, run scripts/build-tone-brain.mjs to regenerate the
+// tone brain on the full corpus.
 
-import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, existsSync, statSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, resolve, join, extname, basename } from "node:path";
+import { dirname, resolve, join } from "node:path";
 import { execSync } from "node:child_process";
-import { mkdirSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
 
+// ── env ─────────────────────────────────────────────────────────────────
 const envPath = resolve(root, ".env.local");
 if (existsSync(envPath)) {
-  const env = readFileSync(envPath, "utf8");
-  for (const line of env.split("\n")) {
+  for (const line of readFileSync(envPath, "utf8").split("\n")) {
     const m = line.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/);
     if (m) process.env[m[1]] = m[2];
   }
 }
-
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!SUPABASE_URL || !SERVICE_KEY) {
@@ -42,6 +45,11 @@ if (!SUPABASE_URL || !SERVICE_KEY) {
   process.exit(1);
 }
 
+const supabase = createClient(SUPABASE_URL, SERVICE_KEY, {
+  auth: { persistSession: false },
+});
+
+// ── args ────────────────────────────────────────────────────────────────
 const zipPath = process.argv[2];
 if (!zipPath) {
   console.error("Usage: node scripts/ingest-airbnb-export.mjs <path-to-zip>");
@@ -52,13 +60,14 @@ if (!existsSync(zipPath)) {
   process.exit(1);
 }
 
+// ── extract ─────────────────────────────────────────────────────────────
 const extractDir = resolve(root, ".tone-brain/airbnb-export");
 mkdirSync(extractDir, { recursive: true });
 
-console.log(`Extracting ${zipPath} → ${extractDir}…`);
-try {
-  // Cross-platform unzip via Node's built-in tools is limited; shell out.
-  // tar can read zips on Windows 10+ and macOS. Fall back to PowerShell.
+const alreadyExtracted = existsSync(join(extractDir, "Airbnb_data_request_06May2026_GMT")) ||
+  existsSync(join(extractDir, "html"));
+if (!alreadyExtracted) {
+  console.log(`Extracting ${zipPath} → ${extractDir}…`);
   if (process.platform === "win32") {
     execSync(
       `powershell -Command "Expand-Archive -Force -Path '${zipPath}' -DestinationPath '${extractDir}'"`,
@@ -67,207 +76,237 @@ try {
   } else {
     execSync(`unzip -o "${zipPath}" -d "${extractDir}"`, { stdio: "inherit" });
   }
-} catch (err) {
-  console.error("Extraction failed:", err.message);
-  process.exit(1);
+} else {
+  console.log("Export already extracted, skipping unzip.");
 }
 
-// Walk and find candidate message files
-function walk(dir) {
-  const out = [];
+// Locate messages.html — the export wraps everything in one parent folder
+// whose name varies by date. Walk to find it.
+function findMessagesHtml(dir) {
+  for (const f of require("node:fs").readdirSync(dir)) {
+    const p = join(dir, f);
+    const s = statSync(p);
+    if (s.isDirectory()) {
+      const inner = findMessagesHtml(p);
+      if (inner) return inner;
+    } else if (f === "messages.html") {
+      return p;
+    }
+  }
+  return null;
+}
+// Avoid `require` in ESM — use dynamic import for fs:
+const { readdirSync } = await import("node:fs");
+function findMessagesHtmlEsm(dir) {
   for (const f of readdirSync(dir)) {
     const p = join(dir, f);
     const s = statSync(p);
-    if (s.isDirectory()) out.push(...walk(p));
-    else out.push(p);
+    if (s.isDirectory()) {
+      const inner = findMessagesHtmlEsm(p);
+      if (inner) return inner;
+    } else if (f === "messages.html") {
+      return p;
+    }
   }
-  return out;
+  return null;
 }
-
-const allFiles = walk(extractDir);
-const jsonFiles = allFiles.filter((f) => extname(f).toLowerCase() === ".json");
-console.log(`Found ${jsonFiles.length} JSON files in export.`);
-
-// Heuristic: messaging-related files are usually under a `messaging` or
-// `message` directory, or a top-level `messages.json` / `messaging-threads.json`.
-const messagingFiles = jsonFiles.filter((f) =>
-  /messag|inbox|thread/i.test(f),
-);
-console.log(`Identified ${messagingFiles.length} messaging-shaped files:`);
-for (const f of messagingFiles) {
-  console.log(`  - ${f.replace(extractDir, "…")}`);
-}
-
-if (messagingFiles.length === 0) {
-  console.error(
-    "No messaging files detected. Inspect the export manually and update this script.",
-  );
-  console.log("All JSON files for reference:");
-  for (const f of jsonFiles) console.log(`  - ${f.replace(extractDir, "…")}`);
+const messagesHtmlPath = findMessagesHtmlEsm(extractDir);
+if (!messagesHtmlPath) {
+  console.error(`Could not find messages.html anywhere under ${extractDir}`);
   process.exit(1);
 }
+console.log(`Found messages.html: ${messagesHtmlPath}`);
+const sizeMB = (statSync(messagesHtmlPath).size / 1024 / 1024).toFixed(1);
+console.log(`Reading ${sizeMB} MB of HTML…`);
 
-// Parse all and try to normalize into { threads: [...], messages: [...] }
-const threads = new Map(); // key: airbnb_thread_id → thread shape
-const messages = []; // { airbnb_thread_id, direction, sender, body, sent_at }
+const html = readFileSync(messagesHtmlPath, "utf8");
 
-for (const f of messagingFiles) {
-  let parsed;
-  try {
-    parsed = JSON.parse(readFileSync(f, "utf8"));
-  } catch (e) {
-    console.warn(`  skip non-JSON: ${f}`);
+// ── parse ───────────────────────────────────────────────────────────────
+// HTML entity decoder for body text (Airbnb leaves &amp;, &#39;, etc.)
+function decodeEntities(s) {
+  return s
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(parseInt(n, 10)));
+}
+
+// Identify Donovan's accountId by finding the most common sender across
+// messages with an iPhone Airbnb userAgent (the host app). Falls back to
+// the hard-coded id seen in the sample if no clear winner.
+let DONOVAN_ID = null;
+{
+  const candidateCounts = new Map();
+  const re = /\{"senderPlatform":"iOS","accountId":(\d+)[^<]*"userAgent":"Airbnb\//g;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    const id = m[1];
+    candidateCounts.set(id, (candidateCounts.get(id) ?? 0) + 1);
+  }
+  const sorted = [...candidateCounts.entries()].sort((a, b) => b[1] - a[1]);
+  DONOVAN_ID = sorted[0]?.[0] ?? "193959988";
+  console.log(`Detected host accountId: ${DONOVAN_ID} (${sorted[0]?.[1] ?? 0} iOS-host messages)`);
+}
+
+// Find every "Messages And Contents" subtable. For each one, locate the
+// preceding parent <tr>'s threadId (the 4th <td><pre>{number}</pre></td>
+// in that row) and extract all TextContent rows in the subtable.
+const subtableRegex =
+  /<h4>Messages And Contents<\/h4>\s*<table[^>]*>([\s\S]*?)<\/table>/g;
+
+// Row regex for messages — captures both <pre> cells.
+const rowRegex =
+  /<tr>\s*<td><pre>(\{[^<]*?\})<\/pre><\/td>\s*<td><pre>(\{[^<]*?\})<\/pre><\/td>\s*<\/tr>/g;
+
+const threadsByAirbnbId = new Map();
+let lastIndex = 0;
+let processedSubtables = 0;
+let parsedMessageRows = 0;
+let textMessages = 0;
+
+while (true) {
+  const match = subtableRegex.exec(html);
+  if (!match) break;
+  processedSubtables++;
+
+  // Find the most recent threadId before this subtable. The parent <tr>
+  // has the threadId as a 10-15 digit number in a <td><pre>...</pre></td>
+  // that precedes the subtable opener.
+  const before = html.slice(lastIndex, match.index);
+  const idMatches = [...before.matchAll(/<td><pre>(\d{6,18})<\/pre><\/td>/g)];
+  const threadId = idMatches.length ? idMatches[idMatches.length - 1][1] : null;
+  lastIndex = match.index + match[0].length;
+  if (!threadId) continue;
+
+  const subtableBody = match[1];
+  let row;
+  rowRegex.lastIndex = 0;
+  while ((row = rowRegex.exec(subtableBody)) !== null) {
+    parsedMessageRows++;
+    let meta, content;
+    try {
+      meta = JSON.parse(row[1]);
+      content = JSON.parse(row[2]);
+    } catch {
+      continue;
+    }
+    if (meta.contentType !== "TextContent") continue;
+    const body = content?.textContent?.body;
+    if (!body || typeof body !== "string") continue;
+    textMessages++;
+
+    if (!threadsByAirbnbId.has(threadId)) {
+      threadsByAirbnbId.set(threadId, {
+        airbnb_thread_id: threadId,
+        first_seen_at: meta.createdAt,
+        last_seen_at: meta.createdAt,
+        messages: [],
+      });
+    }
+    const thread = threadsByAirbnbId.get(threadId);
+    if (new Date(meta.createdAt) < new Date(thread.first_seen_at))
+      thread.first_seen_at = meta.createdAt;
+    if (new Date(meta.createdAt) > new Date(thread.last_seen_at))
+      thread.last_seen_at = meta.createdAt;
+    thread.messages.push({
+      airbnb_message_id: String(meta.id),
+      sender: String(meta.accountId) === DONOVAN_ID ? "host" : "guest",
+      sender_account_id: String(meta.accountId),
+      sent_at: meta.createdAt,
+      body: decodeEntities(body),
+    });
+  }
+}
+
+const allThreads = [...threadsByAirbnbId.values()];
+const totalMessages = allThreads.reduce((sum, t) => sum + t.messages.length, 0);
+const hostMessages = allThreads.reduce(
+  (sum, t) => sum + t.messages.filter((m) => m.sender === "host").length,
+  0,
+);
+const guestMessages = totalMessages - hostMessages;
+
+console.log("");
+console.log("─── Parse summary ───────────────────────────");
+console.log(`Subtables scanned     : ${processedSubtables}`);
+console.log(`Total message rows    : ${parsedMessageRows}`);
+console.log(`TextContent messages  : ${textMessages}`);
+console.log(`Unique threads        : ${allThreads.length}`);
+console.log(`Host (Donovan)        : ${hostMessages} messages`);
+console.log(`Guests                : ${guestMessages} messages`);
+console.log("");
+
+// ── upsert ──────────────────────────────────────────────────────────────
+console.log("Upserting threads + messages into Supabase…");
+
+let threadsUpserted = 0;
+let messagesUpserted = 0;
+let errors = 0;
+
+for (const thread of allThreads) {
+  // Pull last message preview from the most recent text body in this thread.
+  const sortedMessages = [...thread.messages].sort(
+    (a, b) => new Date(b.sent_at).getTime() - new Date(a.sent_at).getTime(),
+  );
+  const preview = sortedMessages[0]?.body.slice(0, 200) ?? null;
+
+  const { data: threadRow, error: threadErr } = await supabase
+    .from("message_threads")
+    .upsert(
+      {
+        airbnb_thread_id: thread.airbnb_thread_id,
+        last_message_at: thread.last_seen_at,
+        last_message_preview: preview,
+      },
+      { onConflict: "airbnb_thread_id" },
+    )
+    .select("id")
+    .single();
+
+  if (threadErr || !threadRow) {
+    console.error(`thread ${thread.airbnb_thread_id} upsert failed:`, threadErr?.message);
+    errors++;
     continue;
   }
+  threadsUpserted++;
 
-  // Try several known shapes. Each handler pushes into threads/messages.
-  if (Array.isArray(parsed)) {
-    for (const item of parsed) handleAny(item, basename(f));
-  } else if (parsed && typeof parsed === "object") {
-    // Could be { threads: [...] } or single-thread object
-    if (Array.isArray(parsed.threads)) {
-      for (const t of parsed.threads) handleAny(t, basename(f));
-    } else if (Array.isArray(parsed.conversations)) {
-      for (const t of parsed.conversations) handleAny(t, basename(f));
-    } else if (Array.isArray(parsed.messages)) {
-      // Top-level messages list — needs a thread inferred per-row
-      for (const m of parsed.messages) handleAny(m, basename(f));
+  // Schema: messages(direction inbound|outbound, sender text label, body, sent_at, airbnb_message_id)
+  // Unique key: (thread_id, sent_at, sender, body) — used for dedupe on
+  // re-runs. ignoreDuplicates: true so we skip silently rather than error.
+  const rows = thread.messages.map((m) => ({
+    thread_id: threadRow.id,
+    direction: m.sender === "host" ? "outbound" : "inbound",
+    sender: m.sender === "host" ? "Donovan" : "Guest",
+    body: m.body,
+    sent_at: m.sent_at,
+    airbnb_message_id: m.airbnb_message_id,
+  }));
+  for (let i = 0; i < rows.length; i += 500) {
+    const batch = rows.slice(i, i + 500);
+    const { error: msgErr, count } = await supabase
+      .from("messages")
+      .upsert(batch, {
+        onConflict: "thread_id,sent_at,sender,body",
+        ignoreDuplicates: true,
+        count: "exact",
+      });
+    if (msgErr) {
+      console.error(`thread ${thread.airbnb_thread_id} batch ${i}: ${msgErr.message}`);
+      errors++;
     } else {
-      handleAny(parsed, basename(f));
+      messagesUpserted += count ?? batch.length;
     }
   }
 }
 
-function handleAny(node, sourceFile) {
-  // Thread-shaped: has a list of messages and an id
-  if (
-    node &&
-    typeof node === "object" &&
-    (Array.isArray(node.messages) || Array.isArray(node.thread_messages))
-  ) {
-    const msgs = node.messages || node.thread_messages;
-    const tid = String(
-      node.thread_id ?? node.id ?? node.conversation_id ?? `from:${sourceFile}`,
-    );
-    threads.set(tid, {
-      airbnb_thread_id: tid,
-      guest_name:
-        node.guest_name ?? node.with_user_name ?? node.user_name ?? null,
-      guest_first_name:
-        (node.guest_name ?? node.with_user_name ?? "").split(" ")[0] || null,
-      reservation_code: node.reservation_code ?? node.confirmation_code ?? null,
-      check_in: node.check_in ?? null,
-      check_out: node.check_out ?? null,
-    });
-    for (const m of msgs) {
-      messages.push({
-        airbnb_thread_id: tid,
-        direction:
-          m.direction ??
-          (m.from_user_id && m.is_self ? "outbound" : m.is_self ? "outbound" : "inbound"),
-        sender: m.sender_name ?? m.from_user_name ?? m.user_name ?? null,
-        body: m.body ?? m.message ?? m.text ?? null,
-        sent_at: m.sent_at ?? m.created_at ?? m.timestamp ?? null,
-        raw: m,
-      });
-    }
-    return;
-  }
-  // Single message row with embedded thread id
-  if (
-    node &&
-    typeof node === "object" &&
-    (node.thread_id || node.conversation_id) &&
-    (node.body || node.message || node.text)
-  ) {
-    const tid = String(node.thread_id ?? node.conversation_id);
-    if (!threads.has(tid)) {
-      threads.set(tid, {
-        airbnb_thread_id: tid,
-        guest_name: node.with_user_name ?? null,
-        guest_first_name: null,
-      });
-    }
-    messages.push({
-      airbnb_thread_id: tid,
-      direction:
-        node.direction ?? (node.is_self ? "outbound" : "inbound"),
-      sender: node.sender_name ?? node.from_user_name ?? null,
-      body: node.body ?? node.message ?? node.text ?? null,
-      sent_at: node.sent_at ?? node.created_at ?? node.timestamp ?? null,
-      raw: node,
-    });
-  }
-}
-
-console.log(
-  `\nNormalized ${threads.size} threads, ${messages.length} messages.`,
-);
-
-if (threads.size === 0) {
-  console.error(
-    "No threads parsed. The export schema may have changed — inspect a sample JSON file and update handleAny().",
-  );
-  process.exit(1);
-}
-
-// Upsert
-const sb = createClient(SUPABASE_URL, SERVICE_KEY, {
-  auth: { persistSession: false },
-});
-
-console.log("Upserting threads…");
-const threadRows = Array.from(threads.values());
-const { data: insertedThreads, error: threadErr } = await sb
-  .from("message_threads")
-  .upsert(threadRows, { onConflict: "airbnb_thread_id" })
-  .select("id, airbnb_thread_id");
-if (threadErr) {
-  console.error("Thread upsert failed:", threadErr.message);
-  process.exit(1);
-}
-const threadIdByAirbnb = new Map(
-  insertedThreads.map((r) => [r.airbnb_thread_id, r.id]),
-);
-console.log(`  → ${insertedThreads.length} threads in DB.`);
-
-console.log("Upserting messages (in batches of 500)…");
-let inserted = 0;
-let skipped = 0;
-const messageRows = messages
-  .map((m) => {
-    const thread_id = threadIdByAirbnb.get(m.airbnb_thread_id);
-    if (!thread_id || !m.body || !m.sent_at) {
-      skipped++;
-      return null;
-    }
-    return {
-      thread_id,
-      direction: m.direction === "outbound" ? "outbound" : "inbound",
-      sender: m.sender,
-      body: m.body,
-      sent_at: m.sent_at,
-      raw: m.raw,
-    };
-  })
-  .filter(Boolean);
-
-for (let i = 0; i < messageRows.length; i += 500) {
-  const batch = messageRows.slice(i, i + 500);
-  const { error } = await sb
-    .from("messages")
-    .upsert(batch, { onConflict: "thread_id,sent_at,sender,body", ignoreDuplicates: true });
-  if (error) {
-    console.warn(`  batch ${i}-${i + batch.length} failed: ${error.message}`);
-  } else {
-    inserted += batch.length;
-    process.stdout.write(`  ${inserted}/${messageRows.length}\r`);
-  }
-}
-
-console.log(
-  `\nDone. ${inserted} messages upserted, ${skipped} skipped (missing body/sent_at).`,
-);
-console.log(
-  "\nNext: run scripts/build-tone-brain.mjs to regenerate tone-brain v1 on the full corpus.",
-);
+console.log("");
+console.log("─── Ingest summary ──────────────────────────");
+console.log(`Threads upserted      : ${threadsUpserted} / ${allThreads.length}`);
+console.log(`Messages upserted     : ${messagesUpserted} / ${totalMessages}`);
+console.log(`Errors                : ${errors}`);
+console.log("");
+console.log("Next: node scripts/build-tone-brain.mjs");
