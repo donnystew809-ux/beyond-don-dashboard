@@ -75,17 +75,30 @@ export function MobileMenuButton({ role }: { role: UserRole | null }) {
         <Menu className="h-5 w-5" />
       </button>
 
-      {/* Drawer overlay + panel */}
-      {open && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-navy-950/60 backdrop-blur-sm"
-            onClick={() => setOpen(false)}
-          />
+      {/* Drawer overlay + panel — always in DOM, animated via transform/opacity */}
+      <div
+        className={cn(
+          "fixed inset-0 z-50 md:hidden",
+          !open && "pointer-events-none",
+        )}
+        aria-hidden={!open}
+      >
+        {/* Backdrop — fades in/out */}
+        <div
+          className={cn(
+            "absolute inset-0 bg-navy-950/60 backdrop-blur-sm transition-opacity duration-300 ease-out",
+            open ? "opacity-100" : "opacity-0",
+          )}
+          onClick={() => setOpen(false)}
+        />
 
-          {/* Slide-in panel */}
-          <div className="absolute bottom-0 left-0 top-0 flex w-[280px] flex-col bg-navy-gradient text-cream-100 shadow-2xl">
+        {/* Slide-in panel — slides from off-screen left */}
+        <div
+          className={cn(
+            "absolute bottom-0 left-0 top-0 flex w-[280px] flex-col bg-navy-gradient text-cream-100 shadow-2xl transition-transform duration-300 ease-out will-change-transform",
+            open ? "translate-x-0" : "-translate-x-full",
+          )}
+        >
             {/* Logo + close */}
             <div className="flex items-center justify-between px-5 py-5">
               <Link href="/" onClick={() => setOpen(false)}>
@@ -149,7 +162,6 @@ export function MobileMenuButton({ role }: { role: UserRole | null }) {
             </div>
           </div>
         </div>
-      )}
     </>
   );
 }
