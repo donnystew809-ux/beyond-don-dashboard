@@ -21,6 +21,7 @@ import {
 
 import { PageHeader } from "@/components/page-header";
 import { StatCard } from "@/components/stat-card";
+import { GlassCard } from "@/components/glass-card";
 
 export const dynamic = "force-dynamic";
 
@@ -148,7 +149,7 @@ export default async function DashboardPage() {
       {draftsCount > 0 && (
         <Link
           href="/messages"
-          className="mb-4 flex items-center gap-3 rounded-lg border border-gold-300 bg-gold-50 p-3 text-sm text-gold-800 hover:bg-gold-100 transition"
+          className="mb-4 flex items-center gap-3 rounded-lg border border-gold-500/50 bg-gold-500/15 p-3 text-sm text-cream-50 backdrop-blur-sm transition hover:bg-gold-500/25"
         >
           <span className="text-lg">💬</span>
           <span>
@@ -160,7 +161,7 @@ export default async function DashboardPage() {
       {anySyncError && (
         <Link
           href="/settings"
-          className="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 hover:bg-red-100 transition"
+          className="mb-4 flex items-center gap-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300 backdrop-blur-sm transition hover:bg-red-500/20"
         >
           <span className="text-lg">🚨</span>
           <span>A sync source is failing — data may be stale</span>
@@ -198,62 +199,62 @@ export default async function DashboardPage() {
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         {/* Upcoming check-ins */}
-        <section className="rounded-lg border border-cream-200 bg-white p-5">
-          <h2 className="text-sm font-semibold">Upcoming check-ins</h2>
+        <GlassCard>
+          <h2 className="text-sm font-semibold text-cream-50">Upcoming check-ins</h2>
           {upcomingCheckins.length === 0 ? (
-            <p className="mt-3 text-sm text-navy-500">No upcoming reservations synced yet.</p>
+            <p className="mt-3 text-sm text-cream-200/60">No upcoming reservations synced yet.</p>
           ) : (
-            <ul className="mt-3 divide-y divide-cream-200">
+            <ul className="mt-3 divide-y divide-navy-700/40">
               {upcomingCheckins.map((r, i) => (
                 <li key={i} className="flex items-center justify-between py-2">
                   <div>
-                    <div className="text-sm font-medium">
+                    <div className="text-sm font-medium text-cream-50">
                       {propMap.get(r.property_id) ?? "Unknown property"}
                     </div>
-                    <div className="text-xs text-navy-500">
+                    <div className="text-xs text-cream-200/60">
                       {r.guest_name ?? "Reserved"} · {r.source}
                     </div>
                   </div>
-                  <div className="text-right text-xs text-navy-600">
+                  <div className="text-right text-xs text-cream-200/80">
                     <div>{format(new Date(r.check_in), "MMM d")}</div>
-                    <div className="text-navy-400">→ {format(new Date(r.check_out), "MMM d")}</div>
+                    <div className="text-cream-200/50">→ {format(new Date(r.check_out), "MMM d")}</div>
                   </div>
                 </li>
               ))}
             </ul>
           )}
-        </section>
+        </GlassCard>
 
         {/* Next cleanings */}
-        <section className="rounded-lg border border-cream-200 bg-white p-5">
-          <h2 className="text-sm font-semibold">Next cleanings</h2>
+        <GlassCard>
+          <h2 className="text-sm font-semibold text-cream-50">Next cleanings</h2>
           {!cleanings || cleanings.length === 0 ? (
-            <p className="mt-3 text-sm text-navy-500">No cleanings on the schedule.</p>
+            <p className="mt-3 text-sm text-cream-200/60">No cleanings on the schedule.</p>
           ) : (
-            <ul className="mt-3 divide-y divide-cream-200">
+            <ul className="mt-3 divide-y divide-navy-700/40">
               {cleanings.map((c) => (
                 <li key={c.id} className="flex items-center justify-between py-2">
                   <div>
-                    <div className="text-sm font-medium">
+                    <div className="text-sm font-medium text-cream-50">
                       {propMap.get(c.property_id) ?? "—"}
                     </div>
-                    <div className="text-xs text-navy-500">
+                    <div className="text-xs text-cream-200/60">
                       {c.cleaner_name ?? "Unassigned"} ·{" "}
                       <span
-                        className={c.status === "issue" ? "text-red-600 font-semibold" : ""}
+                        className={c.status === "issue" ? "text-red-400 font-semibold" : ""}
                       >
                         {c.status}
                       </span>
                     </div>
                   </div>
-                  <div className="text-right text-xs text-navy-600">
+                  <div className="text-right text-xs text-cream-200/80">
                     {format(new Date(c.scheduled_for), "EEE MMM d, h:mma")}
                   </div>
                 </li>
               ))}
             </ul>
           )}
-        </section>
+        </GlassCard>
       </div>
 
       {/* Property health scores */}
@@ -264,20 +265,20 @@ export default async function DashboardPage() {
             {healthScores.map((h) => {
               const color =
                 h.status === "healthy"
-                  ? { bar: "bg-emerald-500", badge: "bg-emerald-100 text-emerald-800", border: "border-emerald-200" }
+                  ? { bar: "bg-emerald-500", badge: "bg-emerald-500/15 text-emerald-300", border: "border-emerald-500/30" }
                   : h.status === "fair"
-                  ? { bar: "bg-amber-400", badge: "bg-amber-100 text-amber-800", border: "border-amber-200" }
-                  : { bar: "bg-red-400", badge: "bg-red-100 text-red-700", border: "border-red-200" };
+                  ? { bar: "bg-amber-400", badge: "bg-amber-500/15 text-amber-300", border: "border-amber-500/30" }
+                  : { bar: "bg-red-400", badge: "bg-red-500/15 text-red-300", border: "border-red-500/30" };
               return (
-                <div key={h.id} className={`rounded-lg border bg-white p-4 ${color.border}`}>
+                <GlassCard key={h.id} interactive className={`p-4 ${color.border}`}>
                   <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium text-navy-900 truncate pr-2">{h.name}</div>
+                    <div className="text-sm font-medium text-cream-50 truncate pr-2">{h.name}</div>
                     <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${color.badge}`}>
                       {h.score}
                     </span>
                   </div>
                   {/* Score bar */}
-                  <div className="mt-2 h-1.5 w-full rounded-full bg-cream-200">
+                  <div className="mt-2 h-1.5 w-full rounded-full bg-navy-800/60">
                     <div
                       className={`h-1.5 rounded-full transition-all ${color.bar}`}
                       style={{ width: `${h.score}%` }}
@@ -286,11 +287,11 @@ export default async function DashboardPage() {
                   {h.issues.length > 0 && (
                     <ul className="mt-2 space-y-0.5">
                       {h.issues.map((issue, i) => (
-                        <li key={i} className="text-[10px] text-navy-500">· {issue}</li>
+                        <li key={i} className="text-[10px] text-cream-200/60">· {issue}</li>
                       ))}
                     </ul>
                   )}
-                </div>
+                </GlassCard>
               );
             })}
           </div>
