@@ -4,12 +4,25 @@ import { formatDistanceToNow } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
 
+import { AutomationPanel } from "./_components/automation-panel";
+
 export const dynamic = "force-dynamic";
 
 export default async function MessagesPage() {
   const supabase = await createClient();
+  const db = supabase as any; // app_settings / auto_send_messages predate generated types
 
-  const [{ data: threads }, { data: pendingDrafts }] = await Promise.all([
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const [
+    { data: threads },
+    { data: pendingDrafts },
+    { data: roleRow },
+    { data: killRow },
+    { data: props },
+  ] = await Promise.all([
     supabase
       .from("message_threads")
       .select(
@@ -21,7 +34,19 @@ export default async function MessagesPage() {
       .from("message_drafts")
       .select("id, thread_id, status")
       .eq("status", "pending"),
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user?.id ?? "")
+      .maybeSingle(),
+    db.from("app_settings").select("value").eq("key", "messaging_kill_switch").maybeSingle(),
+    db.from("properties").select("id, auto_send_messages").eq("status", "active"),
   ]);
+
+  const isAdmin = roleRow?.role === "admin";
+  const killSwitchOn = Boolean((killRow as any)?.value?.enabled);
+  const activeProps = (props ?? []) as Array<{ auto_send_messages: boolean | null }>;
+  const autoSendCount = activeProps.filter((p) => p.auto_send_messages).length;
 
   type ThreadRow = {
     id: string;
@@ -49,12 +74,23 @@ export default async function MessagesPage() {
         description="Guest message threads. AI drafts a reply in Donovan's voice, you review and paste into Airbnb."
       />
 
+      {/* Automation status + kill-switch */}
+      <div className="mb-4">
+        <AutomationPanel
+          isAdmin={isAdmin}
+          killSwitchOn={killSwitchOn}
+          autoSendCount={autoSendCount}
+          propertyCount={activeProps.length}
+        />
+      </div>
+
       {/* Header row — stacks on mobile */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
         <div className="flex-1 rounded-lg border border-gold-500/50 bg-gold-500/15 p-4 text-sm text-cream-50">
-          <strong className="text-gold-300">How this works:</strong> Paste a
-          guest message, Claude drafts a reply in Donovan&apos;s voice. Review,
-          edit, then copy into Airbnb. Sends are always manual.
+          <strong className="text-gold-300">How this works:</strong> Incoming
+          Airbnb messages flow in automatically. Claude drafts in
+          Donovan&apos;s voice — routine replies can auto-send on opted-in
+          properties; everything else waits here for review.
         </div>
         <Link
           href="/messages/new"
