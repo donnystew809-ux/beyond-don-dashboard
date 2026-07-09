@@ -4,8 +4,10 @@
 // Cost: ~$0.01–0.05 per draft (much cheaper than the listing optimizer because
 // the input is shorter — single thread, not whole-property data).
 //
-// All sends remain MANUAL — Jasmin (or Donovan) approves the draft and pastes
-// it into Airbnb's host inbox by hand. We never auto-send.
+// Sends: human-approved by default. The intake pipeline MAY auto-send a
+// draft, but only when every gate passes — category is in ROUTINE_CATEGORIES,
+// confidence is "high", the property has auto_send_messages enabled, and the
+// global kill-switch is off. Everything else lands in the approval queue.
 
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
@@ -15,7 +17,7 @@ const DraftSchema = z.object({
   draft_body: z
     .string()
     .describe(
-      "The reply text Jasmin will paste into Airbnb. 1–4 short sentences. Match Donovan's voice exactly — never sign off, no 'Best,' or 'Donovan'.",
+      "The reply text to send to the guest. 1–4 short sentences. Match Donovan's voice exactly — never sign off, no 'Best,' or 'Donovan'.",
     ),
   reasoning: z
     .string()
@@ -25,11 +27,38 @@ const DraftSchema = z.object({
   confidence: z
     .enum(["high", "medium", "low"])
     .describe(
-      "high = template-style routine reply; medium = needs human eyes; low = sensitive/ambiguous, recommend Donovan handles personally.",
+      "high = template-style routine reply with all facts available; medium = needs human eyes; low = sensitive/ambiguous, recommend Donovan handles personally.",
+    ),
+  category: z
+    .enum([
+      "check_in_access",   // lockbox, codes, directions, parking, early/late check-in ask
+      "stay_logistics",    // wifi, amenities, trash, thermostat, how-things-work
+      "pleasantry",        // thanks, compliments, arrival ETA, small talk
+      "booking_inquiry",   // pre-booking questions, availability, pricing asks
+      "policy_question",   // pets/service animals/fees/cancellation policy questions
+      "issue_complaint",   // something broken, cleanliness, neighbors, dissatisfaction
+      "refund_cancellation", // money-back or cancellation REQUESTS
+      "reservation_change",  // extend/shorten/move dates, add guests
+      "emergency",         // safety, lockout right now, urgent
+      "other",
+    ])
+    .describe(
+      "What the guest's latest message is about. Used for auto-send routing — be conservative: if the message spans categories, pick the most sensitive one.",
     ),
 });
 
 export type DraftOutput = z.infer<typeof DraftSchema>;
+
+/**
+ * Categories eligible for auto-send. Everything else always escalates,
+ * regardless of confidence. Money, changes, complaints, and emergencies
+ * are permanently human territory.
+ */
+export const ROUTINE_CATEGORIES: ReadonlySet<DraftOutput["category"]> = new Set([
+  "check_in_access",
+  "stay_logistics",
+  "pleasantry",
+] as const);
 
 export type ThreadContext = {
   guest_first_name: string;
@@ -38,6 +67,18 @@ export type ThreadContext = {
   check_in?: string | null;
   check_out?: string | null;
   city?: string | null;
+  /**
+   * Property profile facts (from property_profiles): access codes, wifi,
+   * parking, quirks. When present the drafter may answer factual questions
+   * directly; when absent it must never invent them.
+   */
+  property_profile?: string | null;
+  /**
+   * Current official Airbnb policy excerpts relevant to this message
+   * (from policy_brain via policy-retrieval). Ground truth for policy
+   * questions — e.g. no pet fees for service animals.
+   */
+  policy_context?: string | null;
   /** Last N messages, oldest-first. */
   history: Array<{
     direction: "inbound" | "outbound";
@@ -103,11 +144,13 @@ Your job: write the next reply Donovan would send.
 
 Hard rules:
 - NEVER sign off ("Best,", "Donovan", "Cheers", etc.). Donovan doesn't.
-- NEVER invent facts about the property, the listing, the cleaning team, or operational details. If you don't have the info, ask the guest for it OR offer to follow up.
+- NEVER invent facts about the property, the listing, the cleaning team, or operational details. Use ONLY facts given in the "Property profile" section. If the fact isn't there, ask the guest for patience OR offer to follow up — and set confidence to "medium" at most.
+- For policy questions (pets, service animals, fees, cancellations…): answer ONLY from the "Current official Airbnb policy" excerpts when provided. Example: service animals are not pets — no pet fee may be charged. If no policy excerpt covers the question, do not guess; write a holding reply and set confidence="medium".
 - Stay short. 1–4 sentences. Donovan does not write paragraphs.
 - Match the tone-brain patterns exactly: "Hey [Name],", "we"/"us" first-person plural, smiley emoji on friendly check-ins (not on issues).
 - For issue threads: empathy → action → consent → check-in.
 - For ambiguous/sensitive situations (refunds, complaints, legal-adjacent, party violations, neighbor complaints), set confidence="low" and write a holding reply that buys Donovan time to handle personally. Never commit to refunds or policy changes.
+- Categorize honestly. Your category + confidence decide whether this reply sends WITHOUT human review — when in doubt, choose the more sensitive category and lower confidence.
 
 # Tone Brain (Donovan's voice — GROUND TRUTH)
 
@@ -126,6 +169,15 @@ function buildUserPrompt(ctx: ThreadContext): string {
   if (ctx.check_in && ctx.check_out)
     parts.push(`Stay dates: ${ctx.check_in} → ${ctx.check_out}`);
   if (ctx.city) parts.push(`City: ${ctx.city}`);
+
+  if (ctx.property_profile) {
+    parts.push(
+      `\n# Property profile (GROUND TRUTH facts for THIS property — use these to answer, never share codes unless the guest has a confirmed reservation for this stay)\n${ctx.property_profile}`,
+    );
+  }
+  if (ctx.policy_context) {
+    parts.push(`\n# Airbnb policy context (GROUND TRUTH)\n${ctx.policy_context}`);
+  }
 
   parts.push(`\n# Conversation (oldest first)`);
   for (const m of ctx.history) {
