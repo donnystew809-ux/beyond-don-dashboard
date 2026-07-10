@@ -37,7 +37,7 @@ const NAV: NavItem[] = [
   { href: "/suggestions", label: "Suggestions", icon: Zap, adminOnly: true },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
   { href: "/properties", label: "Properties", icon: Building2 },
-  { href: "/pricing", label: "Pricing", icon: DollarSign, adminOnly: true },
+  { href: "/revenue", label: "Revenue", icon: DollarSign, adminOnly: true },
   { href: "/cleaning", label: "Cleaning", icon: Sparkles },
   { href: "/messages", label: "Messages", icon: MessageSquare },
   { href: "/expenses", label: "Expenses", icon: Receipt, adminOnly: true },

@@ -123,7 +123,7 @@ export default async function PricingPage() {
                         </span>
                       )}
                       {p.auto_accept_pricing && (
-                        <span className="ml-2 rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-green-800">
+                        <span className="ml-2 rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-emerald-300">
                           auto on
                         </span>
                       )}

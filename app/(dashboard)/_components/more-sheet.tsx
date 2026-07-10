@@ -33,7 +33,7 @@ const SHEET_ITEMS: SheetItem[] = [
   { href: "/", label: "Dashboard", icon: Home },
   { href: "/alerts", label: "Alerts", icon: Bell },
   { href: "/suggestions", label: "Suggestions", icon: Zap, adminOnly: true },
-  { href: "/pricing", label: "Pricing", icon: DollarSign, adminOnly: true },
+  { href: "/revenue", label: "Revenue", icon: DollarSign, adminOnly: true },
   { href: "/cleaning", label: "Cleaning", icon: Sparkles },
   { href: "/expenses", label: "Expenses", icon: Receipt, adminOnly: true },
   { href: "/optimizer", label: "Optimizer", icon: Wand2, adminOnly: true },
