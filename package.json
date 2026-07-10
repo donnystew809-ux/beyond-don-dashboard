@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:signals": "node --loader ./scripts/_ts-alias-loader.mjs ./scripts/verify-pricing-signals.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.94.0",
