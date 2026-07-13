@@ -2,55 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  CalendarDays,
-  Home,
-  Building2,
-  DollarSign,
-  Sparkles,
-  Settings,
-  Wand2,
-  MessageSquare,
-  Sun,
-  Bell,
-  Receipt,
-  Zap,
-  KeyRound,
-  Users,
-} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/lib/supabase/types";
+import { navForRole } from "@/lib/nav";
 
 import { BrandMark } from "@/components/brand-mark";
 
-type NavItem = {
-  href: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  adminOnly?: boolean;
-};
-
-const NAV: NavItem[] = [
-  { href: "/", label: "Dashboard", icon: Home },
-  { href: "/today", label: "Today", icon: Sun },
-  { href: "/alerts", label: "Alerts", icon: Bell },
-  { href: "/suggestions", label: "Suggestions", icon: Zap, adminOnly: true },
-  { href: "/calendar", label: "Calendar", icon: CalendarDays },
-  { href: "/properties", label: "Properties", icon: Building2 },
-  { href: "/revenue", label: "Revenue", icon: DollarSign, adminOnly: true },
-  { href: "/cleaning", label: "Cleaning", icon: Sparkles },
-  { href: "/messages", label: "Messages", icon: MessageSquare },
-  { href: "/expenses", label: "Expenses", icon: Receipt, adminOnly: true },
-  { href: "/optimizer", label: "Listing Optimizer", icon: Wand2, adminOnly: true },
-  { href: "/account", label: "Account", icon: KeyRound },
-  { href: "/settings/team", label: "Team", icon: Users, adminOnly: true },
-  { href: "/settings", label: "Settings", icon: Settings, adminOnly: true },
-];
-
 export function Sidebar({ role }: { role: UserRole | null }) {
   const pathname = usePathname();
-  const items = NAV.filter((item) => !item.adminOnly || role === "admin");
+  const items = navForRole(role);
 
   return (
     <aside className="hidden w-60 shrink-0 bg-navy-gradient text-cream-100 md:flex md:flex-col">

@@ -3,45 +3,12 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  X,
-  Home,
-  Bell,
-  Zap,
-  DollarSign,
-  Sparkles,
-  Receipt,
-  Wand2,
-  KeyRound,
-  Users,
-  Settings,
-} from "lucide-react";
+import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/lib/supabase/types";
 import { useMobileDrawer } from "@/lib/mobile-drawer-store";
-
-type SheetItem = {
-  href: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  adminOnly?: boolean;
-};
-
-// Non-primary nav — everything the BottomNav's 4 tabs don't surface.
-// BottomNav covers: Today, Calendar, Properties, Messages.
-const SHEET_ITEMS: SheetItem[] = [
-  { href: "/", label: "Dashboard", icon: Home },
-  { href: "/alerts", label: "Alerts", icon: Bell },
-  { href: "/suggestions", label: "Suggestions", icon: Zap, adminOnly: true },
-  { href: "/revenue", label: "Revenue", icon: DollarSign, adminOnly: true },
-  { href: "/cleaning", label: "Cleaning", icon: Sparkles },
-  { href: "/expenses", label: "Expenses", icon: Receipt, adminOnly: true },
-  { href: "/optimizer", label: "Optimizer", icon: Wand2, adminOnly: true },
-  { href: "/account", label: "Account", icon: KeyRound },
-  { href: "/settings/team", label: "Team", icon: Users, adminOnly: true },
-  { href: "/settings", label: "Settings", icon: Settings, adminOnly: true },
-];
+import { overflowNavForRole } from "@/lib/nav";
 
 /**
  * MoreSheet — the bottom-sheet overflow menu for the mobile BottomNav.
@@ -60,7 +27,7 @@ const SHEET_ITEMS: SheetItem[] = [
 export function MoreSheet({ role }: { role: UserRole | null }) {
   const [open, setOpen] = useMobileDrawer();
   const pathname = usePathname();
-  const items = SHEET_ITEMS.filter((i) => !i.adminOnly || role === "admin");
+  const items = overflowNavForRole(role);
 
   // Close when navigating to a new page.
   useEffect(() => {

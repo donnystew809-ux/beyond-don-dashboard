@@ -2,38 +2,20 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import {
-  Sun,
-  CalendarDays,
-  Building2,
-  MessageSquare,
-  MoreHorizontal,
-} from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/lib/supabase/types";
 import { setMobileDrawerOpen } from "@/lib/mobile-drawer-store";
+import { primaryNavForRole } from "@/lib/nav";
 
-type Tab = {
-  href: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-};
-
-// Four primary tabs + a "More" overflow button.
-// "More" opens the MoreSheet bottom-sheet (slides up from the bottom)
-// via the shared mobile-drawer-store. The MoreSheet renders every
-// non-primary nav item in a grid of tiles.
-const TABS: Tab[] = [
-  { href: "/today", label: "Today", icon: Sun },
-  { href: "/calendar", label: "Calendar", icon: CalendarDays },
-  { href: "/properties", label: "Properties", icon: Building2 },
-  { href: "/messages", label: "Messages", icon: MessageSquare },
-];
-
-export function BottomNav({ role: _role }: { role: UserRole | null }) {
+// Up to four role-appropriate primary tabs + a "More" overflow button.
+// "More" opens the MoreSheet bottom-sheet via the shared mobile-drawer-store,
+// which renders every non-primary nav item for the role in a grid of tiles.
+export function BottomNav({ role }: { role: UserRole | null }) {
   const router = useRouter();
   const pathname = usePathname();
+  const tabs = primaryNavForRole(role);
 
   // useTransition gives us `isPending` while Next.js is fetching/rendering
   // the new route. We use it to drive an "optimistic active" state on the
@@ -70,8 +52,11 @@ export function BottomNav({ role: _role }: { role: UserRole | null }) {
       // doesn't repaint it on every scroll frame.
       style={{ transform: "translateZ(0)" }}
     >
-      <div className="grid grid-cols-5">
-        {TABS.map(({ href, label, icon: Icon }) => {
+      <div
+        className="grid"
+        style={{ gridTemplateColumns: `repeat(${tabs.length + 1}, minmax(0, 1fr))` }}
+      >
+        {tabs.map(({ href, label, icon: Icon }) => {
           const active = isActive(href);
           return (
             <button

@@ -17,7 +17,12 @@ export type CleaningStatus =
   | "completed"
   | "issue"
   | "cancelled";
-export type UserRole = "admin" | "operator";
+export type UserRole =
+  | "admin"
+  | "operator"
+  | "owner"
+  | "cleaner"
+  | "partner";
 export type SyncStatus = "running" | "ok" | "error";
 
 type PropertyRow = {

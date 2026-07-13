@@ -85,6 +85,8 @@ export async function POST(req: NextRequest) {
 
   // Where to send them next based on the role they just got.
   const home =
-    invite.role === "cleaner" ? "/cleaning" : invite.role === "owner" ? "/owner" : "/today";
+    invite.role === "cleaner" || invite.role === "owner" || invite.role === "partner"
+      ? "/my-property"
+      : "/today";
   return NextResponse.json({ ok: true, role: invite.role, next: home });
 }
