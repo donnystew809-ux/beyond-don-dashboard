@@ -35,10 +35,16 @@ export async function POST(request: Request) {
   const db = createServiceClient() as any;
 
   // Mailgun posts multipart/form-data (or urlencoded) — normalize to a map.
-  const form = await request.formData();
+  // A body that can't be parsed as a form is not a Mailgun webhook; return
+  // 400 (not a 5xx) so Mailgun doesn't retry a genuinely malformed request.
   const fields: Record<string, string> = {};
-  for (const [key, value] of form.entries()) {
-    if (typeof value === "string") fields[key] = value;
+  try {
+    const form = await request.formData();
+    for (const [key, value] of form.entries()) {
+      if (typeof value === "string") fields[key] = value;
+    }
+  } catch {
+    return NextResponse.json({ error: "expected form-encoded body" }, { status: 400 });
   }
 
   // ── Gate 0: authenticity ────────────────────────────────────────────────
