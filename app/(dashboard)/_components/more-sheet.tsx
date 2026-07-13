@@ -13,6 +13,7 @@ import {
   Receipt,
   Wand2,
   KeyRound,
+  Users,
   Settings,
 } from "lucide-react";
 
@@ -38,6 +39,7 @@ const SHEET_ITEMS: SheetItem[] = [
   { href: "/expenses", label: "Expenses", icon: Receipt, adminOnly: true },
   { href: "/optimizer", label: "Optimizer", icon: Wand2, adminOnly: true },
   { href: "/account", label: "Account", icon: KeyRound },
+  { href: "/settings/team", label: "Team", icon: Users, adminOnly: true },
   { href: "/settings", label: "Settings", icon: Settings, adminOnly: true },
 ];
 

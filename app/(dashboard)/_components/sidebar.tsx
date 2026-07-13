@@ -16,6 +16,7 @@ import {
   Receipt,
   Zap,
   KeyRound,
+  Users,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -43,6 +44,7 @@ const NAV: NavItem[] = [
   { href: "/expenses", label: "Expenses", icon: Receipt, adminOnly: true },
   { href: "/optimizer", label: "Listing Optimizer", icon: Wand2, adminOnly: true },
   { href: "/account", label: "Account", icon: KeyRound },
+  { href: "/settings/team", label: "Team", icon: Users, adminOnly: true },
   { href: "/settings", label: "Settings", icon: Settings, adminOnly: true },
 ];
 
