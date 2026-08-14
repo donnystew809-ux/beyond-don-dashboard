@@ -29,6 +29,14 @@ export function BottomNav({ role }: { role: UserRole | null }) {
     if (!isPending) setPendingHref(null);
   }, [isPending, pathname]);
 
+  // Warm every primary tab up-front. These are <button>s (not <Link>s), so
+  // they don't get Next's automatic in-viewport prefetch. Prefetching the
+  // loading boundary means a tap serves the skeleton from cache instantly —
+  // no shell round-trip — even on a weak mobile connection. Cheap: 3–4 tabs.
+  useEffect(() => {
+    for (const { href } of tabs) router.prefetch(href);
+  }, [tabs, router]);
+
   function handleNav(href: string) {
     if (href === pathname) return;
     setPendingHref(href);
