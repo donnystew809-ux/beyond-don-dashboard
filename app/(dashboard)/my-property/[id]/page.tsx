@@ -6,6 +6,7 @@ import { ArrowLeft, KeyRound, Wifi, Car, Trash2, ShieldAlert } from "lucide-reac
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
 import { GlassCard } from "@/components/glass-card";
+import { OpsPanel } from "./ops-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -36,20 +37,47 @@ export default async function MyPropertyDetailPage({
     .maybeSingle();
   if (!property) notFound();
 
-  const [{ data: profile }, { data: cleanings }] = await Promise.all([
-    (supabase as any)
-      .from("property_profiles")
-      .select("access_info, house_rules_md, quirks_md, cleaning_notes_md")
-      .eq("property_id", id)
-      .maybeSingle(),
-    supabase
-      .from("cleanings")
-      .select("id, scheduled_for, status")
-      .eq("property_id", id)
-      .gte("scheduled_for", format(new Date(), "yyyy-MM-dd"))
-      .order("scheduled_for")
-      .limit(5),
-  ]);
+  const db = supabase as any; // ops tables predate generated types
+  const [{ data: profile }, { data: cleanings }, { data: template }, { data: inventory }, { data: tasks }] =
+    await Promise.all([
+      db
+        .from("property_profiles")
+        .select("access_info, house_rules_md, quirks_md, cleaning_notes_md")
+        .eq("property_id", id)
+        .maybeSingle(),
+      supabase
+        .from("cleanings")
+        .select("id, scheduled_for, status")
+        .eq("property_id", id)
+        .gte("scheduled_for", format(new Date(), "yyyy-MM-dd"))
+        .order("scheduled_for")
+        .limit(5),
+      db.from("checklist_templates").select("id").eq("property_id", id).maybeSingle(),
+      db
+        .from("inventory_items")
+        .select("id, name, unit, par_level, current_qty")
+        .eq("property_id", id)
+        .order("name"),
+      db
+        .from("maintenance_tasks")
+        .select("id, title, due_on")
+        .eq("property_id", id)
+        .eq("status", "pending")
+        .order("due_on")
+        .limit(10),
+    ]);
+
+  const nextCleaning =
+    (cleanings ?? []).find((c: { status: string }) => c.status !== "completed") ??
+    (cleanings ?? [])[0] ??
+    null;
+  const { data: existingChecklist } = nextCleaning
+    ? await db
+        .from("cleaning_checklists")
+        .select("id, items, status")
+        .eq("cleaning_id", nextCleaning.id)
+        .maybeSingle()
+    : { data: null };
 
   const access: Record<string, string> = profile?.access_info ?? {};
   const knownKeys = new Set(ACCESS_FIELDS.map((f) => f.key));
@@ -105,6 +133,18 @@ export default async function MyPropertyDetailPage({
           to fill in the lockbox code, wifi, and notes.
         </GlassCard>
       )}
+
+      {/* Working surface: checklist, inventory, maintenance */}
+      <div className="mb-8">
+        <OpsPanel
+          propertyId={id}
+          nextCleaning={nextCleaning}
+          checklist={existingChecklist}
+          hasTemplate={Boolean(template)}
+          inventory={(inventory ?? []) as never[]}
+          tasks={(tasks ?? []) as never[]}
+        />
+      </div>
 
       {/* Notes */}
       <NoteSection title="Cleaning notes" body={profile?.cleaning_notes_md} />

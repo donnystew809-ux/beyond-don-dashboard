@@ -53,6 +53,7 @@ export const NAV_ITEMS: NavItem[] = [
 
   // Cleaner / owner scoped destinations
   { href: "/my-property", label: "My Properties", icon: DoorOpen, roles: ["cleaner", "owner", "partner"], primary: true },
+  { href: "/owner", label: "Earnings", icon: DollarSign, roles: ["owner", "partner"], primary: true },
 
   // Everyone with an account
   { href: "/account", label: "Account", icon: KeyRound, roles: EVERYONE },
