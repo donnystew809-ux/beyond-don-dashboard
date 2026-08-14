@@ -158,9 +158,10 @@ body {
 /* Next.js finishes the route render — any longer and it feels like extra   */
 /* delay on top of the (already perceivable) navigation time.               */
 /* Template remounts on every navigation, so this fires once per route.    */
+/* No will-change here: it would make the wrapper a permanent containing
+   block for any future position:fixed descendant (modals, toasts). */
 .page-enter {
   animation: pageEnter 200ms cubic-bezier(0.22, 0.9, 0.35, 1) both;
-  will-change: opacity, transform;
 }
 
 @keyframes pageEnter {

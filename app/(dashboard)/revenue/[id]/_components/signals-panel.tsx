@@ -35,9 +35,12 @@ export function SignalsPanel({
   }
   return (
     <div className="space-y-2">
-      {signals.map((s, i) => (
+      {signals.map((s) => (
         <SignalRow
-          key={i}
+          // Stable identity: after router.refresh() regenerates the list, a
+          // positional key would attach this row's busy/done state to a
+          // DIFFERENT signal.
+          key={`${s.type}:${s.date ?? "-"}:${s.title}`}
           propertyId={propertyId}
           signal={s}
           currentMinBound={currentMinBound}
@@ -94,14 +97,20 @@ function SignalRow({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ property_id: propertyId, date: a.date, price: a.price }),
         });
-        if (!res.ok) throw new Error((await res.text()) || "override failed");
+        if (!res.ok) {
+          const j = await res.json().catch(() => null);
+          throw new Error(j?.error ?? res.statusText ?? "override failed");
+        }
       } else if (a.kind === "raise_floor") {
         const res = await fetch("/api/pricing/auto-toggle", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ property_id: propertyId, auto_accept_min_price: a.price }),
         });
-        if (!res.ok) throw new Error((await res.text()) || "guardrail update failed");
+        if (!res.ok) {
+          const j = await res.json().catch(() => null);
+          throw new Error(j?.error ?? res.statusText ?? "guardrail update failed");
+        }
       }
       setDone(true);
       router.refresh();

@@ -23,7 +23,8 @@ export function PasteFollowUp({ threadId }: { threadId: string }) {
         body: JSON.stringify({ thread_id: threadId, inbound_text: text }),
       });
       if (!res.ok) {
-        setError(await res.text());
+        const j = await res.json().catch(() => null);
+        setError(j?.error ?? res.statusText ?? "request failed");
         return;
       }
       setText("");

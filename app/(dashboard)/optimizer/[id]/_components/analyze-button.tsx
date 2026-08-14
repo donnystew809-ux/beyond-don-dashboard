@@ -32,8 +32,8 @@ export function AnalyzeButton({
         body: JSON.stringify({ property_id: propertyId }),
       });
       if (!res.ok) {
-        const text = await res.text();
-        setError(text);
+        const j = await res.json().catch(() => null);
+        setError(j?.error ?? res.statusText ?? "request failed");
         return;
       }
       router.refresh();

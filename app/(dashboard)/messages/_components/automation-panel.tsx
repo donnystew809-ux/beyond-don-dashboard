@@ -20,21 +20,30 @@ export function AutomationPanel({
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function toggleKillSwitch() {
+    if (busy) return; // no double-fire on the safety switch
+    setBusy(true);
     setError(null);
-    const res = await fetch("/api/messages/automation", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "kill_switch", enabled: !killSwitchOn }),
-    });
-    if (!res.ok) {
-      const j = await res.json().catch(() => null);
-      setError(j?.error ?? "Failed to update");
-      return;
+    try {
+      const res = await fetch("/api/messages/automation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "kill_switch", enabled: !killSwitchOn }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => null);
+        setError(j?.error ?? res.statusText ?? "Failed to update");
+        return;
+      }
+      startTransition(() => router.refresh());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to update — check connection");
+    } finally {
+      setBusy(false);
     }
-    startTransition(() => router.refresh());
   }
 
   return (
@@ -69,14 +78,14 @@ export function AutomationPanel({
         {isAdmin && (
           <button
             onClick={toggleKillSwitch}
-            disabled={pending}
+            disabled={busy || pending}
             className={`rounded-md px-4 py-2 text-xs font-semibold uppercase tracking-wider transition disabled:opacity-50 ${
               killSwitchOn
                 ? "bg-gold-gradient text-navy-950 hover:brightness-110"
                 : "border border-red-500/50 text-red-300 hover:bg-red-500/15"
             }`}
           >
-            {pending ? "…" : killSwitchOn ? "Resume auto-send" : "Halt all sends"}
+            {busy || pending ? "…" : killSwitchOn ? "Resume auto-send" : "Halt all sends"}
           </button>
         )}
       </div>

@@ -32,8 +32,11 @@ export function RouteProgress() {
     return () => document.removeEventListener("click", onClick, true);
   }, []);
 
-  // Complete when the route actually changes.
+  // Complete when the route actually changes — and reset the app scroll
+  // container to the top (the shell uses an inner scroller, so Next's
+  // default body scroll-restoration doesn't apply).
   useEffect(() => {
+    document.getElementById("app-scroll")?.scrollTo({ top: 0 });
     setState((s) => (s === "loading" ? "done" : s));
     const t = window.setTimeout(() => setState("idle"), 260);
     timers.current.push(t);

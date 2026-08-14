@@ -3,6 +3,7 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 
 import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth-guards";
 
 import { PageHeader } from "@/components/page-header";
 
@@ -12,6 +13,7 @@ import { MobileQR } from "./_components/mobile-qr";
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
+  await requireAdmin();
   const supabase = await createClient();
 
   const [{ data: properties }, { data: syncs }] = await Promise.all([
@@ -121,7 +123,9 @@ export default async function SettingsPage() {
                         {s.status}
                       </span>
                       {s.error && (
-                        <div className="mt-1 text-[10px] text-red-400">{s.error}</div>
+                        <div className="mt-1 max-w-[240px] break-words text-[10px] text-red-400">
+                          {s.error}
+                        </div>
                       )}
                     </td>
                     <td className="hidden px-4 py-2 text-cream-200/80 sm:table-cell">

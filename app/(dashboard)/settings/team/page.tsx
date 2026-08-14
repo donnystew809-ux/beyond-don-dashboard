@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { homeForRole } from "@/lib/nav";
 import { PageHeader } from "@/components/page-header";
 
 import { InviteManager } from "./_components/invite-manager";
@@ -18,7 +19,7 @@ export default async function TeamPage() {
     .select("role")
     .eq("user_id", user.id)
     .maybeSingle();
-  if (roleRow?.role !== "admin") redirect("/today");
+  if (roleRow?.role !== "admin") redirect(homeForRole(roleRow?.role ?? null));
 
   const service = createServiceClient() as any;
   const [{ data: properties }, { data: invites }] = await Promise.all([

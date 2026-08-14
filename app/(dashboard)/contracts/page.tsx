@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { dropboxSignConfigured } from "@/lib/integrations/dropbox-sign";
+import { homeForRole } from "@/lib/nav";
 import { PageHeader } from "@/components/page-header";
 import { GlassCard } from "@/components/glass-card";
 
@@ -20,7 +21,7 @@ export default async function ContractsPage() {
     .select("role")
     .eq("user_id", user.id)
     .maybeSingle();
-  if (roleRow?.role !== "admin") redirect("/today");
+  if (roleRow?.role !== "admin") redirect(homeForRole(roleRow?.role ?? null));
 
   const db = supabase as any;
   const [{ data: contracts }, { data: properties }] = await Promise.all([

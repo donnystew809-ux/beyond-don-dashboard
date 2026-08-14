@@ -12,6 +12,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Financial writes are admin-only (RLS also enforces this since 0013;
+  // the explicit check gives a clean error instead of a silent 0-row write).
+  const { data: roleRow } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (roleRow?.role !== "admin") {
+    return NextResponse.json({ error: "admin only" }, { status: 403 });
+  }
+
   const body = await req.json();
   const { property_id, date, category, amount, vendor, description } = body;
 

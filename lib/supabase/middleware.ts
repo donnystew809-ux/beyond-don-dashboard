@@ -10,6 +10,7 @@ import type { Database } from "./types";
 const PUBLIC_PATHS = [
   "/login",
   "/auth",
+  "/invite", // invite-accept page handles its own signed-out state
   "/icon",
   "/apple-icon",
   "/manifest.json",

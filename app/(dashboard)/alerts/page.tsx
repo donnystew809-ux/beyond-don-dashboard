@@ -65,7 +65,7 @@ export default async function AlertsPage() {
           severity: "warning",
           title: `${gapNights}-night gap at ${prop.name}`,
           detail: `${format(gapStart, "MMM d")} – ${format(gapEnd, "MMM d")} is unbooked between two reservations. Consider a last-minute discount.`,
-          action: { label: "Review pricing", href: "/pricing" },
+          action: { label: "Review pricing", href: `/revenue/${prop.id}` },
         });
       }
     }
@@ -86,7 +86,7 @@ export default async function AlertsPage() {
         severity: "warning",
         title: `No bookings in next 14 days — ${prop.name}`,
         detail: "This property has no reservations in the next two weeks. Review pricing or promote the listing.",
-        action: { label: "Review pricing", href: "/pricing" },
+        action: { label: "Review pricing", href: `/revenue/${prop.id}` },
       });
     }
   }

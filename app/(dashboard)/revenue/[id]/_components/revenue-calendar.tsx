@@ -43,7 +43,7 @@ export function RevenueCalendar({
           </h4>
           <div className="grid grid-cols-7 gap-1">
             {WEEKDAYS.map((w, i) => (
-              <div key={i} className="text-center text-[9px] text-cream-200/40">
+              <div key={i} className="text-center text-[9px] text-cream-200/60">
                 {w}
               </div>
             ))}
@@ -99,7 +99,7 @@ function Cell({
 
   return (
     <div className={`${base} ${state}${ring}`} title={titleFor(d, price, currency)}>
-      <span className="absolute left-1 top-0.5 text-[8px] text-cream-200/40">
+      <span className="absolute left-1 top-0.5 text-[8px] text-cream-200/65">
         {dayNum}
       </span>
       {price != null ? (
@@ -115,7 +115,7 @@ function Cell({
           {formatCurrency(price, currency).replace(/\.00$/, "")}
         </span>
       ) : (
-        <span className="text-[10px] text-navy-300">—</span>
+        <span className="text-[10px] text-cream-200/50">—</span>
       )}
     </div>
   );

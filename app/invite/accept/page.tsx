@@ -56,7 +56,7 @@ export default async function InviteAcceptPage({
         ) : invite.status !== "pending" ? (
           <p className="mt-4 text-sm text-cream-200/70">
             This invite has already been {invite.status}. If you already have
-            access, head to <Link href="/today" className="text-gold-300 underline">your dashboard</Link>.
+            access, head to <Link href="/my-property" className="text-gold-300 underline">your dashboard</Link>.
           </p>
         ) : !user ? (
           <p className="mt-4 text-sm text-cream-200/70">

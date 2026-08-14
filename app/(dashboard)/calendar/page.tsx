@@ -66,7 +66,7 @@ export default async function CalendarPage() {
               <thead className="bg-navy-800/40">
                 <tr>
                   {/* Narrower property column on mobile */}
-                  <th className="sticky left-0 z-10 w-24 bg-navy-800/40 px-2 py-2 text-left font-medium text-cream-200/80 sm:w-auto sm:px-3">
+                  <th className="sticky left-0 z-10 w-24 bg-navy-800 px-2 py-2 text-left font-medium text-cream-200/80 sm:w-auto sm:px-3">
                     Property
                   </th>
                   {days.map((d) => {
@@ -101,7 +101,7 @@ export default async function CalendarPage() {
 
                   return (
                     <tr key={property.id} className="border-t border-navy-700/40">
-                      <td className="sticky left-0 z-10 w-24 max-w-[96px] truncate bg-navy-900/60 backdrop-blur-sm px-2 py-2 text-left text-sm font-medium sm:w-auto sm:max-w-none sm:px-3">
+                      <td className="sticky left-0 z-10 w-24 max-w-[96px] truncate bg-navy-900 px-2 py-2 text-left text-sm font-medium sm:w-auto sm:max-w-none sm:px-3">
                         {property.name}
                       </td>
                       {days.map((d) => {

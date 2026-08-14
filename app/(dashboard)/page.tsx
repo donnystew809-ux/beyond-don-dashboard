@@ -11,6 +11,7 @@ import {
 import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/server";
+import { requireStaff } from "@/lib/auth-guards";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import {
   adr,
@@ -26,6 +27,7 @@ import { GlassCard } from "@/components/glass-card";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
+  await requireStaff(); // non-staff land on their own home
   const supabase = await createClient();
   const now = new Date();
 

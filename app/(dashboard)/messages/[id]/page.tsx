@@ -68,7 +68,7 @@ export default async function ThreadPage({
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr,400px]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_400px]">
         {/* Conversation */}
         <section className="rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-6">
           <h2 className="gold-underline mb-5 text-sm font-semibold uppercase tracking-[0.16em] text-cream-100">

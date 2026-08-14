@@ -57,28 +57,33 @@ export function ProfileForm({
     e.preventDefault();
     setSaving(true);
     setMessage(null);
-    const res = await fetch("/api/properties/profile", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        property_id: propertyId,
-        access_info: Object.fromEntries(
-          Object.entries(access).filter(([, v]) => v?.trim()),
-        ),
-        house_rules_md: sections.house_rules_md || null,
-        quirks_md: sections.quirks_md || null,
-        host_preferences_md: sections.host_preferences_md || null,
-        cleaning_notes_md: sections.cleaning_notes_md || null,
-      }),
-    });
-    setSaving(false);
-    if (!res.ok) {
-      const j = await res.json().catch(() => null);
-      setMessage(j?.error ?? "Save failed");
-      return;
+    try {
+      const res = await fetch("/api/properties/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          property_id: propertyId,
+          access_info: Object.fromEntries(
+            Object.entries(access).filter(([, v]) => v?.trim()),
+          ),
+          house_rules_md: sections.house_rules_md || null,
+          quirks_md: sections.quirks_md || null,
+          host_preferences_md: sections.host_preferences_md || null,
+          cleaning_notes_md: sections.cleaning_notes_md || null,
+        }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => null);
+        setMessage(j?.error ?? res.statusText ?? "Save failed");
+        return;
+      }
+      setMessage("Profile saved — the AI now answers with these facts.");
+      router.refresh();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Save failed — check your connection");
+    } finally {
+      setSaving(false);
     }
-    setMessage("Profile saved — the AI now answers with these facts.");
-    router.refresh();
   }
 
   const inputCls =

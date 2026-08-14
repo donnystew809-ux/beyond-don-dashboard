@@ -32,14 +32,22 @@ export default async function DashboardLayout({
   const role = roleRow?.role ?? null;
 
   return (
-    <div className="relative flex min-h-dvh">
+    // App shell: fixed viewport height with `main` as THE scroll container.
+    // The bottom nav + header can never move or jitter (even with iOS
+    // Safari's collapsing URL bar), and content scrolls beneath them.
+    <div className="relative flex h-dvh overflow-hidden">
       <RouteProgress />
       <MagneticFieldBackground tone="dark" transparent />
       <Sidebar role={role} />
-      <div className="flex flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col">
         <Header email={user.email ?? ""} role={role} />
-        {/* Bottom padding on mobile leaves room for BottomNav (h ~64px + safe-area) */}
-        <main className="flex-1 overflow-y-auto px-4 pb-24 pt-6 md:px-6 md:pb-8 md:pt-8">
+        {/* Mobile bottom padding = nav height (~64px) + breathing room +
+            device safe-area, so the last content is never covered at max
+            scroll. Desktop has no bottom nav → normal padding. */}
+        <main
+          id="app-scroll"
+          className="flex-1 overflow-y-auto overscroll-contain px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-6 md:px-6 md:pb-8 md:pt-8"
+        >
           {children}
         </main>
       </div>

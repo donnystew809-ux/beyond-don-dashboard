@@ -36,7 +36,9 @@ export default function LoginPage() {
       setSubmitting(false);
     } else {
       // Session cookie is set; route to the dashboard.
-      router.push("/today");
+      // "/" is role-aware: staff see the portfolio dashboard, everyone else
+      // is redirected to their own home (my-property / account).
+      router.push("/");
       router.refresh();
     }
   }

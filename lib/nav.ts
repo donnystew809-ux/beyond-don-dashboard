@@ -63,6 +63,15 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/settings", label: "Settings", icon: Settings, roles: ADMIN },
 ];
 
+/** The landing route for a role — used by login, invites, guards, and the
+ * brand-mark link so nobody is ever dropped on a page outside their nav. */
+export function homeForRole(role: UserRole | null): string {
+  if (role === "cleaner" || role === "owner" || role === "partner")
+    return "/my-property";
+  if (role === "admin" || role === "operator") return "/today";
+  return "/account";
+}
+
 export function navForRole(role: UserRole | null): NavItem[] {
   // No role row yet (fresh account, or data hiccup): degrade to a minimal
   // shell instead of a blank app — Account still reachable so the user can

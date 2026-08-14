@@ -58,7 +58,7 @@ export default async function OptimizerPage() {
           No active properties.
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm">
+        <div className="overflow-x-auto rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm">
           <table className="w-full text-sm">
             <thead className="bg-navy-800/40 text-left text-xs uppercase tracking-wide text-cream-200/60">
               <tr>

@@ -1,6 +1,7 @@
 import { format, startOfMonth, endOfMonth, startOfYear } from "date-fns";
 
 import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth-guards";
 import { PageHeader } from "@/components/page-header";
 import { AddExpenseForm } from "./_components/add-expense-form";
 
@@ -21,6 +22,7 @@ function formatUSD(n: number) {
 }
 
 export default async function ExpensesPage() {
+  await requireAdmin(); // financials are admin-only
   const supabase = await createClient();
   const now = new Date();
   const monthStart = format(startOfMonth(now), "yyyy-MM-dd");

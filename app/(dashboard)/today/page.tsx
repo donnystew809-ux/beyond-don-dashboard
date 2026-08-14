@@ -1,6 +1,7 @@
 import { format, isToday, isTomorrow, addDays, differenceInDays } from "date-fns";
 
 import { createClient } from "@/lib/supabase/server";
+import { requireStaff } from "@/lib/auth-guards";
 import { PageHeader } from "@/components/page-header";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ function relativeDay(dateStr: string) {
 }
 
 export default async function TodayPage() {
+  await requireStaff(); // non-staff land on their own home
   const supabase = await createClient();
   const now = new Date();
   const todayStr = format(now, "yyyy-MM-dd");

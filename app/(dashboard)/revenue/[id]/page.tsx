@@ -15,7 +15,7 @@ import { computeSignals } from "@/lib/pricing-signals";
 
 import { PageHeader } from "@/components/page-header";
 import { GlassCard } from "@/components/glass-card";
-import { AutoPricingControls } from "../../pricing/_components/auto-pricing-controls";
+import { AutoPricingControls } from "../_components/auto-pricing-controls";
 import { RevenueCalendar } from "./_components/revenue-calendar";
 import { SignalsPanel } from "./_components/signals-panel";
 import { HeatmapLegend } from "../_components/price-heatmap";

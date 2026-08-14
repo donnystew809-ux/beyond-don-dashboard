@@ -37,7 +37,8 @@ export function DraftPanel({
         body: JSON.stringify({ thread_id: threadId }),
       });
       if (!res.ok) {
-        setError(await res.text());
+        const j = await res.json().catch(() => null);
+        setError(j?.error ?? res.statusText ?? "request failed");
         return;
       }
       router.refresh();
@@ -56,7 +57,9 @@ export function DraftPanel({
         </h2>
 
         {pendingDraft ? (
-          <DraftActions threadId={threadId} draft={pendingDraft} />
+          // key on the draft id: a regenerated draft remounts the editor so
+          // the textarea can't show a stale body the operator might send
+          <DraftActions key={pendingDraft.id} threadId={threadId} draft={pendingDraft} />
         ) : (
           <div className="space-y-3">
             <p className="text-sm text-cream-200/80">
@@ -126,7 +129,8 @@ function DraftActions({ threadId: _threadId, draft }: { threadId: string; draft:
         }),
       });
       if (!res.ok) {
-        setError(await res.text());
+        const j = await res.json().catch(() => null);
+        setError(j?.error ?? res.statusText ?? "request failed");
         return;
       }
       router.refresh();
@@ -138,9 +142,13 @@ function DraftActions({ threadId: _threadId, draft }: { threadId: string; draft:
   }
 
   async function copy() {
-    await navigator.clipboard.writeText(body);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    try {
+      await navigator.clipboard.writeText(body);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setError("Copy failed — select the text manually");
+    }
   }
 
   return (

@@ -157,10 +157,14 @@ export function InviteManager({
                 {joinUrl}
               </code>
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText(joinUrl);
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 1500);
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(joinUrl);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 1500);
+                  } catch {
+                    setError("Copy failed — select and copy the link manually");
+                  }
                 }}
                 className="shrink-0 rounded-md border border-navy-700/50 p-2 text-cream-100 hover:bg-navy-800"
                 title="Copy link"

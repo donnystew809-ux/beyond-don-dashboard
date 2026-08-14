@@ -39,8 +39,8 @@ export function Header({
   }
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-navy-700/40 bg-navy-900/60 px-4 backdrop-blur-sm md:px-6">
-      <div className="flex items-center gap-2">
+    <header className="flex min-h-14 items-center justify-between border-b border-navy-700/40 bg-navy-900/60 px-4 pt-[env(safe-area-inset-top)] backdrop-blur-sm md:px-6">
+      <div className="flex min-w-0 items-center gap-2">
         {isDeep && (
           <button
             onClick={handleBack}
@@ -50,7 +50,7 @@ export function Header({
             <ChevronLeft className="h-5 w-5" />
           </button>
         )}
-        <div className="text-sm text-cream-100">
+        <div className="min-w-0 truncate text-sm text-cream-100">
           <span className="hidden text-cream-200/60 sm:inline">Signed in as </span>
           <span className="font-medium text-cream-50">
             <span className="hidden sm:inline">{email}</span>
@@ -72,7 +72,7 @@ export function Header({
 
       <button
         onClick={handleSignOut}
-        className="rounded-md border border-cream-200/30 px-3 py-2 text-xs font-medium uppercase tracking-wider text-cream-100 transition hover:border-gold-400 hover:bg-gold-500/10 hover:text-gold-200"
+        className="shrink-0 rounded-md border border-cream-200/30 px-3 py-2 text-xs font-medium uppercase tracking-wider text-cream-100 transition hover:border-gold-400 hover:bg-gold-500/10 hover:text-gold-200"
       >
         Sign out
       </button>

@@ -6,7 +6,7 @@ import { useEffect, useState, useTransition } from "react";
 
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/lib/supabase/types";
-import { navForRole } from "@/lib/nav";
+import { navForRole, homeForRole } from "@/lib/nav";
 
 import { BrandMark } from "@/components/brand-mark";
 
@@ -35,13 +35,13 @@ export function Sidebar({ role }: { role: UserRole | null }) {
 
   return (
     <aside className="hidden w-60 shrink-0 bg-navy-gradient text-cream-100 md:flex md:flex-col">
-      <Link href="/" className="flex items-center gap-3 px-5 py-6">
+      <Link href={homeForRole(role)} className="flex items-center gap-3 px-5 py-6">
         <BrandMark tone="light" size="md" showWordmark />
       </Link>
 
       <div className="mx-5 mb-4 h-px bg-gold-500/40" />
 
-      <nav className="flex-1 space-y-1 px-3">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3">
         {items.map(({ href, label, icon: Icon }) => {
           // Optimistic: the just-clicked item lights up instantly.
           const target = pendingHref ?? pathname;

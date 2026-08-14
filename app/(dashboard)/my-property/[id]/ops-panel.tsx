@@ -7,7 +7,7 @@
 // All mutations go through /api/ops/* which run under the cleaner's own
 // session, so RLS guarantees they can only touch this property.
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckSquare, Package, Wrench } from "lucide-react";
 
@@ -47,7 +47,16 @@ export function OpsPanel({
   const router = useRouter();
   const [checklist, setChecklist] = useState<OpsChecklist>(initialChecklist);
   const [busy, setBusy] = useState<string | null>(null);
-  const [msg, setMsg] = useState<string | null>(null);
+  const [msg, setMsg] = useState<{ text: string; kind: "ok" | "err" } | null>(null);
+  // Serialize checklist toggles: the API does a read-modify-write of the
+  // whole items array, so two in-flight toggles would clobber each other.
+  const toggleChain = useRef<Promise<void>>(Promise.resolve());
+
+  // Resync when the server-provided checklist changes (e.g. after refresh).
+  useEffect(() => {
+    if (initialChecklist?.id !== checklist?.id) setChecklist(initialChecklist);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialChecklist?.id]);
 
   async function call(payload: object): Promise<any> {
     const res = await fetch(`/api/ops/${(payload as any).__route}`, {
@@ -59,6 +68,9 @@ export function OpsPanel({
     if (!res.ok) throw new Error(json.error ?? "request failed");
     return json;
   }
+
+  const fail = (e: unknown, fallback: string) =>
+    setMsg({ text: e instanceof Error ? e.message : fallback, kind: "err" });
 
   async function startChecklist() {
     if (!nextCleaning) return;
@@ -73,28 +85,40 @@ export function OpsPanel({
       });
       setChecklist(json.checklist);
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : "failed");
+      fail(e, "Could not start the checklist");
     } finally {
       setBusy(null);
     }
   }
 
-  async function toggle(index: number, checked: boolean) {
+  function toggle(index: number, checked: boolean) {
     if (!checklist) return;
-    const prev = checklist;
-    setChecklist({
-      ...checklist,
-      items: checklist.items.map((it, i) => (i === index ? { ...it, checked } : it)),
+    // Optimistic (functional, so rapid taps compose correctly)…
+    setChecklist((cur) =>
+      cur
+        ? { ...cur, items: cur.items.map((it, i) => (i === index ? { ...it, checked } : it)) }
+        : cur,
+    );
+    // …while the server writes run strictly one-at-a-time.
+    const id = checklist.id;
+    toggleChain.current = toggleChain.current.then(async () => {
+      try {
+        await call({ __route: "checklist", action: "toggle", checklist_id: id, index, checked });
+      } catch {
+        // Revert just this item on failure.
+        setChecklist((cur) =>
+          cur
+            ? { ...cur, items: cur.items.map((it, i) => (i === index ? { ...it, checked: !checked } : it)) }
+            : cur,
+        );
+        setMsg({ text: "A checkbox didn't save — try it again", kind: "err" });
+      }
     });
-    try {
-      await call({ __route: "checklist", action: "toggle", checklist_id: checklist.id, index, checked });
-    } catch {
-      setChecklist(prev); // roll back on failure
-    }
   }
 
   async function submit() {
     if (!checklist) return;
+    setMsg(null);
     const unchecked = checklist.items.filter((i) => !i.checked).length;
     if (
       unchecked > 0 &&
@@ -103,12 +127,13 @@ export function OpsPanel({
       return;
     setBusy("submit");
     try {
+      await toggleChain.current; // let any in-flight toggles land first
       await call({ __route: "checklist", action: "submit", checklist_id: checklist.id });
-      setChecklist({ ...checklist, status: "submitted" });
-      setMsg("Checklist submitted — thank you!");
+      setChecklist((cur) => (cur ? { ...cur, status: "submitted" } : cur));
+      setMsg({ text: "Checklist submitted — thank you!", kind: "ok" });
       router.refresh();
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : "failed");
+      fail(e, "Submit failed");
     } finally {
       setBusy(null);
     }
@@ -116,11 +141,12 @@ export function OpsPanel({
 
   async function setQty(itemId: string, qty: number) {
     setBusy(itemId);
+    setMsg(null);
     try {
       await call({ __route: "inventory", action: "adjust", item_id: itemId, qty });
       router.refresh();
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : "failed");
+      fail(e, "Count didn't save");
     } finally {
       setBusy(null);
     }
@@ -128,6 +154,7 @@ export function OpsPanel({
 
   async function finishTask(taskId: string, done: boolean) {
     setBusy(taskId);
+    setMsg(null);
     try {
       await call({
         __route: "maintenance",
@@ -136,7 +163,7 @@ export function OpsPanel({
       });
       router.refresh();
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : "failed");
+      fail(e, "Task update failed");
     } finally {
       setBusy(null);
     }
@@ -237,6 +264,9 @@ export function OpsPanel({
                   </div>
                 </div>
                 <input
+                  // key includes the server value so a refresh remounts the
+                  // input and resyncs it (defaultValue alone never updates).
+                  key={`${item.id}:${item.current_qty}`}
                   type="number"
                   min={0}
                   defaultValue={item.current_qty}
@@ -250,7 +280,7 @@ export function OpsPanel({
               </div>
             ))}
           </GlassCard>
-          <p className="mt-1.5 text-[11px] text-cream-200/40">
+          <p className="mt-1.5 text-[11px] text-cream-200/70">
             Update counts as you restock — low items alert Donovan automatically.
           </p>
         </section>
@@ -268,7 +298,7 @@ export function OpsPanel({
               <GlassCard key={t.id} className="flex items-center justify-between gap-3 p-3">
                 <div className="min-w-0">
                   <div className="truncate text-sm text-cream-50">{t.title}</div>
-                  <div className="text-[11px] text-cream-200/50">due {t.due_on}</div>
+                  <div className="text-[11px] text-cream-200/70">due {t.due_on}</div>
                 </div>
                 <button
                   onClick={() => finishTask(t.id, true)}
@@ -283,7 +313,11 @@ export function OpsPanel({
         </section>
       )}
 
-      {msg && <p className="text-xs text-gold-300">{msg}</p>}
+      {msg && (
+        <p className={`text-xs ${msg.kind === "err" ? "text-red-300" : "text-gold-300"}`}>
+          {msg.text}
+        </p>
+      )}
     </div>
   );
 }

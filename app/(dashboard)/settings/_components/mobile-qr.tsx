@@ -11,7 +11,7 @@ export function MobileQR() {
   const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&color=0a1f44&bgcolor=fbf9f3&data=${encodeURIComponent(url)}&format=png&margin=4`;
 
   return (
-    <div className="grid gap-6 rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-6 md:grid-cols-[220px,1fr]">
+    <div className="grid gap-6 rounded-lg border border-navy-700/40 bg-navy-900/60 backdrop-blur-sm p-6 md:grid-cols-[220px_1fr]">
       <div className="flex flex-col items-center gap-3">
         <div className="rounded-md border border-navy-700/50 bg-navy-800/40 p-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}

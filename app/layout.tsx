@@ -19,7 +19,6 @@ export const metadata: Metadata = {
   description:
     "Maximize Your Property's Potential. Unified property management dashboard for the BEYOND DON LLC Airbnb portfolio.",
   manifest: "/manifest.json",
-  themeColor: "#0a1f44",
   appleWebApp: {
     capable: true,
     title: "Beyond Don",
@@ -35,6 +34,10 @@ export const viewport = {
   maximumScale: 1,
   userScalable: false,
   themeColor: "#0a1f44",
+  // Required for env(safe-area-inset-*) to be non-zero on notched iPhones —
+  // without it the bottom nav sits inside the home-indicator swipe zone and
+  // the PWA header slides under the status bar.
+  viewportFit: "cover" as const,
 };
 
 export default function RootLayout({

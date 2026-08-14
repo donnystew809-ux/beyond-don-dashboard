@@ -116,7 +116,7 @@ export function PropertyForm({ property }: { property?: Initial }) {
               onChange={(e) =>
                 setValues((v) => ({ ...v, [f.key]: e.target.value }))
               }
-              className="mt-1 block w-full rounded-md border border-navy-700/50 px-3 py-2 text-sm shadow-sm focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
+              className="mt-1 block w-full rounded-md border border-navy-700/50 bg-navy-950/60 px-3 py-2 text-sm text-cream-50 placeholder:text-cream-200/40 shadow-sm focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
             />
           </label>
         ))}

@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
   }
 
   const t = thread as unknown as {
+    property_id: string | null;
     guest_first_name: string | null;
     guest_name: string | null;
     check_in: string | null;
@@ -55,6 +56,33 @@ export async function POST(req: NextRequest) {
     properties: { name: string } | { name: string }[] | null;
   };
   const propertyJoin = Array.isArray(t.properties) ? t.properties[0] : t.properties;
+
+  // Property profile — the same ground-truth facts the intake pipeline uses
+  // (replaces the old hardcoded PROPERTY_NOTES list).
+  let profileContext: string | null = null;
+  if (t.property_id) {
+    const { data: profile } = await (service as any)
+      .from("property_profiles")
+      .select("access_info, house_rules_md, quirks_md, host_preferences_md")
+      .eq("property_id", t.property_id)
+      .maybeSingle();
+    if (profile) {
+      const parts: string[] = [];
+      const entries = Object.entries(
+        (profile.access_info ?? {}) as Record<string, string>,
+      ).filter(([, v]) => v);
+      if (entries.length)
+        parts.push(
+          "## Access & facts\n" +
+            entries.map(([k, v]) => `- ${k.replace(/_/g, " ")}: ${v}`).join("\n"),
+        );
+      if (profile.house_rules_md) parts.push(`## House rules\n${profile.house_rules_md}`);
+      if (profile.quirks_md) parts.push(`## Quirks\n${profile.quirks_md}`);
+      if (profile.host_preferences_md)
+        parts.push(`## Host preferences\n${profile.host_preferences_md}`);
+      profileContext = parts.length ? parts.join("\n\n") : null;
+    }
+  }
 
   const { data: msgs, error: msgErr } = await service
     .from("messages")
@@ -83,9 +111,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Property status notes — pull from memory file in code (small set, not worth a table yet)
-  const propertyStatusNote = getPropertyStatusNote(propertyJoin?.name);
-
   try {
     const { draft, usage, cost_usd } = await draftReply(
       {
@@ -93,7 +118,7 @@ export async function POST(req: NextRequest) {
           t.guest_first_name ||
           (t.guest_name?.split(" ")[0] ?? "there"),
         property_name: propertyJoin?.name ?? null,
-        property_status_note: propertyStatusNote,
+        property_profile: profileContext,
         check_in: t.check_in,
         check_out: t.check_out,
         city: t.city,
@@ -146,26 +171,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Per-property notes the AI must NOT mention to guests but SHOULD use to avoid
-// suggesting fixes that aren't happening. Keep this list short — long-term this
-// moves to a `properties.status_note` column.
-const PROPERTY_NOTES: Array<{ match: RegExp; note: string }> = [
-  {
-    match: /sweet suite relief/i,
-    note:
-      "Listing is offline (flood damage, floors awaiting repair, owner divorce). Do not promise reactivation timeline.",
-  },
-  {
-    match: /oak arbor/i,
-    note:
-      "Subleased unit, our lease ends June 30 and we are NOT renewing. Wind-down mode. Do not promise repairs/improvements beyond the current stay.",
-  },
-];
-
-function getPropertyStatusNote(name: string | undefined | null): string | null {
-  if (!name) return null;
-  for (const { match, note } of PROPERTY_NOTES) {
-    if (match.test(name)) return note;
-  }
-  return null;
-}
+// Per-property notes now live in property_profiles (host_preferences_md /
+// quirks_md), editable in Settings → Properties. The old hardcoded
+// PROPERTY_NOTES list was removed — it had already gone stale.

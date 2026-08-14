@@ -38,7 +38,8 @@ export function PasteForm({
         }),
       });
       if (!res.ok) {
-        setError(await res.text());
+        const j = await res.json().catch(() => null);
+        setError(j?.error ?? res.statusText ?? "request failed");
         return;
       }
       const json = await res.json();

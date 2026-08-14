@@ -95,11 +95,11 @@ function CleaningGroup({
                 i > 0 ? "border-t border-navy-700/40" : ""
               }`}
             >
-              <div>
-                <div className="text-sm font-medium">
+              <div className="min-w-0 pr-3">
+                <div className="truncate text-sm font-medium">
                   {propertyName.get(c.property_id) ?? "Unknown"}
                 </div>
-                <div className="text-xs text-cream-200/60">
+                <div className="truncate text-xs text-cream-200/60">
                   {c.cleaner_name ?? "Unassigned"}
                   {c.notes ? ` · ${c.notes}` : ""}
                 </div>

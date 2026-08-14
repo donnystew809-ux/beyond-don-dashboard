@@ -34,12 +34,14 @@ export function MoreSheet({ role }: { role: UserRole | null }) {
     setOpen(false);
   }, [pathname, setOpen]);
 
-  // Prevent the body from scrolling behind the sheet while it's open.
+  // Prevent the app scroller from moving behind the sheet while it's open.
+  // (The shell uses main#app-scroll as the scroll container, not body.)
   useEffect(() => {
-    if (open) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "";
+    const scroller = document.getElementById("app-scroll");
+    if (!scroller) return;
+    scroller.style.overflow = open ? "hidden" : "";
     return () => {
-      document.body.style.overflow = "";
+      scroller.style.overflow = "";
     };
   }, [open]);
 
@@ -56,7 +58,10 @@ export function MoreSheet({ role }: { role: UserRole | null }) {
   return (
     <div
       className={cn(
-        "fixed inset-0 z-50 md:hidden",
+        // overflow-hidden clips the sheet while it's translated off-screen
+        // (closed) — without it the hidden sheet extends the document below
+        // the viewport and the whole shell becomes scrollable.
+        "fixed inset-0 z-50 overflow-hidden md:hidden",
         !open && "pointer-events-none",
       )}
       aria-hidden={!open}
@@ -76,7 +81,7 @@ export function MoreSheet({ role }: { role: UserRole | null }) {
       {/* Sheet — slides up from the bottom edge */}
       <div
         className={cn(
-          "absolute inset-x-0 bottom-0 max-h-[80vh] overflow-y-auto rounded-t-2xl border-t border-gold-500/20 bg-navy-900/95 backdrop-blur-md transition-transform duration-300 ease-out will-change-transform",
+          "absolute inset-x-0 bottom-0 max-h-[80vh] overflow-y-auto overscroll-contain rounded-t-2xl border-t border-gold-500/20 bg-navy-900/95 backdrop-blur-md transition-transform duration-300 ease-out will-change-transform",
           open ? "translate-y-0" : "translate-y-full",
         )}
         style={{

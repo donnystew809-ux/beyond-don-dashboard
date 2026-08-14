@@ -17,15 +17,17 @@ export function AcceptButton({ token }: { token: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),
       });
-      const json = await res.json();
+      const json = await res.json().catch(() => null);
       if (!res.ok) {
-        setErr(json.error ?? "Could not accept invite");
+        setErr(json?.error ?? res.statusText ?? "Could not accept invite");
+        setBusy(false); // re-enable only on failure
         return;
       }
-      router.push(json.next ?? "/today");
+      // Success: keep the button disabled through the navigation so a
+      // second tap can't re-POST into a 409 while the page is leaving.
+      router.push(json?.next ?? "/my-property");
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Something went wrong");
-    } finally {
       setBusy(false);
     }
   }
