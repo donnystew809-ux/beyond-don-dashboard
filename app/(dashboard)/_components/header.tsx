@@ -1,9 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
 import type { UserRole } from "@/lib/supabase/types";
+import { primaryNavForRole } from "@/lib/nav";
 
 export function Header({
   email,
@@ -13,6 +15,7 @@ export function Header({
   role: UserRole | null;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
 
   async function handleSignOut() {
     const supabase = createClient();
@@ -21,9 +24,32 @@ export function Header({
     router.refresh();
   }
 
+  // App-style back button (mobile only): shown whenever the current route
+  // is "deep" — i.e. not the root and not one of this role's primary tabs.
+  // Back goes to browser history when it exists, else falls back to the
+  // route's parent segment so it never dead-ends.
+  const tabRoots = new Set(["/", ...primaryNavForRole(role).map((t) => t.href)]);
+  const isDeep = !tabRoots.has(pathname);
+  function handleBack() {
+    if (window.history.length > 1) router.back();
+    else {
+      const parent = pathname.split("/").slice(0, -1).join("/") || "/";
+      router.push(parent);
+    }
+  }
+
   return (
     <header className="flex h-14 items-center justify-between border-b border-navy-700/40 bg-navy-900/60 px-4 backdrop-blur-sm md:px-6">
       <div className="flex items-center gap-2">
+        {isDeep && (
+          <button
+            onClick={handleBack}
+            aria-label="Go back"
+            className="tap-feedback -ml-1 flex h-9 w-9 items-center justify-center rounded-full text-cream-100 transition hover:bg-navy-800/60 hover:text-gold-300 active:scale-95 md:hidden"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+        )}
         <div className="text-sm text-cream-100">
           <span className="hidden text-cream-200/60 sm:inline">Signed in as </span>
           <span className="font-medium text-cream-50">

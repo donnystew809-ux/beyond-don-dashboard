@@ -64,7 +64,10 @@ export const NAV_ITEMS: NavItem[] = [
 ];
 
 export function navForRole(role: UserRole | null): NavItem[] {
-  if (!role) return [];
+  // No role row yet (fresh account, or data hiccup): degrade to a minimal
+  // shell instead of a blank app — Account still reachable so the user can
+  // see who they're signed in as. Never silently grant staff nav.
+  if (!role) return NAV_ITEMS.filter((i) => i.href === "/account");
   return NAV_ITEMS.filter((i) => i.roles.includes(role));
 }
 
