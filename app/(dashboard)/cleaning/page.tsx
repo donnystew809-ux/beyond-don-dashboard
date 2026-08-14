@@ -11,7 +11,7 @@ export default async function CleaningPage() {
   const now = new Date();
 
   const [{ data: properties }, { data: cleanings }] = await Promise.all([
-    supabase.from("properties").select("id, name"),
+    supabase.from("properties").select("id, name").eq("status", "active"),
     supabase
       .from("cleanings")
       .select("id, property_id, scheduled_for, cleaner_name, status, notes")

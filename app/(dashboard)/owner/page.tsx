@@ -25,7 +25,7 @@ export default async function OwnerPortalPage() {
 
   const [{ data: properties }, { data: reservations }, { data: expenses }] =
     await Promise.all([
-      supabase.from("properties").select("id, name").order("name"),
+      supabase.from("properties").select("id, name").eq("status", "active").order("name"),
       supabase
         .from("reservations")
         .select("property_id, guest_name, check_in, check_out, gross_revenue, net_to_owner")

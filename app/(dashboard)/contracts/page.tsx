@@ -30,7 +30,7 @@ export default async function ContractsPage() {
       .select("id, title, signer_name, signer_email, status, sent_at, completed_at, created_at")
       .order("created_at", { ascending: false })
       .limit(100),
-    supabase.from("properties").select("id, name").order("name"),
+    supabase.from("properties").select("id, name").eq("status", "active").order("name"),
   ]);
 
   const configured = dropboxSignConfigured();
