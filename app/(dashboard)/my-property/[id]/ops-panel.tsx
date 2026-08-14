@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { CheckSquare, Package, Wrench } from "lucide-react";
 
 import { GlassCard } from "@/components/glass-card";
+import { confirmSheet } from "@/components/confirm-sheet";
 
 type ChecklistItem = { text: string; checked: boolean };
 export type OpsChecklist = {
@@ -122,7 +123,12 @@ export function OpsPanel({
     const unchecked = checklist.items.filter((i) => !i.checked).length;
     if (
       unchecked > 0 &&
-      !confirm(`${unchecked} item(s) are unchecked. Submit anyway?`)
+      !(await confirmSheet({
+        title: `${unchecked} item${unchecked === 1 ? "" : "s"} still unchecked`,
+        body: "Submitting now flags the checklist as incomplete for Donovan. Submit anyway?",
+        confirmLabel: "Submit anyway",
+        cancelLabel: "Keep cleaning",
+      }))
     )
       return;
     setBusy("submit");

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { GlassCard } from "@/components/glass-card";
+import { confirmSheet } from "@/components/confirm-sheet";
 import type { ContractRow } from "../page";
 
 const inputCls =
@@ -28,7 +29,14 @@ export function ContractSender({
 
   async function send(e: React.FormEvent) {
     e.preventDefault();
-    if (!confirm(`Send the management agreement to ${email} for signature?`)) return;
+    if (
+      !(await confirmSheet({
+        title: "Send for signature?",
+        body: `The management agreement will be emailed to ${email} to sign via Dropbox Sign.`,
+        confirmLabel: "Send it",
+      }))
+    )
+      return;
     setBusy(true);
     setMsg(null);
     try {

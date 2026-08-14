@@ -8,6 +8,7 @@ import { BottomNav } from "./_components/bottom-nav";
 import { MoreSheet } from "./_components/more-sheet";
 import { RouteProgress } from "./_components/route-progress";
 import { MagneticFieldBackground } from "@/components/magnetic-field-background";
+import { ConfirmHost } from "@/components/confirm-sheet";
 
 export default async function DashboardLayout({
   children,
@@ -53,6 +54,7 @@ export default async function DashboardLayout({
       </div>
       <BottomNav role={role} />
       <MoreSheet role={role} />
+      <ConfirmHost />
     </div>
   );
 }

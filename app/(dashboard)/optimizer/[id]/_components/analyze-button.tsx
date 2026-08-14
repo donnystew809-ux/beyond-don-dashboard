@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { confirmSheet } from "@/components/confirm-sheet";
+
 export function AnalyzeButton({
   propertyId,
   hasExisting,
@@ -17,9 +19,11 @@ export function AnalyzeButton({
   async function run() {
     if (
       hasExisting &&
-      !confirm(
-        "Re-run the analysis? This will charge approximately $0.10–$0.50 to your Anthropic API account.",
-      )
+      !(await confirmSheet({
+        title: "Re-run the analysis?",
+        body: "This charges roughly $0.10–$0.50 to your Anthropic API account.",
+        confirmLabel: "Re-run",
+      }))
     ) {
       return;
     }

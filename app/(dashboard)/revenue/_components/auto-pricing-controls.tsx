@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { confirmSheet } from "@/components/confirm-sheet";
+
 type Property = {
   id: string;
   name: string;
@@ -42,7 +44,13 @@ export function AutoPricingControls({ property }: { property: Property }) {
   }
 
   async function applyNow() {
-    if (!confirm(`Push PriceLabs suggested prices for ${property.name} for the next ${horizon} days?`))
+    if (
+      !(await confirmSheet({
+        title: `Push suggested prices for ${property.name}?`,
+        body: `PriceLabs' suggestions for the next ${horizon} days go live on Airbnb (guardrails still apply).`,
+        confirmLabel: "Push prices",
+      }))
+    )
       return;
     setBusy(true);
     setMsg(null);

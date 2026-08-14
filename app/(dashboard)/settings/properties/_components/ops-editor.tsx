@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 
 import { GlassCard } from "@/components/glass-card";
+import { confirmSheet } from "@/components/confirm-sheet";
 
 export type TemplateInitial = { title: string; items: Array<{ text: string }> } | null;
 export type InventoryInitial = Array<{
@@ -167,7 +168,15 @@ function InventoryEditor({
   }
 
   async function remove(id: string) {
-    if (!confirm("Remove this inventory item?")) return;
+    if (
+      !(await confirmSheet({
+        title: "Remove this inventory item?",
+        body: "Its stock history goes with it. This can't be undone.",
+        confirmLabel: "Remove",
+        tone: "danger",
+      }))
+    )
+      return;
     setBusy(id);
     try {
       await post("inventory", { action: "delete_item", id });
@@ -276,7 +285,15 @@ function ScheduleEditor({
   }
 
   async function remove(id: string) {
-    if (!confirm("Delete this maintenance schedule?")) return;
+    if (
+      !(await confirmSheet({
+        title: "Delete this maintenance schedule?",
+        body: "Future tasks will stop generating. This can't be undone.",
+        confirmLabel: "Delete",
+        tone: "danger",
+      }))
+    )
+      return;
     setBusy(id);
     try {
       await post("maintenance", { action: "delete_schedule", id });

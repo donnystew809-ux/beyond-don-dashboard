@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { AlertTriangle, Sparkles, Info, Check } from "lucide-react";
 
 import { GlassCard } from "@/components/glass-card";
+import { confirmSheet } from "@/components/confirm-sheet";
 import { formatCurrency } from "@/lib/utils";
 import type { PricingSignal } from "@/lib/pricing-signals";
 
@@ -87,7 +88,14 @@ function SignalRow({
     const a = signal.action;
     if (!a) return;
     const label = actionLabel(a);
-    if (!confirm(`${label}\n\nThis pushes to PriceLabs / Airbnb now. Continue?`)) return;
+    if (
+      !(await confirmSheet({
+        title: label,
+        body: "This pushes to PriceLabs / Airbnb now.",
+        confirmLabel: "Push it",
+      }))
+    )
+      return;
     setBusy(true);
     setErr(null);
     try {
