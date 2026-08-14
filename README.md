@@ -83,15 +83,18 @@ Or click **Run sync** under **Settings → Manual sync**.
 
 | Role | Sees | Can write |
 |---|---|---|
-| `admin` (Donovan) | Everything | Properties, settings, pricing overrides, sync log |
-| `operator` (sister) | Calendar, properties, cleaning, dashboard | Nothing in v1 (read-only) |
+| `admin` (Donovan) | Everything | Everything (settings, pricing, invites, contracts) |
+| `operator` (Jasmin) | Staff pages (Today, Calendar, Properties, Cleaning, Messages, Alerts) | Day-to-day ops |
+| `cleaner` | Only their granted properties: access profile, checklist, inventory, maintenance | Checklist progress, inventory counts, task completion |
+| `owner` / `partner` | Their properties + Earnings (P&L, reservations, reviews) | Nothing |
 
-## What's intentionally not in v1
+Roles are granted via **Settings → Team** invites (`property_access` scopes
+non-staff to specific properties; RLS enforces it — verified by E2E tests).
 
-- Owner portal
-- Guest messaging automation (brief Phase 2)
-- Inventory automation (brief Phase 3)
-- Auto-generated owner reports (brief Phase 4)
+## What's intentionally not built yet
+
+- Off-platform invoicing (attorney sign-off is a hard gate)
+- In-house pricing engine (PriceLabs behind `lib/pricing-engine.ts` seam)
 - AI listing optimizer (planned v1.5 — generates titles, descriptions, amenity suggestions
   using PriceLabs comp data + Claude API)
 - Real-time revenue from Airbnb (no public API — needs CSV upload or Cowork browser
