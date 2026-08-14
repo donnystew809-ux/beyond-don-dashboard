@@ -93,5 +93,40 @@ ok(paceVsTarget(0.95).status === "ahead", "pace 0.95 -> ahead");
   );
 }
 
+// ── Health v2 composite (lib/health) ───────────────────────────────────────
+{
+  const { computeHealth } = await import("@/lib/health.ts");
+  const perfect = computeHealth({
+    ratings: [5, 5, 5],
+    daysSinceLastReview: 10,
+    pricingWarnings: 0,
+    pricingOpportunities: 0,
+    overdueTasks: 0,
+    itemsBelowPar: 0,
+  });
+  ok(perfect.score === 100 && perfect.grade === "A", `perfect inputs -> 100/A (got ${perfect.score}/${perfect.grade})`);
+
+  const rough = computeHealth({
+    ratings: [3, 3, 2],
+    daysSinceLastReview: 400,
+    pricingWarnings: 2,
+    pricingOpportunities: 1,
+    overdueTasks: 2,
+    itemsBelowPar: 3,
+  });
+  ok(rough.score < 50 && rough.grade === "D", `rough inputs -> <50/D (got ${rough.score}/${rough.grade})`);
+
+  const unknown = computeHealth({
+    ratings: [],
+    daysSinceLastReview: null,
+    pricingWarnings: 0,
+    pricingOpportunities: 0,
+    overdueTasks: 0,
+    itemsBelowPar: 0,
+  });
+  ok(unknown.score >= 85 && unknown.pillars.find((p) => p.key === "reviews").score === 70,
+     `no-reviews prior is neutral, not failing (got ${unknown.score})`);
+}
+
 console.log(`\n${fail === 0 ? "ALL PASS" : "FAILURES"} — ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
