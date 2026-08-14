@@ -22,6 +22,7 @@ import {
   Users,
   Settings,
   DoorOpen,
+  FileSignature,
 } from "lucide-react";
 
 import type { UserRole } from "@/lib/supabase/types";
@@ -50,6 +51,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/messages", label: "Messages", icon: MessageSquare, roles: STAFF, primary: true },
   { href: "/expenses", label: "Expenses", icon: Receipt, roles: ADMIN },
   { href: "/optimizer", label: "Listing Optimizer", icon: Wand2, roles: ADMIN },
+  { href: "/contracts", label: "Contracts", icon: FileSignature, roles: ADMIN },
 
   // Cleaner / owner scoped destinations
   { href: "/my-property", label: "My Properties", icon: DoorOpen, roles: ["cleaner", "owner", "partner"], primary: true },

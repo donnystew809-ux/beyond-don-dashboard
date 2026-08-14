@@ -25,6 +25,6 @@ export const config = {
     //    Without the file-extension exclusion, /brand/logo.png gets 307'd to
     //    /login when the user isn't authenticated, so the login page itself
     //    can't render its own brand mark.
-    "/((?!_next/static|_next/image|api/sync|api/cron|api/messages/intake|.*\\.(?:png|jpg|jpeg|svg|ico|webp|gif|avif)$).*)",
+    "/((?!_next/static|_next/image|api/sync|api/cron|api/messages/intake|api/contracts/webhook|.*\\.(?:png|jpg|jpeg|svg|ico|webp|gif|avif)$).*)",
   ],
 };
