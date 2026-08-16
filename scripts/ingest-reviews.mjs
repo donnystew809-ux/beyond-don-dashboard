@@ -60,9 +60,12 @@ let skippedNotGuestReview = 0;
 const rows = [];
 
 for (const block of blocks) {
+  const inner = decodeEntities(
+    block.replace(/^<pre>/, "").replace(/<\/pre>$/, ""),
+  );
   let j;
   try {
-    j = JSON.parse(decodeEntities(block.replace(/^<pre>/, "").replace(/<\/pre>$/, "")));
+    j = JSON.parse(inner);
   } catch {
     continue;
   }
@@ -71,14 +74,22 @@ for (const block of blocks) {
     skippedNotGuestReview++;
     continue;
   }
-  const prop = byListing.get(String(j.entityId));
+  // CRITICAL: entityId (listing id) and reviewId are 18–19 digit integers that
+  // exceed JS's Number.MAX_SAFE_INTEGER (2^53). JSON.parse silently rounds
+  // them — e.g. Sapphire's 1293684874288521370 becomes ...521500, so it never
+  // matches the DB listing id and the review is dropped. Pull both straight
+  // from the raw JSON text as exact strings instead of trusting the parsed
+  // Number.
+  const entityId = inner.match(/"entityId":\s*(\d+)/)?.[1] ?? String(j.entityId);
+  const reviewId = inner.match(/"reviewId":\s*(\d+)/)?.[1] ?? String(j.reviewId);
+  const prop = byListing.get(entityId);
   if (!prop) {
     skippedNoProperty++;
     continue;
   }
   rows.push({
     property_id: prop.id,
-    airbnb_review_id: String(j.reviewId),
+    airbnb_review_id: reviewId,
     rating: Number.isFinite(j.rating) ? j.rating : null,
     comment: j.comment || null,
     submitted_at: j.submittedAt ?? j.firstSubmittedAt ?? null,
