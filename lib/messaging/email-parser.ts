@@ -64,14 +64,27 @@ export function parseAirbnbNotification(
 
   const fromLine = `${fields.from ?? ""} ${fields.sender ?? ""}`;
   const replyToHeader = headers.get("reply-to") ?? "";
-  const isAirbnbNotification =
-    /airbnb\.com/i.test(fromLine) || /reply\.airbnb\.com/i.test(replyToHeader);
-
   // Reply-relay address: prefer the Reply-To header; fall back to any
   // *@reply.airbnb.com address found in the body.
   const replyTo =
     extractEmail(replyToHeader, /@reply\.airbnb\.com/i) ??
     extractEmail(rawBody, /@reply\.airbnb\.com/i);
+
+  // Detection has to survive FORWARDING, which is how every real message
+  // reaches us. Plenty of providers (Outlook, and anything using SRS to keep
+  // SPF passing) rewrite From/Sender to the forwarding mailbox — a
+  // header-only check would then mark every forwarded Airbnb notification
+  // "not_airbnb" and silently drop it. That failure looks exactly like "no
+  // guest wrote in," so it could burn the entire shadow-mode window before
+  // anyone noticed. Accept body-level evidence too: the *@reply.airbnb.com
+  // relay address, or the original airbnb.com From line that forwards quote
+  // inline. False positives are cheap (private catch-all address, drafts are
+  // review-only); false negatives are invisible.
+  const isAirbnbNotification =
+    /airbnb\.com/i.test(fromLine) ||
+    /reply\.airbnb\.com/i.test(replyToHeader) ||
+    replyTo !== null ||
+    /airbnb\.com/i.test(rawBody);
 
   const reservationCode =
     subject.match(RESERVATION_CODE_RE)?.[0] ??
