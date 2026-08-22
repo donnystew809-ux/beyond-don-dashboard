@@ -21,10 +21,15 @@ export const config = {
     //  - The Mailgun inbound webhook (POSTed by Mailgun, authed by HMAC
     //    signature inside the route — must NOT be redirected to /login, or
     //    the guest-message pipeline never receives anything).
+    //  - The unauthenticated auth endpoints (api/auth/pin/login,
+    //    api/auth/passkey/authenticate). These ARE the sign-in: the caller has
+    //    no session yet by definition, so the proxy would 307 them to /login
+    //    and signing in would be impossible. They gate themselves — PIN hash
+    //    plus rate limiting, or a WebAuthn signature.
     //  - Any static asset by extension (png, jpg, svg, ico, webp, gif, etc.)
     //    Without the file-extension exclusion, /brand/logo.png gets 307'd to
     //    /login when the user isn't authenticated, so the login page itself
     //    can't render its own brand mark.
-    "/((?!_next/static|_next/image|api/sync|api/cron|api/messages/intake|api/contracts/webhook|.*\\.(?:png|jpg|jpeg|svg|ico|webp|gif|avif)$).*)",
+    "/((?!_next/static|_next/image|api/sync|api/cron|api/messages/intake|api/contracts/webhook|api/auth/pin/login|api/auth/passkey/authenticate|.*\\.(?:png|jpg|jpeg|svg|ico|webp|gif|avif)$).*)",
   ],
 };
