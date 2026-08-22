@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShieldCheck, Fingerprint, Trash2, KeyRound } from "lucide-react";
+import { ShieldCheck, Fingerprint, Trash2, KeyRound, AlertTriangle } from "lucide-react";
 
 import { GlassCard } from "@/components/glass-card";
 import { confirmSheet } from "@/components/confirm-sheet";
@@ -9,13 +9,14 @@ import {
   loadDevice,
   saveDevice,
   updateDevice,
-  forgetDevice,
   biometricsAvailable,
   type StoredDevice,
 } from "@/lib/auth/device-client";
 
 export function SecurityPanel({ email }: { email: string }) {
   const [device, setDevice] = useState<StoredDevice | null>(null);
+  const [hasPin, setHasPin] = useState(false);
+  const [pinLength, setPinLength] = useState<number | null>(null);
   const [ready, setReady] = useState(false);
   const [bioAvailable, setBioAvailable] = useState(false);
 
@@ -27,11 +28,19 @@ export function SecurityPanel({ email }: { email: string }) {
 
   useEffect(() => {
     setDevice(loadDevice());
-    setReady(true);
     void biometricsAvailable().then(setBioAvailable);
+    void fetch("/api/auth/pin/set")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (j) {
+          setHasPin(!!j.has_pin);
+          setPinLength(j.pin_length ?? null);
+        }
+      })
+      .finally(() => setReady(true));
   }, []);
 
-  async function enroll() {
+  async function savePin() {
     setError(null);
     setNotice(null);
     if (pin !== confirm) {
@@ -40,30 +49,67 @@ export function SecurityPanel({ email }: { email: string }) {
     }
     setBusy(true);
     try {
-      const res = await fetch("/api/auth/device/enroll", {
+      const res = await fetch("/api/auth/pin/set", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pin, label: deviceLabel() }),
+        body: JSON.stringify({ pin }),
       });
       const json = await res.json();
       if (!res.ok) {
         setError(json?.error ?? "Could not set the PIN.");
         return;
       }
-      const stored: StoredDevice = {
-        deviceId: json.device_id,
-        deviceSecret: json.device_secret,
-        label: deviceLabel(),
-      };
-      saveDevice(stored);
-      setDevice(stored);
+      setHasPin(true);
+      setPinLength(pin.length);
+
+      // Remember this browser so a sign-in from anywhere else can be spotted
+      // as new and trigger an alert email. Not a credential — best effort.
+      if (!loadDevice()) {
+        try {
+          const d = await fetch("/api/auth/device/enroll", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ pin, label: deviceLabel() }),
+          });
+          if (d.ok) {
+            const dj = await d.json();
+            const stored: StoredDevice = {
+              deviceId: dj.device_id,
+              deviceSecret: dj.device_secret,
+              label: deviceLabel(),
+            };
+            saveDevice(stored);
+            setDevice(stored);
+          }
+        } catch {
+          // Recognition is a nicety; the PIN already works.
+        }
+      }
+
       setPin("");
       setConfirm("");
-      setNotice(
-        "PIN set. Next time you open the dashboard on this device, just enter it.",
-      );
+      setNotice("PIN saved. Sign in with your email and PIN on any device.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "unknown error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removePin() {
+    const ok = await confirmSheet({
+      title: "Remove your PIN?",
+      body: "Sign-in will go back to emailing you a magic link every time.",
+      confirmLabel: "Remove",
+      tone: "danger",
+    });
+    if (!ok) return;
+    setBusy(true);
+    try {
+      await fetch("/api/auth/pin/set", { method: "DELETE" });
+      setHasPin(false);
+      setPinLength(null);
+      setNotice("PIN removed.");
     } finally {
       setBusy(false);
     }
@@ -86,8 +132,9 @@ export function SecurityPanel({ email }: { email: string }) {
         setError(j?.error ?? "Could not start setup.");
         return;
       }
-      const options = await optRes.json();
-      const attestation = await startRegistration({ optionsJSON: options });
+      const attestation = await startRegistration({
+        optionsJSON: await optRes.json(),
+      });
       const verRes = await fetch("/api/auth/passkey/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -106,25 +153,11 @@ export function SecurityPanel({ email }: { email: string }) {
       setDevice({ ...device, hasPasskey: true });
       setNotice("Face ID / fingerprint is on for this device.");
     } catch (err) {
-      // A dismissed system prompt is not an error worth shouting about.
       const msg = err instanceof Error ? err.message : "";
       if (msg && !/abort|NotAllowed/i.test(msg)) setError(msg);
     } finally {
       setBusy(false);
     }
-  }
-
-  async function removeDevice() {
-    const ok = await confirmSheet({
-      title: "Forget this device?",
-      body: "You'll need a magic link to sign in here again, and the PIN will stop working on this device.",
-      confirmLabel: "Forget",
-      tone: "danger",
-    });
-    if (!ok) return;
-    forgetDevice();
-    setDevice(null);
-    setNotice("This device no longer has a PIN.");
   }
 
   if (!ready) return <div className="h-40" aria-hidden />;
@@ -136,41 +169,53 @@ export function SecurityPanel({ email }: { email: string }) {
           <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-gold-400" />
           <div className="min-w-0">
             <h2 className="text-sm font-semibold text-cream-50">
-              {device ? "PIN is set on this device" : "Set a PIN for this device"}
+              {hasPin ? "PIN is set" : "Set a sign-in PIN"}
             </h2>
             <p className="mt-1 text-xs leading-relaxed text-cream-200/65">
-              Signed in as {email}. The PIN only works on this device — it is
-              paired with a key stored in this browser, so on its own it cannot
-              sign anyone in anywhere else. Five wrong tries locks it for 15
-              minutes.
+              Signed in as {email}. Sign in anywhere with just your email and
+              this PIN — no email link to wait for. Five wrong tries locks the
+              account for 15 minutes, and any sign-in from a device we don&apos;t
+              recognise emails you an alert.
             </p>
           </div>
         </div>
 
-        {!device ? (
+        {hasPin ? (
+          <div className="mt-5 space-y-4">
+            <p className="text-xs text-cream-200/55">
+              Current PIN is {pinLength ?? 4} digits. Setting a new one replaces it
+              everywhere.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <PinInput value={pin} onChange={setPin} placeholder="New PIN" />
+              <PinInput value={confirm} onChange={setConfirm} placeholder="Confirm new PIN" />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={savePin}
+                disabled={busy || pin.length < 4 || confirm.length < 4}
+                className="inline-flex items-center gap-1.5 rounded-md bg-gold-gradient px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-navy-950 transition hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
+              >
+                <KeyRound className="h-3.5 w-3.5" />
+                {busy ? "Saving…" : "Change PIN"}
+              </button>
+              <button
+                onClick={removePin}
+                disabled={busy}
+                className="inline-flex items-center gap-1.5 rounded-md border border-navy-700/60 px-3.5 py-2 text-xs font-semibold uppercase tracking-wider text-cream-100 transition hover:bg-navy-800/60 active:scale-[0.98] disabled:opacity-50"
+              >
+                <Trash2 className="h-3.5 w-3.5" /> Remove PIN
+              </button>
+            </div>
+          </div>
+        ) : (
           <div className="mt-5 space-y-3">
             <div className="flex flex-wrap gap-3">
-              <input
-                inputMode="numeric"
-                autoComplete="new-password"
-                value={pin}
-                maxLength={6}
-                onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
-                placeholder="New PIN (4–6 digits)"
-                className="min-w-[10rem] flex-1 rounded-md border border-navy-700/60 bg-navy-950/40 px-3 py-2.5 text-sm tracking-[0.3em] text-cream-50 placeholder:tracking-normal placeholder:text-cream-200/35 focus:border-gold-500/50 focus:outline-none"
-              />
-              <input
-                inputMode="numeric"
-                autoComplete="new-password"
-                value={confirm}
-                maxLength={6}
-                onChange={(e) => setConfirm(e.target.value.replace(/\D/g, ""))}
-                placeholder="Confirm PIN"
-                className="min-w-[10rem] flex-1 rounded-md border border-navy-700/60 bg-navy-950/40 px-3 py-2.5 text-sm tracking-[0.3em] text-cream-50 placeholder:tracking-normal placeholder:text-cream-200/35 focus:border-gold-500/50 focus:outline-none"
-              />
+              <PinInput value={pin} onChange={setPin} placeholder="New PIN (4–6 digits)" />
+              <PinInput value={confirm} onChange={setConfirm} placeholder="Confirm PIN" />
             </div>
             <button
-              onClick={enroll}
+              onClick={savePin}
               disabled={busy || pin.length < 4 || confirm.length < 4}
               className="inline-flex items-center gap-1.5 rounded-md bg-gold-gradient px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-navy-950 transition hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
             >
@@ -178,13 +223,17 @@ export function SecurityPanel({ email }: { email: string }) {
               {busy ? "Saving…" : "Set PIN"}
             </button>
           </div>
-        ) : (
-          <button
-            onClick={removeDevice}
-            className="mt-5 inline-flex items-center gap-1.5 rounded-md border border-navy-700/60 px-3.5 py-2 text-xs font-semibold uppercase tracking-wider text-cream-100 transition hover:bg-navy-800/60 active:scale-[0.98]"
-          >
-            <Trash2 className="h-3.5 w-3.5" /> Forget this device
-          </button>
+        )}
+
+        {pin.length > 0 && pin.length < 6 && (
+          <p className="mt-4 flex items-start gap-2 rounded-md border border-gold-500/25 bg-gold-500/5 px-3 py-2.5 text-[11px] leading-relaxed text-gold-200/90">
+            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <span>
+              A 4-digit PIN has 10,000 combinations; 6 digits has a million. Since
+              the PIN works from any device, those extra two digits are the
+              difference between weeks and centuries of guessing.
+            </span>
+          </p>
         )}
       </GlassCard>
 
@@ -197,11 +246,11 @@ export function SecurityPanel({ email }: { email: string }) {
             </h2>
             <p className="mt-1 text-xs leading-relaxed text-cream-200/65">
               {device?.hasPasskey
-                ? "On for this device — tap the fingerprint icon on the PIN screen to skip typing."
+                ? "On for this device — the sign-in screen offers it instead of typing."
                 : !device
                   ? "Set a PIN first, then you can turn this on."
                   : bioAvailable
-                    ? "Skip the PIN entirely and unlock with your device's biometrics."
+                    ? "Skip typing on this device and unlock with your device's biometrics. Your PIN still works everywhere else."
                     : "This device doesn't offer built-in biometrics, so the PIN is the fastest option here."}
             </p>
           </div>
@@ -230,7 +279,30 @@ export function SecurityPanel({ email }: { email: string }) {
   );
 }
 
-/** Best-effort friendly device name so the unlock screen can say which one. */
+function PinInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+}) {
+  return (
+    <input
+      inputMode="numeric"
+      type="password"
+      autoComplete="new-password"
+      value={value}
+      maxLength={6}
+      onChange={(e) => onChange(e.target.value.replace(/\D/g, ""))}
+      placeholder={placeholder}
+      className="min-w-[10rem] flex-1 rounded-md border border-navy-700/60 bg-navy-950/40 px-3 py-2.5 text-sm tracking-[0.3em] text-cream-50 placeholder:tracking-normal placeholder:text-cream-200/35 focus:border-gold-500/50 focus:outline-none"
+    />
+  );
+}
+
+/** Best-effort friendly device name for the alert email. */
 function deviceLabel(): string {
   if (typeof navigator === "undefined") return "this device";
   const ua = navigator.userAgent;
