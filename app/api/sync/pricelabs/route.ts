@@ -21,7 +21,7 @@ async function handle(req: NextRequest) {
   try {
     const { data: properties } = await supabase
       .from("properties")
-      .select("id, pricelabs_listing_id, airbnb_listing_id")
+      .select("id, pricelabs_listing_id, airbnb_listing_id, ical_url")
       .not("pricelabs_listing_id", "is", null);
 
     if (!properties || properties.length === 0) {
@@ -70,7 +70,20 @@ async function handle(req: NextRequest) {
       // PriceLabs returns one row per day; we collapse consecutive booked days
       // into a single reservation. "checkin" marks the first night.
       const blocks = collapseReservations(days);
+
+      // Occupancy source of truth: when a property has an Airbnb iCal feed,
+      // that feed is the ONLY source we trust for reservations. PriceLabs
+      // reports per-day booked/free and cannot distinguish a real guest
+      // booking from a host calendar block — everything unavailable reads as
+      // "booked". The iCal feed CAN tell them apart ("Reserved" + confirmation
+      // code vs "Airbnb (Not available)"). Deriving reservations from both
+      // double-counted every stay and turned host blocks into phantom guests.
+      // Properties with no iCal connected still fall back to PriceLabs so they
+      // are not left with an empty calendar.
+      if (property.ical_url) continue;
+
       if (blocks.length > 0) {
+
         const reservations = blocks.map((b) => ({
           property_id: property.id,
           source: "airbnb" as const,

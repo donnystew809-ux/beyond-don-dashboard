@@ -35,7 +35,15 @@ async function handle(req: NextRequest) {
     for (const property of properties) {
       if (!property.ical_url) continue;
       try {
-        const events = await fetchAirbnbIcal(property.ical_url);
+        const allEvents = await fetchAirbnbIcal(property.ical_url);
+        // Airbnb feeds mix real reservations ("Reserved", carries a
+        // confirmation code) with owner/host calendar blocks ("Airbnb (Not
+        // available)"). Blocks are NOT bookings — storing them here made one
+        // listing look like it had six concurrent guests and inflated every
+        // occupancy and booking count in the app. The reservations table is
+        // read from ~18 places, so filter at write time rather than hoping
+        // each caller remembers to exclude them.
+        const events = allEvents.filter((e) => e.status !== "blocked");
         if (events.length === 0) continue;
 
         const rows = events.map((e) => ({
