@@ -83,7 +83,7 @@ export default async function InviteAcceptPage({
               later by an admin.
             </p>
             <div className="mt-6">
-              <AcceptButton token={token} />
+              <AcceptButton token={token} email={invite.email} />
             </div>
           </>
         )}

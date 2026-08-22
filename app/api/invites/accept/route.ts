@@ -10,10 +10,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { hashPin, validatePin } from "@/lib/auth/device";
 
 export const runtime = "nodejs";
 
-const Body = z.object({ token: z.string().min(10) });
+const Body = z.object({
+  token: z.string().min(10),
+  // Onboarding captures contact details and the PIN in the same step, so an
+  // invitee is never left with an account they cannot sign back into.
+  phone: z.string().trim().min(7).max(30),
+  pin: z.string(),
+});
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -28,6 +35,9 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "bad request" }, { status: 400 });
   }
+
+  const pinProblem = validatePin(body.pin);
+  if (pinProblem) return NextResponse.json({ error: pinProblem }, { status: 400 });
 
   const service = createServiceClient() as any;
   const { data: invite } = await service
@@ -63,6 +73,27 @@ export async function POST(req: NextRequest) {
       .from("user_roles")
       .upsert({ user_id: user.id, role: invite.role }, { onConflict: "user_id" });
   }
+
+  // Contact record + sign-in PIN. Written before the invite is consumed so a
+  // failure here cannot strand someone with a used invite and no way in.
+  await service.from("user_profiles").upsert(
+    { user_id: user.id, phone: body.phone, updated_at: new Date().toISOString() },
+    { onConflict: "user_id" },
+  );
+
+  const { hash, salt } = await hashPin(body.pin);
+  await service.from("user_pins").upsert(
+    {
+      user_id: user.id,
+      pin_hash: hash,
+      pin_salt: salt,
+      pin_length: body.pin.length,
+      failed_attempts: 0,
+      locked_until: null,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" },
+  );
 
   // Per-property access grants.
   const propertyIds: string[] = invite.property_ids ?? [];

@@ -32,11 +32,19 @@ export default function LoginPage() {
       email,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
+        // Access is invite-only. Supabase creates a user by default here,
+        // which would let anyone mint an account just by typing an address.
+        shouldCreateUser: false,
       },
     });
 
-    if (signInError) setError(signInError.message);
-    else setMessage("Check your email for the magic link.");
+    // Deliberately uniform: an unknown address gets the same confirmation as a
+    // real one, so this form cannot be used to discover who has an account.
+    if (signInError && !/signup|not found|disabled/i.test(signInError.message)) {
+      setError(signInError.message);
+    } else {
+      setMessage("If that email has access, a sign-in link is on its way.");
+    }
     setSubmitting(false);
   }
 

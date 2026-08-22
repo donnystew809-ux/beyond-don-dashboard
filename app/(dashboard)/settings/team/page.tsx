@@ -22,14 +22,35 @@ export default async function TeamPage() {
   if (roleRow?.role !== "admin") redirect(homeForRole(roleRow?.role ?? null));
 
   const service = createServiceClient() as any;
-  const [{ data: properties }, { data: invites }] = await Promise.all([
-    service.from("properties").select("id, name").eq("status", "active").order("name"),
-    service
-      .from("invites")
-      .select("id, email, role, property_ids, access_level, status, expires_at, accepted_at, created_at")
-      .order("created_at", { ascending: false })
-      .limit(100),
-  ]);
+  const [{ data: properties }, { data: invites }, { data: profiles }, { data: authUsers }] =
+    await Promise.all([
+      service.from("properties").select("id, name").eq("status", "active").order("name"),
+      service
+        .from("invites")
+        .select("id, email, role, property_ids, access_level, status, expires_at, accepted_at, created_at")
+        .order("created_at", { ascending: false })
+        .limit(100),
+      service.from("user_profiles").select("user_id, phone"),
+      service.auth.admin.listUsers({ page: 1, perPage: 200 }),
+    ]);
+
+  // Phone lives against the user id; invites are keyed by email. Join them here
+  // so the admin sees a contact number next to each accepted invite.
+  const phoneByUserId = new Map(
+    ((profiles ?? []) as Array<{ user_id: string; phone: string | null }>).map((p) => [
+      p.user_id,
+      p.phone,
+    ]),
+  );
+  const phoneByEmail = new Map<string, string>();
+  for (const u of (authUsers?.users ?? []) as Array<{ id: string; email?: string }>) {
+    const phone = u.email ? phoneByUserId.get(u.id) : null;
+    if (u.email && phone) phoneByEmail.set(u.email.toLowerCase(), phone);
+  }
+  const invitesWithPhone = ((invites ?? []) as InviteRow[]).map((i) => ({
+    ...i,
+    phone: phoneByEmail.get(String(i.email).toLowerCase()) ?? null,
+  }));
 
   return (
     <div className="max-w-2xl">
@@ -39,7 +60,7 @@ export default async function TeamPage() {
       />
       <InviteManager
         properties={(properties ?? []) as Array<{ id: string; name: string }>}
-        initialInvites={(invites ?? []) as InviteRow[]}
+        initialInvites={invitesWithPhone}
       />
     </div>
   );
@@ -48,6 +69,8 @@ export default async function TeamPage() {
 export type InviteRow = {
   id: string;
   email: string;
+  /** Joined from user_profiles once the invite is accepted. */
+  phone?: string | null;
   role: string;
   property_ids: string[];
   access_level: string;

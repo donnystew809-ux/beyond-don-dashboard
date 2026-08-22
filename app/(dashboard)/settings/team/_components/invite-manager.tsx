@@ -190,6 +190,14 @@ export function InviteManager({
               <GlassCard key={inv.id} className="flex items-center justify-between gap-3 p-3">
                 <div className="min-w-0">
                   <div className="truncate text-sm font-medium text-cream-50">{inv.email}</div>
+                  {inv.phone && (
+                    <a
+                      href={`tel:${inv.phone.replace(/[^d+]/g, "")}`}
+                      className="mt-0.5 block truncate text-xs text-cream-200/55 transition hover:text-gold-300"
+                    >
+                      {inv.phone}
+                    </a>
+                  )}
                   <div className="text-xs text-cream-200/60">
                     {inv.role} · {inv.property_ids.length} propert
                     {inv.property_ids.length === 1 ? "y" : "ies"}
