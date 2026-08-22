@@ -80,7 +80,7 @@ export function parseAirbnbNotification(
   // relay address, or the original airbnb.com From line that forwards quote
   // inline. False positives are cheap (private catch-all address, drafts are
   // review-only); false negatives are invisible.
-  const isAirbnbNotification =
+  const fromAirbnb =
     /airbnb\.com/i.test(fromLine) ||
     /reply\.airbnb\.com/i.test(replyToHeader) ||
     replyTo !== null ||
@@ -99,6 +99,17 @@ export function parseAirbnbNotification(
       break;
     }
   }
+
+  // Airbnb sends far more than guest messages to the same address: payout
+  // notices, review requests, marketing. The inbox rule that feeds us matches
+  // "airbnb.com anywhere in subject or body," so all of that arrives here too.
+  // Treating it all as a guest message would spawn junk threads and drafts, so
+  // require positive evidence that a human actually wrote something: either the
+  // *@reply.airbnb.com relay address (only present on real message threads) or
+  // a subject in the "New message from <Name>" family. Payout and review mail
+  // has neither and is skipped.
+  const looksLikeGuestMessage = replyTo !== null || guestFirstName !== null;
+  const isAirbnbNotification = fromAirbnb && looksLikeGuestMessage;
 
   return {
     guestFirstName,
