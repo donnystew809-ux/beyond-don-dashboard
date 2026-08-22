@@ -130,6 +130,14 @@ export async function POST(request: Request) {
       .update({
         last_message_at: sentAt,
         last_message_preview: parsed.body.slice(0, 200),
+        // Keep the relay address. Without persisting it, every outbound
+        // message is strictly reactive — we could only ever reply in the same
+        // request that received one. Stored, it lets the dashboard reach this
+        // guest later (mid-stay check-in, maintenance notice) through the
+        // conversation Airbnb already opened.
+        ...(parsed.replyTo
+          ? { reply_relay: parsed.replyTo, reply_relay_seen_at: sentAt }
+          : {}),
       })
       .eq("id", threadId);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, Sparkles, ExternalLink } from "lucide-react";
+import { Copy, Check, Sparkles, ExternalLink, Send } from "lucide-react";
 
 import { GlassCard } from "@/components/glass-card";
 import type { StayStage } from "@/lib/messaging/checkin";
@@ -40,6 +40,36 @@ function StayCard({ stay }: { stay: CurrentStay }) {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [relayHint, setRelayHint] = useState<string | null>(null);
+
+  async function send() {
+    if (!draft) return;
+    setSending(true);
+    setError(null);
+    setRelayHint(null);
+    try {
+      const res = await fetch("/api/messages/checkin/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reservation_id: stay.id, message: draft }),
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok) {
+        // A missing relay is a normal state, not a failure — explain it
+        // instead of showing a red error.
+        if (json?.error === "no_relay") setRelayHint(json.message);
+        else setError(json?.error ?? "Could not send.");
+        return;
+      }
+      setSent(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not send.");
+    } finally {
+      setSending(false);
+    }
+  }
 
   async function generate() {
     setLoading(true);
@@ -126,6 +156,21 @@ function StayCard({ stay }: { stay: CurrentStay }) {
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <button
+              onClick={send}
+              disabled={sending || sent}
+              className="inline-flex items-center gap-1.5 rounded-md bg-gold-gradient px-3.5 py-2 text-xs font-semibold uppercase tracking-wider text-navy-950 transition hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
+            >
+              {sent ? (
+                <>
+                  <Check className="h-3.5 w-3.5" /> Sent
+                </>
+              ) : (
+                <>
+                  <Send className="h-3.5 w-3.5" /> {sending ? "Sending…" : "Send to guest"}
+                </>
+              )}
+            </button>
+            <button
               onClick={copy}
               className="inline-flex items-center gap-1.5 rounded-md border border-navy-700/60 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-cream-100 transition hover:bg-navy-800/60 active:scale-[0.98]"
             >
@@ -150,11 +195,23 @@ function StayCard({ stay }: { stay: CurrentStay }) {
               </a>
             )}
           </div>
-          <p className="mt-3 text-[11px] text-cream-200/45">
-            Copy this into the Airbnb thread. Airbnb only accepts replies through
-            a per-conversation address that exists once a guest messages you, so
-            first contact has to go out from Airbnb itself.
-          </p>
+          {relayHint && (
+            <p className="mt-3 rounded-md border border-gold-500/25 bg-gold-500/5 px-3 py-2.5 text-[11px] leading-relaxed text-gold-200/90">
+              {relayHint}
+            </p>
+          )}
+          {sent && (
+            <p className="mt-3 text-[11px] text-emerald-300/90">
+              Delivered through Airbnb&apos;s reply relay — it appears in the
+              guest&apos;s Airbnb inbox as a message from you.
+            </p>
+          )}
+          {!sent && !relayHint && (
+            <p className="mt-3 text-[11px] leading-relaxed text-cream-200/45">
+              Send goes through Airbnb&apos;s reply relay for this conversation.
+              Copy is there if you would rather paste it in yourself.
+            </p>
+          )}
         </div>
       )}
     </GlassCard>
