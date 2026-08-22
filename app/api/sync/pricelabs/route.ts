@@ -80,7 +80,39 @@ async function handle(req: NextRequest) {
       // double-counted every stay and turned host blocks into phantom guests.
       // Properties with no iCal connected still fall back to PriceLabs so they
       // are not left with an empty calendar.
-      if (property.ical_url) continue;
+      if (property.ical_url) {
+        // iCal owns the dates, but it carries no money — Airbnb strips revenue
+        // from calendar feeds. PriceLabs has a per-day ADR, so enrich the
+        // authoritative reservations with an estimate instead of inserting a
+        // parallel (duplicate) row just to hold revenue. Estimated, not actual
+        // payout: real figures come from the Airbnb export / CSV import.
+        const adrByDate = new Map(
+          days.filter((d) => d.adr != null).map((d) => [d.date, d.adr as number]),
+        );
+        if (adrByDate.size > 0) {
+          const { data: confirmed } = await supabase
+            .from("reservations")
+            .select("id, check_in, check_out, gross_revenue")
+            .eq("property_id", property.id)
+            .eq("status", "confirmed");
+          for (const r of (confirmed ?? []) as Array<{
+            id: string; check_in: string; check_out: string; gross_revenue: number | null;
+          }>) {
+            let total = 0;
+            for (const d = new Date(r.check_in); d < new Date(r.check_out); d.setDate(d.getDate() + 1)) {
+              total += adrByDate.get(d.toISOString().slice(0, 10)) ?? 0;
+            }
+            if (total > 0 && r.gross_revenue == null) {
+              await supabase
+                .from("reservations")
+                .update({ gross_revenue: Math.round(total * 100) / 100 })
+                .eq("id", r.id);
+              reservationRows += 1;
+            }
+          }
+        }
+        continue;
+      }
 
       if (blocks.length > 0) {
 
