@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, Sparkles, ExternalLink, Send } from "lucide-react";
+import { Copy, Check, Sparkles, ExternalLink, Send, FlaskConical } from "lucide-react";
 
 import { GlassCard } from "@/components/glass-card";
 import type { StayStage } from "@/lib/messaging/checkin";
@@ -44,7 +44,7 @@ function StayCard({ stay }: { stay: CurrentStay }) {
   const [sent, setSent] = useState(false);
   const [relayHint, setRelayHint] = useState<string | null>(null);
 
-  async function send() {
+  async function send(asTest = false) {
     if (!draft) return;
     setSending(true);
     setError(null);
@@ -53,7 +53,7 @@ function StayCard({ stay }: { stay: CurrentStay }) {
       const res = await fetch("/api/messages/checkin/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reservation_id: stay.id, message: draft }),
+        body: JSON.stringify({ reservation_id: stay.id, message: draft, ...(asTest ? { test: true } : {}) }),
       });
       const json = await res.json().catch(() => null);
       if (!res.ok) {
@@ -64,6 +64,7 @@ function StayCard({ stay }: { stay: CurrentStay }) {
         return;
       }
       setSent(true);
+      if (json?.test) setRelayHint("Sent to " + json.delivered_to + " — the dashboard send path works. Reaching the guest needs a reply address from Airbnb.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not send.");
     } finally {
@@ -156,7 +157,7 @@ function StayCard({ stay }: { stay: CurrentStay }) {
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <button
-              onClick={send}
+              onClick={() => send(false)}
               disabled={sending || sent}
               className="inline-flex items-center gap-1.5 rounded-md bg-gold-gradient px-3.5 py-2 text-xs font-semibold uppercase tracking-wider text-navy-950 transition hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
             >
@@ -169,6 +170,14 @@ function StayCard({ stay }: { stay: CurrentStay }) {
                   <Send className="h-3.5 w-3.5" /> {sending ? "Sending…" : "Send to guest"}
                 </>
               )}
+            </button>
+            <button
+              onClick={() => send(true)}
+              disabled={sending || sent}
+              title="Deliver this message to your own inbox to prove the send path works"
+              className="inline-flex items-center gap-1.5 rounded-md border border-navy-700/60 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-cream-100 transition hover:bg-navy-800/60 active:scale-[0.98] disabled:opacity-50"
+            >
+              <FlaskConical className="h-3.5 w-3.5" /> Send test to me
             </button>
             <button
               onClick={copy}

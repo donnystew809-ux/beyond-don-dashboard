@@ -21,7 +21,16 @@ export const maxDuration = 60;
 const Body = z.object({
   reservation_id: z.string().uuid(),
   message: z.string().trim().min(1).max(4000),
+  /** Deliver to the operator instead of the guest, to prove the pipeline.
+   *  The recipient is forced server-side to the signed-in user's own address —
+   *  never a free-form "to" — so this cannot become a way to mail arbitrary
+   *  people from the dashboard. */
+  test: z.boolean().optional(),
 });
+
+const TEST_FOOTER =
+  "\n\n---\nSend test from the Guest Check-ins page. The same call delivers to " +
+  "the guest once Airbnb supplies a reply address for the conversation.";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -38,6 +47,29 @@ export async function POST(req: NextRequest) {
   }
 
   const db = createServiceClient() as any;
+
+  // Pipeline test: exercises Mailgun and the send path exactly as a real send
+  // would, but delivers to the operator. Airbnb gives this account no reply
+  // relay, so the final guest leg is unavailable — everything upstream of it
+  // is still worth proving, and had never actually been run.
+  if (body.test) {
+    if (!user.email) {
+      return NextResponse.json({ error: "no email on your account" }, { status: 400 });
+    }
+    try {
+      await sendMailgunEmail({
+        to: user.email,
+        subject: "[Send test] Message from your BEYOND DON dashboard",
+        text: body.message + TEST_FOOTER,
+      });
+    } catch (err) {
+      return NextResponse.json(
+        { error: err instanceof Error ? err.message : "send failed" },
+        { status: 502 },
+      );
+    }
+    return NextResponse.json({ ok: true, test: true, delivered_to: user.email });
+  }
 
   const { data: resv } = await db
     .from("reservations")
